@@ -35,7 +35,7 @@ library(ggpubr)
 ```
 
 ```{r, include=FALSE}
-#Import and clean data 
+#Import data
 
 #PC import
 
@@ -43,7 +43,7 @@ library(ggpubr)
 
 #Mac import
 
-raw_dta <- read_csv("meb_02102020.csv", col_names = FALSE)
+raw_dta <- read_csv("meb2data_16nov.csv", col_names = FALSE)
 ```
 
 
