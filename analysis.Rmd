@@ -1,18 +1,69 @@
-#R Code Maybe
+---
+title: "Analysis of MEB COVID Survey 2"
+author: "MEB Team"
+date: "16 Nov 2021"
+output: pdf_document
+---
 
-#rahul is writing something here 
+\Large Note: Will explain later
 
-#ok some more comments
-#SK tests 
-#test2
-
-#post collaborator comments to test 
+\newpage
+\tableofcontents 
 
 
-#rahul is assigned lines 10 11 12
-#here's more text
-#and here is some more
-#alright this should work or else I am gonna dieeee
-#aditya line 15
-#OMGHELLO
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(cowplot)
+library(tidyverse)
+library(ggplot2)
+library(MASS)
+library(ggrepel)
+library(RColorBrewer)
+library(stargazer)
+library(DeclareDesign)
+library(texreg)
+library(car)
+library(lubridate)
+library(scales)
+library(cowplot)
+library(writexl)
+library(janitor)
+library(gridExtra)
+library(grid)
+library(ggpubr)
+```
+
+```{r, include=FALSE}
+#Import and clean data 
+
+#PC import
+
+#raw_dta <- read_csv("C:/Users/Aditya/Google Drive (aditya.unnikrishnan@cprindia.org)/State Capacity/Moral Economy Survey/COVID Short Survey/data_analysis_results/01_raw_data/meb_02102020.csv", col_names = FALSE)
+
+#Mac import
+
+raw_dta <- read_csv("meb_02102020.csv", col_names = FALSE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
