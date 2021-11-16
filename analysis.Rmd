@@ -7,3 +7,10 @@
 #test2
 
 #post collaborator comments to test 
+<<<<<<< HEAD
+=======
+
+#rahul is assigned lines 10 11 12
+#here's more text
+#and here is some more
+>>>>>>> f883d2415160faa95de437177c061562701a81af
