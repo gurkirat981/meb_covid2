@@ -86,6 +86,13 @@ processed_dta %>%
 #Column X136 has 69 NAs, all others have zero. 
 ```
 
+```{r}
+#Separating the states in answers for Merged1 and Merged2
+
+processed_dta<-processed_dta %>% 
+ separate(Merged1, c('Merged1.1', 'Merged1.2'), sep = "([_])") %>% 
+ separate(Merged2, c('Merged2.1', 'Merged2.2'), sep = "([_])") 
+```
 
 
 
