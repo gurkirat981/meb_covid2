@@ -43,10 +43,48 @@ library(ggpubr)
 
 #Mac import
 
-raw_dta <- read_csv("meb2data_16nov.csv", col_names = FALSE)
+raw_dta <- read_csv("meb2data_23nov.csv.csv", col_names = FALSE)
 ```
 
+```{r}
+#Clean up: deleting extra columns, merging the state related questions, deleting the old state columns, removing all incomplete answers, adding two filters to ensure only responses by currently serving IAS officers
+processed_dta<-raw_dta[-c(1,2),-c(2, 5:9,15,140,141)]%>%
+unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>%
+  unite('Merged2', X56:X92, remove = FALSE, na.rm=TRUE) %>%
+  unite('Merged3',X93:X129, remove=FALSE, na.rm=TRUE)%>% 
+  subset(select=-(X19:X55))%>%
+  subset(select=-(X56:X92))%>%
+  subset(select=-(X93:X129))%>%
+  #na.omit %>%
+  filter(!is.na(X139))%>%
+  filter(X10=="Yes")
 
+```
+
+```{r}
+#Checking for batch outliers
+hist(as.numeric(raw_dta$X11), col="#ccf5ff", border=F, xlab="Year of Joining", ylab = "Frequency", main= "Distribution of IAS Batches")
+
+#None
+```
+
+```{r}
+#Checking for respondents who sped through the survey (min time = 3 minutes)
+processed_dta$time_spent<-mdy_hms(processed_dta$X4, tz="Asia/Kolkata")- mdy_hms(processed_dta$X3, tz="Asia/Kolkata")
+processed_dta<-processed_dta %>%
+  mutate(speeders=ifelse(time_spent<3, 1, 0)) 
+
+#Decided not to exclude anyone on this basis
+```
+
+```{r}
+#Checking the number of NA responses for each question in the processed data
+processed_dta %>% 
+  dplyr::select(everything()) %>% 
+  summarise_all(funs(sum(is.na(.))))
+
+#Column X136 has 69 NAs, all others have zero. 
+```
 
 
 
