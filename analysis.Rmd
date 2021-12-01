@@ -46,7 +46,7 @@ library(ggpubr)
 raw_dta <- read_csv("meb2data_23nov.csv.csv", col_names = FALSE)
 ```
 
-```{r}
+```{r, include=FALSE}
 #Clean up: deleting extra columns, merging the state related questions, deleting the old state columns, removing all incomplete answers, adding two filters to ensure only responses by currently serving IAS officers
 processed_dta<-raw_dta[-c(1,2),-c(2, 5:9,15,140,141)]%>%
 unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>%
@@ -61,14 +61,14 @@ unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>%
 
 ```
 
-```{r}
+```{r, include=FALSE}
 #Checking for batch outliers
 hist(as.numeric(raw_dta$X11), col="#ccf5ff", border=F, xlab="Year of Joining", ylab = "Frequency", main= "Distribution of IAS Batches")
 
 #None
 ```
 
-```{r}
+```{r, include=FALSE}
 #Checking for respondents who sped through the survey (min time = 3 minutes)
 processed_dta$time_spent<-mdy_hms(processed_dta$X4, tz="Asia/Kolkata")- mdy_hms(processed_dta$X3, tz="Asia/Kolkata")
 processed_dta<-processed_dta %>%
@@ -77,7 +77,7 @@ processed_dta<-processed_dta %>%
 #Decided not to exclude anyone on this basis
 ```
 
-```{r}
+```{r, include=FALSE}
 #Checking the number of NA responses for each question in the processed data
 processed_dta %>% 
   dplyr::select(everything()) %>% 
@@ -86,7 +86,7 @@ processed_dta %>%
 #Column X136 has 69 NAs, all others have zero. 
 ```
 
-```{r}
+```{r, include=FALSE}
 #Separating the states in answers for Merged1 and Merged2
 
 processed_dta<-processed_dta %>% 
@@ -94,7 +94,75 @@ processed_dta<-processed_dta %>%
  separate(Merged2, c('Merged2.1', 'Merged2.2'), sep = "([_])") 
 ```
 
+```{r, include=FALSE}
+#Define new theme 
+newtheme <- theme_bw() +
+  theme(panel.border = element_rect(color = "darkgrey", size = 2), 
+        panel.grid.major = element_blank()
+        )
+```
 
+```{r, include=FALSE}
+set.seed(24102020)
+
+#Creating datasets (1) Currently serving officers allocated to states (2) Currently serving officers by SDG index (3) All respondents by age (former, young and old)
+
+#(1)
+#Dataset with only currently serving officers
+full_serving <- processed_dta %>% 
+  filter(X13=="Yes, currently serving")
+
+#Dataset of currently serving officers allocated to separate states
+table(full_serving$X12)
+#Need to check and add the exact distribution of officers in the states and UT for combined cadres
+#Question for Aditya: how did the sample function work last time? 
+full_allocated <- full_serving %>% 
+  mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(10, 4), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
+                        ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(10,5, 4, 3, 2, 1, 1, 1, 1), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
+ 
+
+#(2) 
+#Dataset with SDG allocations 
+full_sdg<-full_allocated %>% 
+  mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
+                      ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer")))
+
+#Dataset of aspirant states 
+fullsdg_aspirant <- full_sdg %>% 
+  filter(sdg == "Aspirant") #46 states
+
+#Dataset of performer states
+fullsdg_performer <- full_sdg %>% 
+  filter(sdg == "Performer") #313
+
+#Dataset of frontrunner states
+fullsdg_frunner <- full_sdg %>% 
+  filter(sdg == "Frontrunner") #65
+
+#(3) 
+#Dataset of former IAS officers
+#creating a dataset of former officers and adding a column to indicate the same (this is needed to merge with serving officers) 
+fullage_former <- processed_dta %>% 
+  filter(X13== "No, I am a former IAS officer") %>% 
+  mutate(age = "Former") #92
+
+#Dataset of all respondents with a column that denotes age ("former", young or old)
+full_age <- full_serving %>% 
+  mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before")) %>% 
+  add_row(full_former)
+
+#Dataset of young officers
+fullage_young <- full_age %>% 
+  filter(age == "2012 and after") #231
+
+#Dataset with old officers
+fullage_old <- full_age %>% 
+  filter(age == "2011 and before") #193
+```
+
+```{r}
+
+```
 
 
 
