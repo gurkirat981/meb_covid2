@@ -113,13 +113,15 @@ full_serving <- processed_dta %>%
   filter(X13=="Yes, currently serving")
 
 #Dataset of currently serving officers allocated to separate states
-table(full_serving$X12)
+table(full_serving$X12) #Rahul says: you may remove this line of code. Use table in the console to check stuff but don't include it here because it produced a lot of output you don't need always. 
+
 #Need to check and add the exact distribution of officers in the states and UT for combined cadres
 #Question for Aditya: how did the sample function work last time? 
 full_allocated <- full_serving %>% 
   mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(10, 4), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
                         ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(10,5, 4, 3, 2, 1, 1, 1, 1), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
  
+#Rahul says: you need to change the prob numbers above to probabilities and not whole numbers. So 0.35, etc. 
 
 #(2) 
 #Dataset with SDG allocations 
@@ -129,15 +131,15 @@ full_sdg<-full_allocated %>%
 
 #Dataset of aspirant states 
 fullsdg_aspirant <- full_sdg %>% 
-  filter(sdg == "Aspirant") #46 states
+  filter(sdg == "Aspirant") #46 observations 
 
 #Dataset of performer states
 fullsdg_performer <- full_sdg %>% 
-  filter(sdg == "Performer") #313
+  filter(sdg == "Performer") #313 observations
 
 #Dataset of frontrunner states
 fullsdg_frunner <- full_sdg %>% 
-  filter(sdg == "Frontrunner") #65
+  filter(sdg == "Frontrunner") #65 observations 
 
 #(3) 
 #Dataset of former IAS officers
