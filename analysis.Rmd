@@ -211,6 +211,7 @@ full_serving<-full_serving %>%
 ##Gurkirat##
 #Labeling Variables, X133 (Question 16), X134 (Question 17), X135 (Question 18), X137 (Question 20), X138 (Question 21), X139 (Question 22), X136 (Question 19, binary answers)
 
+<<<<<<< HEAD
 #Rahul says: minor thing, but be precise in your coding notes. These are not "labels". You are converting character strings into numerics. Just say that instead of calling them labels. Labels are often additional meta-data you add to an existing piece of information. 
 
 #Criteria for attaching labels: Have created additional columns with labeled values (feel free to delete the corresponding non-labeled columns if they are not needed anymore)
@@ -218,6 +219,9 @@ full_serving<-full_serving %>%
 #Rahul says: not sure I understand your comment above about creating additional columns. From the code below it seems to me that you have mutated the original column itself right? Second, your coding format below is good, but always indent any new ifelse statement like I've done below. You simply need to hit enter to do that. 
 
 full_allocated <- full_allocated %>% 
+=======
+full_serving <- full_serving %>% 
+>>>>>>> d1107069570997da6d443169cd048ece984715b8
 #Question 16
 mutate (X133= ifelse (X133 == "During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.", 1, 
                       ifelse(X133 == "Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.", 2, 3))) %>%
@@ -247,7 +251,7 @@ mutate (X139 = ifelse (X139 == "By focussing on failures in pandemic management,
                        ifelse(X133 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3))) %>% 
 
 #Question 19 (not certain)
-mutate (X136 = ifelse (X136 == "The government must acknowledge its failure.", 0, 1))
+mutate (X136 = ifelse (X136 == "The government must acknowledge its failure.", 1, 2))
 
 ##Gurkirat##
 ```
