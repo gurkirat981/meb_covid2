@@ -47,6 +47,7 @@ raw_dta <- read_csv("meb2data_23nov.csv.csv", col_names = FALSE)
 ```
 
 ```{r, include=FALSE}
+##Shubhangi##
 #Clean up: deleting extra columns, merging the state related questions, deleting the old state columns, removing all incomplete answers, adding two filters to ensure only responses by currently serving IAS officers
 processed_dta<-raw_dta[-c(1,2),-c(2, 5:9,15,140,141)]%>%
 unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>%
@@ -58,40 +59,48 @@ unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>%
   #na.omit %>%
   filter(!is.na(X139))%>%
   filter(X10=="Yes")
-
+##Shubhangi##
 ```
 
 ```{r, include=FALSE}
+##Shubhangi##
 #Checking for batch outliers
 hist(as.numeric(raw_dta$X11), col="#ccf5ff", border=F, xlab="Year of Joining", ylab = "Frequency", main= "Distribution of IAS Batches")
 
 #None
+##Shubhangi##
 ```
 
 ```{r, include=FALSE}
+##Shubhangi##
 #Checking for respondents who sped through the survey (min time = 3 minutes)
 processed_dta$time_spent<-mdy_hms(processed_dta$X4, tz="Asia/Kolkata")- mdy_hms(processed_dta$X3, tz="Asia/Kolkata")
 processed_dta<-processed_dta %>%
   mutate(speeders=ifelse(time_spent<3, 1, 0)) 
 
 #Decided not to exclude anyone on this basis
+##Shubhangi##
 ```
 
 ```{r, include=FALSE}
+##Shubhangi##
 #Checking the number of NA responses for each question in the processed data
 processed_dta %>% 
   dplyr::select(everything()) %>% 
   summarise_all(funs(sum(is.na(.))))
 
-#Column X136 has 69 NAs, all others have zero. 
+#Column X136 has 69 NAs, all others have zero.
+##Shubhangi##
 ```
 
 ```{r, include=FALSE}
+##Shubhangi##
 #Separating the states in answers for Merged1 and Merged2
 
 processed_dta<-processed_dta %>% 
  separate(Merged1, c('Merged1.1', 'Merged1.2'), sep = "([_])") %>% 
  separate(Merged2, c('Merged2.1', 'Merged2.2'), sep = "([_])") 
+##Shubhangi##
 ```
 
 ```{r, include=FALSE}
@@ -103,6 +112,7 @@ newtheme <- theme_bw() +
 ```
 
 ```{r, include=FALSE}
+##Shubhangi##
 set.seed(24102020)
 
 #Creating datasets (1) Currently serving officers allocated to states (2) Currently serving officers by SDG index (3) All respondents by age (former, young and old)
@@ -156,9 +166,11 @@ fullage_young <- full_age %>%
 #Dataset with old officers
 fullage_old <- full_age %>% 
   filter(age == "2011 and before") #193
+##Shubhangi##
 ```
 
-```{r}
+```{r, include=FALSE}
+##Shubhangi##
 #Recoding answer options from characters to numeric values 
 #Q7 (X16)
 #Q13 (X130)
@@ -176,6 +188,7 @@ full_serving<-full_serving %>%
   mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
                       ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
                              ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4))))
+##Shubhangi##
 ```
 
 
