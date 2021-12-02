@@ -149,7 +149,7 @@ fullage_former <- processed_dta %>%
 #Dataset of all respondents with a column that denotes age ("former", young or old)
 full_age <- full_serving %>% 
   mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before")) %>% 
-  add_row(full_former)
+  add_row(fullage_former)
 
 #Dataset of young officers
 fullage_young <- full_age %>% 
@@ -161,6 +161,25 @@ fullage_old <- full_age %>%
 ```
 
 ```{r}
+#Recoding answer options from characters to numeric values 
+#Q7 (X16)
+#Q13 (X130)
+#Q15 (X132) 
+#Leaving Q19 (X136) as is since this is the error question
+#Q8 (X17)
+#Q9 (X18)
+full_serving<-full_serving %>% 
+  mutate(X16 = ifelse(X16== "The second Covid-19 surge was expected and should have seen much more advance planning.", 1, 2)) %>% 
+  mutate(X130 = ifelse(X130=="Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", 1, 2)) %>% 
+  mutate(X132 = ifelse(X132=="Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.", 1, 2)) %>% 
+  mutate(X17 = ifelse(X17 =="Even proposals for advance planning received little purchase in the last one year.",1,
+                      ifelse(X17 =="Planning got lost mid-way due to signals that we have managed the pandemic well.", 2,
+                             ifelse(X17 == "Systematic advance planning has never been part of our ethos.", 3, 4)))) %>%
+  mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
+                      ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
+                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4))))
+  
+
 
 ```
 
