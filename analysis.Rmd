@@ -182,19 +182,17 @@ fullage_old <- full_age %>%
 
 <<<<<<< HEAD
 ```{r, include=FALSE}
-##Shubhangi##
-#Recoding answer options from characters to numeric values 
-#Q7 (X16)
-#Q13 (X130)
-#Q15 (X132) 
-#Leaving Q19 (X136) as is since this is the error question
-#Q8 (X17)
-#Q9 (X18)
+#In the following code, we have converted all character responses to numeric values for the ease of calculating average responses later on.  
+
+#Q7 (X16), Q13(X130), Q15 (X132), Leaving Q19 (X136) as is since this is the error question, Q8 (X17), Q9 (X18)
+#X133 (Question 16), X134 (Question 17), X135 (Question 18), X137 (Question 20), X138 (Question 21), X139 (Question 22)
+
+
 full_serving<-full_serving %>% 
   mutate(X16 = ifelse(X16== "The second Covid-19 surge was expected and should have seen much more advance planning.", 1, 2)) %>% 
-  
+
   mutate(X130 = ifelse(X130=="Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", 1, 2)) %>% 
-  
+
   mutate(X132 = ifelse(X132=="Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.", 1, 2)) %>% 
   
   mutate(X17 = ifelse(X17 =="Even proposals for advance planning received little purchase in the last one year.",1,
@@ -203,61 +201,33 @@ full_serving<-full_serving %>%
   
   mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
                       ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
-                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4))))
-##Shubhangi##
-```
+                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4)))) %>% 
 
-```{r}
-##Gurkirat##
-#Labeling Variables, X133 (Question 16), X134 (Question 17), X135 (Question 18), X137 (Question 20), X138 (Question 21), X139 (Question 22), X136 (Question 19, binary answers)
-
-<<<<<<< HEAD
-#Rahul says: minor thing, but be precise in your coding notes. These are not "labels". You are converting character strings into numerics. Just say that instead of calling them labels. Labels are often additional meta-data you add to an existing piece of information. 
-
-#Criteria for attaching labels: Have created additional columns with labeled values (feel free to delete the corresponding non-labeled columns if they are not needed anymore)
-
-#Rahul says: not sure I understand your comment above about creating additional columns. From the code below it seems to me that you have mutated the original column itself right? Second, your coding format below is good, but always indent any new ifelse statement like I've done below. You simply need to hit enter to do that. 
-
-full_allocated <- full_allocated %>% 
-=======
-full_serving <- full_serving %>% 
->>>>>>> d1107069570997da6d443169cd048ece984715b8
-#Question 16
 mutate (X133= ifelse (X133 == "During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.", 1, 
                       ifelse(X133 == "Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.", 2, 3))) %>%
 
-#Question 17
 mutate (X134 = ifelse (X134 == "India has successfully followed this nationally laid down trajectory of vaccine implementation.", 1, 
                        ifelse(X134 == "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", 2, 
                               ifelse(X134 == "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", 3, 4)))) %>% 
 
-#Question 18  
 mutate (X135 = ifelse (X135 == "We could at least use our networks to render some assistance at an individual level.", 1, 
                        ifelse(X135 == "We should have done so much more to improve the system when we had the time.", 2, 
                               ifelse(X135 == "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", 3, 4)))) %>%
 
-#Question 20  
 mutate (X137 = ifelse (X137 == "The government’s fiscal situation did not permit such measures.", 1, 
                        ifelse(X137 == "The pandemic’s limited initial impact led to a view that mass vaccination would not be urgently required in India.", 2, 
                               ifelse(X137 == "The private sector in India does not inspire confidence.", 3, 4)))) %>% 
 
-#Question 21  
 mutate (X138 = ifelse (X138 == "Slightly agree", 1, 
                        ifelse(X138 == "Slightly disagree", 2, 
                               ifelse(X138 == "Strongly agree", 3, 4)))) %>% 
 
-#Question 22
 mutate (X139 = ifelse (X139 == "By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", 1, 
-                       ifelse(X133 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3))) %>% 
-
-#Question 19 (not certain)
-mutate (X136 = ifelse (X136 == "The government must acknowledge its failure.", 1, 2))
-
-##Gurkirat##
+                       ifelse(X133 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3)))
 ```
 
-
 Rahul says: the code for converting character responses to numeric values looks good. Please combine the two code chunks you have worked on separately now into a single code chunk and remove your names from them. This code chunk will start with a comment that clearly states that in the following code, we can convereted all character strings into numeric values for ease of calculating average responses later on. 
+
 
 
 
