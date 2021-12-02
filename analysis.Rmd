@@ -196,9 +196,7 @@ full_serving<-full_serving %>%
 ##Gurkirat##
 #Labeling Variables, X133 (Question 16), X134 (Question 17), X135 (Question 18), X137 (Question 20), X138 (Question 21), X139 (Question 22), X136 (Question 19, binary answers)
 
-#Criteria for attaching labels: Have created additional columns with labeled values (feel free to delete the corresponding non-labeled columns if they are not needed anymore)
-
-full_allocated <- full_allocated %>% 
+full_serving <- full_serving %>% 
 #Question 16
 mutate (X133= ifelse (X133 == "During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.", 1, ifelse(X133 == "Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.", 2, 3))) %>%
 
@@ -218,7 +216,7 @@ mutate (X138 = ifelse (X138 == "Slightly agree", 1, ifelse(X138 == "Slightly dis
 mutate (X139 = ifelse (X139 == "By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", 1, ifelse(X133 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3))) %>% 
 
 #Question 19 (not certain)
-mutate (X136 = ifelse (X136 == "The government must acknowledge its failure.", 0, 1))
+mutate (X136 = ifelse (X136 == "The government must acknowledge its failure.", 1, 2))
 
 ##Gurkirat##
 ```
