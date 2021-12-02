@@ -171,7 +171,7 @@ full_serving<-full_serving %>%
                              ifelse(X17 == "Systematic advance planning has never been part of our ethos.", 3, 4)))) %>%
   mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
                       ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
-                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4)))) %>% 
+                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4)))) %>%                            
   mutate(X130 = ifelse(X130=="Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", 1, 2)) %>% 
   mutate(X131 =ifelse(X131=="Knowing the risks involved, such events should not have been scheduled at all.",1,
                       ifelse(X131=="The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).", 2,
@@ -304,6 +304,8 @@ summary_age<-full_respondents %>%
             X137ones=sum(X137==1)/length(age), X137twos=sum(X137==2)/length(age), X137threes=sum(X137==3)/length(age), X137fours=sum(X137==4)/length(age),
             X138ones=sum(X138==1)/length(age), X138twos=sum(X138==2)/length(age), X138threes=sum(X138==3)/length(age), X138fours=sum(X138==4)/length(age),
             X139ones=sum(X139==1)/length(age), X139twos=sum(X139==2)/length(age), X139threes=sum(X139==3)/length(age))
+##Shubhangi##           
 ```
+
 
 
