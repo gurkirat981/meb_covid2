@@ -163,7 +163,7 @@ fullage_old <- full_age %>%
 ```
 
 ```{r}
-#Labeling Variables, X133 (Question 16), X134 (Question 17), X135 (Question 18), X137 (Question 20), X138 (Question 21), X139 (Question 22), X136 (Question 19, binary answers)
+#Labeling Variables (gurkirat), X133 (Question 16), X134 (Question 17), X135 (Question 18), X137 (Question 20), X138 (Question 21), X139 (Question 22), X136 (Question 19, binary answers)
 
 #Criteria for attaching labels: Have created additional columns with labeled values (feel free to delete the corresponding non-labeled columns if they are not needed anymore), For categorical variables: 1,2,3..., For Binary variables: 0,1
 
