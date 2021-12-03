@@ -10,6 +10,8 @@ raw_dta<-read.csv("ias-profile.csv")
 
 
 ```{r setup, include=FALSE}
+#Creating a dataset where each row is a different cadre and each column in the allocation year. Additional columns indicating total number of officers, number of officers pre and post 2012, and their respective proportions are given. 
+#The last row are the total values 
 processed_dta<-raw_dta %>% 
   filter(Retired=="TRUE") %>% 
   dplyr::select(c(Cadre, Allotment_Year)) %>% 
