@@ -106,12 +106,11 @@ newtheme <- theme_bw() +
 set.seed(24102020)
 
 #Creating a dataset of currently serving officers with columns indicating (1) the allocated state (2) their SDG classification and (3) the age of the officers
-full_serving <- processed_dta %>% 
-  filter(X13=="Yes, currently serving")
 
-#Need to check and add the exact distribution of officers in the states and UT for combined cadres
-#Question for Aditya: how did the sample function work last time? 
-full_serving<-full_serving %>% 
+full_serving <- processed_dta %>% 
+  filter(X13=="Yes, currently serving") 
+
+full_serving <- full_serving %>% 
   mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
                        ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12))) %>% 
    mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
@@ -162,7 +161,7 @@ full_respondents<- full_serving %>%
 ```{r, include=FALSE}
 #Recoding answer options from character strings to numeric values for the full_serving dataset
 #Q7 (X16) #Q8 (X17) #Q9 (X18) #Q13 (X130) #Q15 (X132)  #Q16 (X133) #Q17 (X134) #Q18 (X135) #20 (X137) #Q21 (X138) #Q22 (X139)
-#Leaving Q19 (X136) as is since this is the error question
+#Leaving Q19 (X136) as is since this is the error question #delete the question
 
 full_serving<-full_serving %>% 
   mutate(X16 = ifelse(X16== "The second Covid-19 surge was expected and should have seen much more advance planning.", 1, 2)) %>% 
@@ -195,7 +194,7 @@ full_serving<-full_serving %>%
                        ifelse(X139 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3)))
 ```
 
-
+#let's get rid of this - only do the character to numeric once for the entire data and then split things out. so let's do this before we create full_serving 
 ```{r, include=FALSE}
 #Recoding character strings to numeric values for the full_respondents dataset
 full_respondents<-full_respondents %>% 
