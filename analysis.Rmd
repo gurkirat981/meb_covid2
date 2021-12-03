@@ -57,40 +57,28 @@ unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>%
   subset(select=-(X93:X129))%>%
   #na.omit %>%
   filter(!is.na(X139))%>%
-  filter(X10=="Yes")
+  filter(X10=="Yes") %>% 
+ separate(Merged1, c('Merged1.1', 'Merged1.2'), sep = "([_])") %>% 
+ separate(Merged2, c('Merged2.1', 'Merged2.2'), sep = "([_])") 
 ```
 
 ```{r, include=FALSE}
-#Checking for batch outliers
+#Checking for outliers 
+#Batch outliers
 hist(as.numeric(raw_dta$X11), col="#ccf5ff", border=F, xlab="Year of Joining", ylab = "Frequency", main= "Distribution of IAS Batches")
-
 #None
-```
 
-```{r, include=FALSE}
-#Checking for respondents who sped through the survey (min time = 3 minutes)
+#Respondents who sped through the survey (min time = 3 minutes)
 processed_dta$time_spent<-mdy_hms(processed_dta$X4, tz="Asia/Kolkata")- mdy_hms(processed_dta$X3, tz="Asia/Kolkata")
 processed_dta<-processed_dta %>%
   mutate(speeders=ifelse(time_spent<3, 1, 0)) 
-
 #Decided not to exclude anyone on this basis
-```
 
-```{r, include=FALSE}
-#Checking the number of NA responses for each question in the processed data
+#The number of NA responses for each question in the processed data
 processed_dta %>% 
   dplyr::select(everything()) %>% 
   summarise_all(funs(sum(is.na(.))))
-
 #Column X136 has 69 NAs, all others have zero.
-```
-
-```{r, include=FALSE}
-#Separating the states in answers for Merged1 and Merged2
-
-processed_dta<-processed_dta %>% 
- separate(Merged1, c('Merged1.1', 'Merged1.2'), sep = "([_])") %>% 
- separate(Merged2, c('Merged2.1', 'Merged2.2'), sep = "([_])") 
 ```
 
 ```{r, include=FALSE}
@@ -102,11 +90,50 @@ newtheme <- theme_bw() +
 ```
 
 ```{r, include=FALSE}
-##Shubhangi##
-set.seed(24102020)
+#Recoding answer options from character strings to numeric values for the processed_dta 
+#Q7 (X16) #Q8 (X17) #Q9 (X18) #Q13 (X130) #Q15 (X132)  #Q16 (X133) #Q17 (X134) #Q18 (X135) #20 (X137) #Q21 (X138) #Q22 (X139)
+#Deleting Q19 (X136) as is since this is the error question 
 
+processed_dta<-processed_dta %>% 
+  mutate(X16 = ifelse(X16== "The second Covid-19 surge was expected and should have seen much more advance planning.", 1, 2)) %>% 
+  mutate(X17 = ifelse(X17 =="Even proposals for advance planning received little purchase in the last one year.",1,
+                      ifelse(X17 =="Planning got lost mid-way due to signals that we have managed the pandemic well.", 2,
+                             ifelse(X17 == "Systematic advance planning has never been part of our ethos.", 3, 4)))) %>%
+  mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
+                      ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
+                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4)))) %>%                            
+  mutate(X130 = ifelse(X130=="Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", 1, 2)) %>% 
+  mutate(X131 =ifelse(X131=="Knowing the risks involved, such events should not have been scheduled at all.",1,
+                      ifelse(X131=="The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).", 2,
+                             ifelse(X131=="The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", 3,4)))) %>% 
+  mutate(X132 = ifelse(X132=="Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.", 1, 2)) %>% 
+  mutate (X133= ifelse (X133 == "During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.", 1, 
+                      ifelse(X133 == "Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.", 2, 3))) %>%
+  mutate (X134 = ifelse (X134 == "India has successfully followed this nationally laid down trajectory of vaccine implementation.", 1, 
+                       ifelse(X134 == "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", 2, 
+                              ifelse(X134 == "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", 3, 4)))) %>% 
+  mutate (X135 = ifelse (X135 == "We could at least use our networks to render some assistance at an individual level.", 1, 
+                       ifelse(X135 == "We should have done so much more to improve the system when we had the time.", 2, 
+                              ifelse(X135 == "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", 3, 4)))) %>%
+  mutate (X137 = ifelse (X137 == "The government’s fiscal situation did not permit such measures.", 1, 
+                       ifelse(X137 == "The pandemic’s limited initial impact led to a view that mass vaccination would not be urgently required in India.", 2, 
+                              ifelse(X137 == "The private sector in India does not inspire confidence.", 3, 4)))) %>% 
+  mutate (X138 = ifelse (X138 == "Slightly agree", 1, 
+                       ifelse(X138 == "Slightly disagree", 2, 
+                              ifelse(X138 == "Strongly agree", 3, 4)))) %>%
+  mutate (X139 = ifelse (X139 == "By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", 1, 
+                       ifelse(X139 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3))) %>% 
+  dplyr::select(-X136)
+```
+
+
+```{r, include=FALSE}
+#Data Wrangling
+set.seed(24102020)
 #Creating a dataset of currently serving officers with columns indicating (1) the allocated state (2) their SDG classification and (3) the age of the officers
 
+#Need to check and add the exact distribution of officers in the states and UT for combined cadres
+#Question for Aditya: how did the sample function work last time? 
 full_serving <- processed_dta %>% 
   filter(X13=="Yes, currently serving") 
 
@@ -159,77 +186,8 @@ full_respondents<- full_serving %>%
 ```
 
 ```{r, include=FALSE}
-#Recoding answer options from character strings to numeric values for the full_serving dataset
-#Q7 (X16) #Q8 (X17) #Q9 (X18) #Q13 (X130) #Q15 (X132)  #Q16 (X133) #Q17 (X134) #Q18 (X135) #20 (X137) #Q21 (X138) #Q22 (X139)
-#Leaving Q19 (X136) as is since this is the error question #delete the question
-
-full_serving<-full_serving %>% 
-  mutate(X16 = ifelse(X16== "The second Covid-19 surge was expected and should have seen much more advance planning.", 1, 2)) %>% 
-  mutate(X17 = ifelse(X17 =="Even proposals for advance planning received little purchase in the last one year.",1,
-                      ifelse(X17 =="Planning got lost mid-way due to signals that we have managed the pandemic well.", 2,
-                             ifelse(X17 == "Systematic advance planning has never been part of our ethos.", 3, 4)))) %>%
-  mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
-                      ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
-                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4)))) %>%                            
-  mutate(X130 = ifelse(X130=="Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", 1, 2)) %>% 
-  mutate(X131 =ifelse(X131=="Knowing the risks involved, such events should not have been scheduled at all.",1,
-                      ifelse(X131=="The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).", 2,
-                             ifelse(X131=="The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", 3,4)))) %>% 
-  mutate(X132 = ifelse(X132=="Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.", 1, 2)) %>% 
-  mutate (X133= ifelse (X133 == "During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.", 1, 
-                      ifelse(X133 == "Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.", 2, 3))) %>%
-  mutate (X134 = ifelse (X134 == "India has successfully followed this nationally laid down trajectory of vaccine implementation.", 1, 
-                       ifelse(X134 == "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", 2, 
-                              ifelse(X134 == "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", 3, 4)))) %>% 
-  mutate (X135 = ifelse (X135 == "We could at least use our networks to render some assistance at an individual level.", 1, 
-                       ifelse(X135 == "We should have done so much more to improve the system when we had the time.", 2, 
-                              ifelse(X135 == "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", 3, 4)))) %>%
-  mutate (X137 = ifelse (X137 == "The government’s fiscal situation did not permit such measures.", 1, 
-                       ifelse(X137 == "The pandemic’s limited initial impact led to a view that mass vaccination would not be urgently required in India.", 2, 
-                              ifelse(X137 == "The private sector in India does not inspire confidence.", 3, 4)))) %>% 
-  mutate (X138 = ifelse (X138 == "Slightly agree", 1, 
-                       ifelse(X138 == "Slightly disagree", 2, 
-                              ifelse(X138 == "Strongly agree", 3, 4)))) %>%
-  mutate (X139 = ifelse (X139 == "By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", 1, 
-                       ifelse(X139 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3)))
-```
-
-#let's get rid of this - only do the character to numeric once for the entire data and then split things out. so let's do this before we create full_serving 
-```{r, include=FALSE}
-#Recoding character strings to numeric values for the full_respondents dataset
-full_respondents<-full_respondents %>% 
-  mutate(X16 = ifelse(X16== "The second Covid-19 surge was expected and should have seen much more advance planning.", 1, 2)) %>% 
-  mutate(X17 = ifelse(X17 =="Even proposals for advance planning received little purchase in the last one year.",1,
-                      ifelse(X17 =="Planning got lost mid-way due to signals that we have managed the pandemic well.", 2,
-                             ifelse(X17 == "Systematic advance planning has never been part of our ethos.", 3, 4)))) %>%
-  mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
-                      ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
-                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4)))) %>% 
-  mutate(X130 = ifelse(X130=="Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", 1, 2)) %>% 
-  mutate(X131 =ifelse(X131=="Knowing the risks involved, such events should not have been scheduled at all.",1,
-                      ifelse(X131=="The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).", 2,
-                             ifelse(X131=="The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", 3,4)))) %>% 
-  mutate(X132 = ifelse(X132=="Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.", 1, 2)) %>% 
-  mutate (X133= ifelse (X133 == "During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.", 1, 
-                      ifelse(X133 == "Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.", 2, 3))) %>%
-  mutate (X134 = ifelse (X134 == "India has successfully followed this nationally laid down trajectory of vaccine implementation.", 1, 
-                       ifelse(X134 == "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", 2, 
-                              ifelse(X134 == "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", 3, 4)))) %>% 
-  mutate (X135 = ifelse (X135 == "We could at least use our networks to render some assistance at an individual level.", 1, 
-                       ifelse(X135 == "We should have done so much more to improve the system when we had the time.", 2, 
-                              ifelse(X135 == "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", 3, 4)))) %>%
-  mutate (X137 = ifelse (X137 == "The government’s fiscal situation did not permit such measures.", 1, 
-                       ifelse(X137 == "The pandemic’s limited initial impact led to a view that mass vaccination would not be urgently required in India.", 2, 
-                              ifelse(X137 == "The private sector in India does not inspire confidence.", 3, 4)))) %>% 
-  mutate (X138 = ifelse (X138 == "Slightly agree", 1, 
-                       ifelse(X138 == "Slightly disagree", 2, 
-                              ifelse(X138 == "Strongly agree", 3, 4)))) %>%
-  mutate (X139 = ifelse (X139 == "By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", 1, 
-                       ifelse(X139 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3)))
-```
-
-```{r, include=FALSE}
 #Creating a dataset with the averages for each answer choice for all questions
+#Used to check with Survey Monkey 
 summary_nogroup<-full_serving %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139)) %>% 
   summarise(X16ones=sum(X16==1)/length(X16), X16twos=sum(X16==2)/length(X16),
@@ -249,7 +207,7 @@ summary_nogroup<-full_serving %>%
 ```{r, include=FALSE}
 ##Shubhangi## 
 #Creating a dataset with the averages for each answer choice for all questions grouped by the state 
-#Not sure whether this is will be used unless we want to have state-wise graphs this time. 
+#Used for SDG comparison
 summary_state<-full_serving %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
   group_by(state) %>% 
@@ -268,45 +226,24 @@ summary_state<-full_serving %>%
 ```
 
 ```{r}
-#Creating a dataset with the averages for each answer choice for all questions grouped by the sdg categorisation 
-summary_sdg<-full_serving %>% 
-  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, sdg)) %>% 
-  group_by(sdg) %>% 
-  summarise(X16ones=sum(X16==1)/length(sdg), X16twos=sum(X16==2)/length(sdg),
-            X17ones=sum(X17==1)/length(sdg), X17twos=sum(X17==2)/length(sdg), X17threes=sum(X17==3)/length(sdg), X17fourss=sum(X17==4)/length(sdg),
-            X18ones=sum(X18==1)/length(sdg), X18twos=sum(X18==2)/length(sdg), X18threes=sum(X18==3)/length(sdg), X18fours=sum(X18==4)/length(sdg), 
-            X130ones=sum(X130==1)/length(sdg), X130twos=sum(X130==2)/length(sdg),
-            X131ones=sum(X131==1)/length(sdg), X131twos=sum(X131==2)/length(sdg), X131threes=sum(X131==3)/length(sdg), X131fours=sum(X131==4)/length(sdg), 
-            X132ones=sum(X132==1)/length(sdg), X132twos=sum(X132==2)/length(sdg),
-            X133ones=sum(X133==1)/length(sdg), X133twos=sum(X133==2)/length(sdg), X133threes=sum(X133==3)/length(sdg),
-            X134ones=sum(X134==1)/length(sdg), X134twos=sum(X134==2)/length(sdg), X134threes=sum(X134==3)/length(sdg), X134fours=sum(X134==4)/length(sdg), 
-            X135ones=sum(X135==1)/length(sdg), X135twos=sum(X135==2)/length(sdg), X135threes=sum(X135==3)/length(sdg), X135fours=sum(X135==4)/length(sdg),
-            X137ones=sum(X137==1)/length(sdg), X137twos=sum(X137==2)/length(sdg), X137threes=sum(X137==3)/length(sdg), X137fours=sum(X137==4)/length(sdg),
-            X138ones=sum(X138==1)/length(sdg), X138twos=sum(X138==2)/length(sdg), X138threes=sum(X138==3)/length(sdg), X138fours=sum(X138==4)/length(sdg),
-            X139ones=sum(X139==1)/length(sdg), X139twos=sum(X139==2)/length(sdg), X139threes=sum(X139==3)/length(sdg)) 
+#Creating a dataset with the averages for each answer choice for all questions grouped by the cadre
+summary_cadre<-full_serving %>% 
+  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, X12)) %>% 
+  group_by(X12) %>% 
+  summarise(X16ones=sum(X16==1)/length(X12), X16twos=sum(X16==2)/length(X12),
+            X17ones=sum(X17==1)/length(X12), X17twos=sum(X17==2)/length(X12), X17threes=sum(X17==3)/length(X12), X17fourss=sum(X17==4)/length(X12),
+            X18ones=sum(X18==1)/length(X12), X18twos=sum(X18==2)/length(X12), X18threes=sum(X18==3)/length(X12), X18fours=sum(X18==4)/length(X12), 
+            X130ones=sum(X130==1)/length(X12), X130twos=sum(X130==2)/length(X12),
+            X131ones=sum(X131==1)/length(X12), X131twos=sum(X131==2)/length(X12), X131threes=sum(X131==3)/length(X12), X131fours=sum(X131==4)/length(X12), 
+            X132ones=sum(X132==1)/length(X12), X132twos=sum(X132==2)/length(X12),
+            X133ones=sum(X133==1)/length(X12), X133twos=sum(X133==2)/length(X12), X133threes=sum(X133==3)/length(X12),
+            X134ones=sum(X134==1)/length(X12), X134twos=sum(X134==2)/length(X12), X134threes=sum(X134==3)/length(X12), X134fours=sum(X134==4)/length(X12), 
+            X135ones=sum(X135==1)/length(X12), X135twos=sum(X135==2)/length(X12), X135threes=sum(X135==3)/length(X12), X135fours=sum(X135==4)/length(X12),
+            X137ones=sum(X137==1)/length(X12), X137twos=sum(X137==2)/length(X12), X137threes=sum(X137==3)/length(X12), X137fours=sum(X137==4)/length(X12),
+            X138ones=sum(X138==1)/length(X12), X138twos=sum(X138==2)/length(X12), X138threes=sum(X138==3)/length(X12), X138fours=sum(X138==4)/length(X12),
+            X139ones=sum(X139==1)/length(X12), X139twos=sum(X139==2)/length(X12), X139threes=sum(X139==3)/length(X12)) 
 ```
 
-#Rahul says: I'm not clear about what's going on in these state and sdg chunks at the bottom of the code. We don't need to compute a new average using the length of sdg or age (not sure what those are). Let's talk about what you are thinking here. All we need are the averages for each answer by STATE. Then we multiply that by SDG weights. 
-
-```{r}
-#Creating a dataset with the averages for each answer choice for all questions grouped by age brackets 
-summary_age<-full_respondents %>% 
-  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, age)) %>% 
-  group_by(age) %>% 
-  summarise(X16ones=sum(X16==1)/length(age), X16twos=sum(X16==2)/length(age),
-            X17ones=sum(X17==1)/length(age), X17twos=sum(X17==2)/length(age), X17threes=sum(X17==3)/length(age), X17fourss=sum(X17==4)/length(age),
-            X18ones=sum(X18==1)/length(age), X18twos=sum(X18==2)/length(age), X18threes=sum(X18==3)/length(age), X18fours=sum(X18==4)/length(age), 
-            X130ones=sum(X130==1)/length(age), X130twos=sum(X130==2)/length(age),
-            X131ones=sum(X131==1)/length(age), X131twos=sum(X131==2)/length(age), X131threes=sum(X131==3)/length(age), X131fours=sum(X131==4)/length(age), 
-            X132ones=sum(X132==1)/length(age), X132twos=sum(X132==2)/length(age),
-            X133ones=sum(X133==1)/length(age), X133twos=sum(X133==2)/length(age), X133threes=sum(X133==3)/length(age),
-            X134ones=sum(X134==1)/length(age), X134twos=sum(X134==2)/length(age), X134threes=sum(X134==3)/length(age), X134fours=sum(X134==4)/length(age), 
-            X135ones=sum(X135==1)/length(age), X135twos=sum(X135==2)/length(age), X135threes=sum(X135==3)/length(age), X135fours=sum(X135==4)/length(age),
-            X137ones=sum(X137==1)/length(age), X137twos=sum(X137==2)/length(age), X137threes=sum(X137==3)/length(age), X137fours=sum(X137==4)/length(age),
-            X138ones=sum(X138==1)/length(age), X138twos=sum(X138==2)/length(age), X138threes=sum(X138==3)/length(age), X138fours=sum(X138==4)/length(age),
-            X139ones=sum(X139==1)/length(age), X139twos=sum(X139==2)/length(age), X139threes=sum(X139==3)/length(age))
-##Shubhangi##           
-```
 
 
 
