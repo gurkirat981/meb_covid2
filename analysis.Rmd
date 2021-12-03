@@ -181,8 +181,6 @@ fullage_old <- full_serving %>%
 #Dataset of all respondents, former and currently serving with columns for state, sdg and age 
 full_respondents<- full_serving %>% 
   add_row(full_former)
-
-##Shubhangi##
 ```
 
 ```{r, include=FALSE}
@@ -201,11 +199,11 @@ summary_nogroup<-full_serving %>%
             X135ones=sum(X135==1)/length(X135), X135twos=sum(X135==2)/length(X135), X135threes=sum(X135==3)/length(X135), X135fours=sum(X135==4)/length(X135),
             X137ones=sum(X137==1)/length(X137), X137twos=sum(X137==2)/length(X137), X137threes=sum(X137==3)/length(X137), X137fours=sum(X137==4)/length(X137),
             X138ones=sum(X138==1)/length(X138), X138twos=sum(X138==2)/length(X138), X138threes=sum(X138==3)/length(X138), X138fours=sum(X138==4)/length(X138),
-            X139ones=sum(X139==1)/length(X139), X139twos=sum(X139==2)/length(X139), X139threes=sum(X139==3)/length(X139))
+            X139ones=sum(X139==1)/length(X139), X139twos=sum(X139==2)/length(X139), X139threes=sum(X139==3)/length(X139))%>% 
+  ungroup()
 ```
 
 ```{r, include=FALSE}
-##Shubhangi## 
 #Creating a dataset with the averages for each answer choice for all questions grouped by the state 
 #Used for SDG comparison
 summary_state<-full_serving %>% 
@@ -222,7 +220,8 @@ summary_state<-full_serving %>%
             X135ones=sum(X135==1)/length(state), X135twos=sum(X135==2)/length(state), X135threes=sum(X135==3)/length(state), X135fours=sum(X135==4)/length(state),
             X137ones=sum(X137==1)/length(state), X137twos=sum(X137==2)/length(state), X137threes=sum(X137==3)/length(state), X137fours=sum(X137==4)/length(state),
             X138ones=sum(X138==1)/length(state), X138twos=sum(X138==2)/length(state), X138threes=sum(X138==3)/length(state), X138fours=sum(X138==4)/length(state),
-            X139ones=sum(X139==1)/length(state), X139twos=sum(X139==2)/length(state), X139threes=sum(X139==3)/length(state)) 
+            X139ones=sum(X139==1)/length(state), X139twos=sum(X139==2)/length(state), X139threes=sum(X139==3)/length(state)) %>% 
+  ungroup()
 ```
 
 ```{r}
@@ -241,7 +240,8 @@ summary_cadre<-full_serving %>%
             X135ones=sum(X135==1)/length(X12), X135twos=sum(X135==2)/length(X12), X135threes=sum(X135==3)/length(X12), X135fours=sum(X135==4)/length(X12),
             X137ones=sum(X137==1)/length(X12), X137twos=sum(X137==2)/length(X12), X137threes=sum(X137==3)/length(X12), X137fours=sum(X137==4)/length(X12),
             X138ones=sum(X138==1)/length(X12), X138twos=sum(X138==2)/length(X12), X138threes=sum(X138==3)/length(X12), X138fours=sum(X138==4)/length(X12),
-            X139ones=sum(X139==1)/length(X12), X139twos=sum(X139==2)/length(X12), X139threes=sum(X139==3)/length(X12)) 
+            X139ones=sum(X139==1)/length(X12), X139twos=sum(X139==2)/length(X12), X139threes=sum(X139==3)/length(X12)) %>% 
+  ungroup()
 ```
 
 
