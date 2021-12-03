@@ -287,6 +287,8 @@ summary_sdg<-full_serving %>%
             X139ones=sum(X139==1)/length(sdg), X139twos=sum(X139==2)/length(sdg), X139threes=sum(X139==3)/length(sdg)) 
 ```
 
+#Rahul says: I'm not clear about what's going on in these state and sdg chunks at the bottom of the code. We don't need to compute a new average using the length of sdg or age (not sure what those are). Let's talk about what you are thinking here. All we need are the averages for each answer by STATE. Then we multiply that by SDG weights. 
+
 ```{r}
 #Creating a dataset with the averages for each answer choice for all questions grouped by age brackets 
 summary_age<-full_respondents %>% 
