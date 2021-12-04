@@ -292,4 +292,11 @@ q21full_plot
 
 ```
 
+#Rahul says: 
+#folks, the cadre wise dataset and example graphs look great. Next week, spend some time thinking about whether you want to improve the graph code we had written for the previous survey in any way. 
+#next steps: 
+#adding the weight by cadre - here my recommendation is not to do any manual addition of weights like we did last time. Rather, create a column of the number of officers by cadre from the TCPD population data. Merge that column with the cadre dataset. Then create a new column called weight = number_pop/sum(number_pop). 
+#creating a very simple dataset of final weighted responses for the full graphs. This should ideally have just one row with all the weighted averages and multiple columns for the responses. 
+#Replicate the graphs rather quickly (should be easy) for the full graphs. 
 
+#Pending decision - on weighting age. Let's chat about this Monday once we know the pop numbers. 
