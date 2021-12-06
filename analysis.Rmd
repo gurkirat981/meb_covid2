@@ -246,8 +246,67 @@ summary_cadre<-full_serving %>%
  
 ```
 
+Example graph I: Question 7, X16 (binary answers)
+```{r}
+##Gurkirat##
+#Example graph for question 7. I have used Arithmetic Mean instead of Weighted Mean.
+q7full_mean_ones <- round(mean(summary_cadre$X16ones)*100,2) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q7full_mean_twos <- round(mean(summary_cadre$X16twos)*100,2)
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
+q7full_plot_labels <- c("The second Covid-19 surge was expected.", "The second Covid-19 surge was unprecedented.") 
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q7full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent") +
+  newtheme
+
+q7full_plot
+
+##Gurkirat##
+```
+
+Example graph II: Question 21, X138 (4 responses)
+```{r}
+##Gurkirat##
+#Example graph for question 21. I have used Arithmetic Mean instead of Weighted Mean.
+
+q21full_mean_ones <- round(mean(summary_cadre$X138ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q21full_mean_twos <- round(mean(summary_cadre$X138twos)*100,3) 
+q21full_mean_threes <- round(mean(summary_cadre$X138threes)*100,3)
+q21full_mean_fours <- round(mean(summary_cadre$X138fours)*100,3)
+q21full_plot <- c(q21full_mean_ones, q21full_mean_twos, q21full_mean_threes, q21full_mean_fours) 
+q21full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree") 
+q21full_plot_dta <- data.frame(q21full_plot, q21full_plot_labels) 
+q21full_plot <- ggplot(q21full_plot_dta, aes(x=q21full_plot_labels, y=q21full_plot, fill = q21full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q21full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent") +
+  newtheme
+
+q21full_plot
+
+##Gurkirat##
+
+```
+
+#Rahul says: 
+#folks, the cadre wise dataset and example graphs look great. Next week, spend some time thinking about whether you want to improve the graph code we had written for the previous survey in any way. 
+#next steps: 
+#adding the weight by cadre - here my recommendation is not to do any manual addition of weights like we did last time. Rather, create a column of the number of officers by cadre from the TCPD population data. Merge that column with the cadre dataset. Then create a new column called weight = number_pop/sum(number_pop). 
+#creating a very simple dataset of final weighted responses for the full graphs. This should ideally have just one row with all the weighted averages and multiple columns for the responses. 
+#Replicate the graphs rather quickly (should be easy) for the full graphs. 
+
+#Pending decision - on weighting age. Let's chat about this Monday once we know the pop numbers. 
+
+
 ```{r, include=FALSE}
-#Testing graphs 
+#Testing graphs
+##Shubhangi##
 X17_plot_means<-summary_cadre %>% 
   dplyr::select(cadre, X17ones, X17twos, X17threes, X17fours) %>% 
   mutate_if(is.numeric, ~ . * 100) %>% 
@@ -266,5 +325,6 @@ X17_plot <- ggplot(X17_plot_dta, aes(x=X17_plot_labels, y=X17_plot_means, fill =
   scale_y_continuous(limits = c(0,100)) +  
   labs(x="",y="Percent") +
   newtheme
+  ##Shubhangi##
 ```
 
