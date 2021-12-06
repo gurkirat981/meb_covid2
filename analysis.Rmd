@@ -328,3 +328,14 @@ X17_plot <- ggplot(X17_plot_dta, aes(x=X17_plot_labels, y=X17_plot_means, fill =
   ##Shubhangi##
 ```
 
+```{r, include=FALSE}
+##Shubhangi##
+#Creating a column of weights for states within each SDG tier 
+#This code requires three different datasets: the summary_state (mean averages for each answer choice), ias_processed_dta (distribution of IAS officers by state and age) and full_serving (since it has a column denoting the SDG tiers) 
+summary_state_analysis <- summary_state %>% 
+  mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total/sum(full_serving$sdg=="Aspirant"), 
+                             ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total/sum(full_serving$sdg=="Frontrunner"), ias_processed_dta$total/sum(full_serving$sdg=="Performer"))))
+##Shubhangi##
+```
+
+
