@@ -339,3 +339,26 @@ summary_state_analysis <- summary_state %>%
 ```
 
 
+```{r, include=FALSE}
+##Gurkirat##
+#Adding state weights and age weights, and then transferring them from "ias_processed_dta" to "summary_state_analysis"
+
+#Note: I had to combine two data frames (subset of ias_processed_dta & summary_state_analysis) because it is not  possible to execute dplyr commands with multiple data frames particularly when the row size is different across data frames ("Andaman and Nicobar Islands" and "Lakshadweep Islands" in IAS grouped data). It was rendering an error when I tried doing the analysis in a single data frame. (not the case with "ifelse")
+
+ias_processed_dta <- ias_processed_dta %>% 
+mutate (state_weight = total/sum(total)) %>% 
+mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
+mutate(age_weight_young = post2012/sum(post2012)) 
+
+ias_processed_dta1 <- ias_processed_dta %>% 
+dplyr:: select (State, age_weight_old, age_weight_young, state_weight) %>% 
+subset(State !="Andaman and Nicobar Islands" & State !="Lakshadweep Islands" & State !="Total")
+
+summary_state_analysis <- cbind (summary_state_analysis, ias_processed_dta1)
+
+summary_state_analysis <- summary_state_analysis %>% 
+dplyr :: select (-State)
+
+##Gurkirat##
+
+```
