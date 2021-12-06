@@ -18,7 +18,11 @@ ias_processed_dta<-ias_raw_dta %>%
   
 ias_processed_dta$State<-as.character(ias_processed_dta$State)
 
+ias_processed_dta$State<-ifelse(ias_processed_dta$State=="Chhasttisgarh", "Chhattisgarh", ias_processed_dta$State)
+
 ias_processed_dta<-ias_processed_dta %>% 
+  mutate(State = ifelse(State=="Chhasttisgarh", "Chhattisgarh", 
+                        ifelse(State=="Maharashtra", "Maharastra",State))) %>% 
   mutate(State = ifelse(State== "Assam Meghalya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(ias_processed_dta$State=="Assam Meghalya")), replace = TRUE),   
                        ifelse(State=="A G M U T", sample(c("Delhi", "Arunachal Pradesh","Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(ias_processed_dta$State=="A G M U T")), replace = TRUE), State))) %>% 
   dplyr::select(c(State, Allotment_Year)) %>% 
