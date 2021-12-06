@@ -189,7 +189,7 @@ full_respondents<- full_serving %>%
 summary_nogroup<-full_serving %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139)) %>% 
   summarise(X16ones=sum(X16==1)/length(X16), X16twos=sum(X16==2)/length(X16),
-            X17ones=sum(X17==1)/length(X17), X17twos=sum(X17==2)/length(X17), X17threes=sum(X17==3)/length(X17), X17fourss=sum(X17==4)/length(X17),
+            X17ones=sum(X17==1)/length(X17), X17twos=sum(X17==2)/length(X17), X17threes=sum(X17==3)/length(X17), X17fours=sum(X17==4)/length(X17),
             X18ones=sum(X18==1)/length(X18), X18twos=sum(X18==2)/length(X18), X18threes=sum(X18==3)/length(X18), X18fours=sum(X18==4)/length(X18), 
             X130ones=sum(X130==1)/length(X130), X130twos=sum(X130==2)/length(X130),
             X131ones=sum(X131==1)/length(X131), X131twos=sum(X131==2)/length(X131), X131threes=sum(X131==3)/length(X131), X131fours=sum(X131==4)/length(X131), 
@@ -210,7 +210,7 @@ summary_state<-full_serving %>%
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
   group_by(state) %>% 
   summarise(X16ones=sum(X16==1)/length(state), X16twos=sum(X16==2)/length(state),
-            X17ones=sum(X17==1)/length(state), X17twos=sum(X17==2)/length(state), X17threes=sum(X17==3)/length(state), X17fourss=sum(X17==4)/length(state),
+            X17ones=sum(X17==1)/length(state), X17twos=sum(X17==2)/length(state), X17threes=sum(X17==3)/length(state), X17fours=sum(X17==4)/length(state),
             X18ones=sum(X18==1)/length(state), X18twos=sum(X18==2)/length(state), X18threes=sum(X18==3)/length(state), X18fours=sum(X18==4)/length(state), 
             X130ones=sum(X130==1)/length(state), X130twos=sum(X130==2)/length(state),
             X131ones=sum(X131==1)/length(state), X131twos=sum(X131==2)/length(state), X131threes=sum(X131==3)/length(state), X131fours=sum(X131==4)/length(state), 
@@ -230,7 +230,7 @@ summary_cadre<-full_serving %>%
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, X12)) %>% 
   group_by(X12) %>% 
   summarise(X16ones=sum(X16==1)/length(X12), X16twos=sum(X16==2)/length(X12),
-            X17ones=sum(X17==1)/length(X12), X17twos=sum(X17==2)/length(X12), X17threes=sum(X17==3)/length(X12), X17fourss=sum(X17==4)/length(X12),
+            X17ones=sum(X17==1)/length(X12), X17twos=sum(X17==2)/length(X12), X17threes=sum(X17==3)/length(X12), X17fours=sum(X17==4)/length(X12),
             X18ones=sum(X18==1)/length(X12), X18twos=sum(X18==2)/length(X12), X18threes=sum(X18==3)/length(X12), X18fours=sum(X18==4)/length(X12), 
             X130ones=sum(X130==1)/length(X12), X130twos=sum(X130==2)/length(X12),
             X131ones=sum(X131==1)/length(X12), X131twos=sum(X131==2)/length(X12), X131threes=sum(X131==3)/length(X12), X131fours=sum(X131==4)/length(X12), 
@@ -241,9 +241,30 @@ summary_cadre<-full_serving %>%
             X137ones=sum(X137==1)/length(X12), X137twos=sum(X137==2)/length(X12), X137threes=sum(X137==3)/length(X12), X137fours=sum(X137==4)/length(X12),
             X138ones=sum(X138==1)/length(X12), X138twos=sum(X138==2)/length(X12), X138threes=sum(X138==3)/length(X12), X138fours=sum(X138==4)/length(X12),
             X139ones=sum(X139==1)/length(X12), X139twos=sum(X139==2)/length(X12), X139threes=sum(X139==3)/length(X12)) %>% 
-  ungroup()
+  ungroup() %>% 
+  rename(cadre = "X12")
+ 
 ```
 
+```{r, include=FALSE}
+#Testing graphs 
+X17_plot_means<-summary_cadre %>% 
+  dplyr::select(cadre, X17ones, X17twos, X17threes, X17fours) %>% 
+  mutate_if(is.numeric, ~ . * 100) %>% 
+  mutate_if(is.numeric, round,2) %>% 
+  bind_rows(summarise_all(.,~ if(is.numeric(.)) mean(.) else("Total"))) %>% 
+  slice_tail() %>% 
+  dplyr::select(-cadre) %>% 
+  unlist()
 
+X17_plot_labels<-c("Advance planning received little purchase in last 1 year", "Planning got lost due to signals that we have managed pandemic", "Advance planning has never been part of our ethos", "We took adequate measures to plan our responses") #labels are too long, will edit these later 
+X17_plot_dta <- data.frame(X17_plot_means, X17_plot_labels)
 
+X17_plot <- ggplot(X17_plot_dta, aes(x=X17_plot_labels, y=X17_plot_means, fill = X17_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE, fill=c("#fecc5c","#fd8d3c","#ffffb2",   "#e31a1c")) + 
+  geom_text(aes(label=scales::percent(X17_plot_means/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +  
+  labs(x="",y="Percent") +
+  newtheme
+```
 
