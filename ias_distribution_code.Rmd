@@ -80,6 +80,13 @@ ias_processed_dta<-ias_processed_dta %>%
 ```
 
 ```{r setup, include=FALSE}
+#Adding another column to assign state weights
+ias_processed_dta <- ias_processed_dta %>% 
+mutate (state_weight = total/5279)
+```
+
+
+```{r setup, include=FALSE}
 #Writing the excel file 
 write.xlsx(processed_dta, file="~/meb_covid2/IAS Cadre_Year Distribution_TCPD1.1.2021.xlsx", sheetName="Sheet 1", col.names=TRUE, row.names=TRUE, append=FALSE) #I don't think this file path saves it on git. But I have added the excel file separately. Will correct this later. 
 ```
