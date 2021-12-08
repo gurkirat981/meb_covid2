@@ -253,49 +253,55 @@ summary_cadre<-full_serving %>%
  
 ```
 
-Example graph I: Question 7, X16 (binary answers)
+Example graph I: Question 1, X16 (binary answers)
+Q. Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India? 
 ```{r}
 ##Gurkirat##
-#Example graph for question 7. I have used Arithmetic Mean instead of Weighted Mean.
-q7full_mean_ones <- round(mean(summary_cadre$X16ones)*100,2) #consider doing rounding and mean estimation at an earlier stage for all questions.
-q7full_mean_twos <- round(mean(summary_cadre$X16twos)*100,2)
-q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
-q7full_plot_labels <- c("The second Covid-19 surge was expected.", "The second Covid-19 surge was unprecedented.") 
-q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
-q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
+#Example graph for question 1. I have used Arithmetic Mean instead of Weighted Mean.
+q1full_mean_ones <- round(mean(summary_state_analysis$X16ones)*100,2) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q1full_mean_twos <- round(mean(summary_state_analysis$X16twos)*100,2)
+q1full_plot <- c(q1full_mean_ones, q1full_mean_twos) 
+q1full_plot_labels <- c("The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.", "The second Covid-19 surge was expected and should have seen much more advance planning.") 
+q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels) 
+q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_label, width = 10)
+q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q7full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=scales::percent(q1full_plot/100)), vjust=-0.3, size=3.5) +
   scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 40)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent") +
+  labs(x="",y="Percent", caption= "Question 1") +
   newtheme
 
-q7full_plot
+q1full_plot
 
 ##Gurkirat##
 ```
 
-Example graph II: Question 21, X138 (4 responses)
+Example graph II: Question 15, X138 (4 responses)
+Q. To what extent would you agree with the following statement? 
+"NGOs and civil society rendered critical assistance to pandemic management in 2020. While they played an important role in the second wave (particularly for oxygen, hospital beds and food relief), increased regulation of their fundraising and activities has come in the way of their playing an even bigger role." 
+
 ```{r}
 ##Gurkirat##
-#Example graph for question 21. I have used Arithmetic Mean instead of Weighted Mean.
+#Example graph for question 15. I have used Arithmetic Mean instead of Weighted Mean.
 
-q21full_mean_ones <- round(mean(summary_cadre$X138ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
-q21full_mean_twos <- round(mean(summary_cadre$X138twos)*100,3) 
-q21full_mean_threes <- round(mean(summary_cadre$X138threes)*100,3)
-q21full_mean_fours <- round(mean(summary_cadre$X138fours)*100,3)
-q21full_plot <- c(q21full_mean_ones, q21full_mean_twos, q21full_mean_threes, q21full_mean_fours) 
-q21full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree") 
-q21full_plot_dta <- data.frame(q21full_plot, q21full_plot_labels) 
-q21full_plot <- ggplot(q21full_plot_dta, aes(x=q21full_plot_labels, y=q21full_plot, fill = q21full_plot_labels)) +
+q15full_mean_ones <- round(mean(summary_state_analysis$X138ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q15full_mean_twos <- round(mean(summary_state_analysis$X138twos)*100,3) 
+q15full_mean_threes <- round(mean(summary_state_analysis$X138threes)*100,3)
+q15full_mean_fours <- round(mean(summary_state_analysis$X138fours)*100,3)
+q15full_plot <- c(q15full_mean_ones, q15full_mean_twos, q15full_mean_threes, q15full_mean_fours) 
+q15full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree") 
+q15full_plot_dta <- data.frame(q15full_plot, q15full_plot_labels) 
+q15full_plot <- ggplot(q15full_plot_dta, aes(x=q15full_plot_labels, y=q15full_plot, fill = q15full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q21full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=scales::percent(q15full_plot/100)), vjust=-0.3, size=3.5) +
   scale_y_continuous(limits = c(0,100)) +  
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent") +
+  labs(x="",y="Percent", caption= "Question 15") +
   newtheme
 
-q21full_plot
+q15full_plot
 
 ##Gurkirat##
 
@@ -381,4 +387,134 @@ dplyr :: select (-State)
 
 ##Gurkirat##
 
+```
+
+Example graph III: Question 7, X130 (4 binary answers)
+Q. Some examples of successful management of the challenges posed by the pandemic show that civil servants can perform even under very difficult circumstances. Why is this situation not the norm? Choose the option that you consider more important.  
+```{r}
+##Gurkirat##
+#I have continued to use arthimatic mean as it will be better to get weights reviewed and collectively verified once before pushing them on the graph code.
+
+q7full_mean_ones <- round(mean(summary_state_analysis$X130ones)*100,2) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q7full_mean_twos <- round(mean(summary_state_analysis$X130twos)*100,2)
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.")
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
+q7full_plot_dta$wrapped_labels = str_wrap(q7full_plot_dta$q7full_plot_labels, width = 10)
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q7full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) + 
+  scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 40)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption= "Question 7") +
+  newtheme
+
+q7full_plot
+
+##Gurkirat##
+
+```
+Example graph IV: Question 3, X18 (4 responses)
+Q. In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
+```{r}
+##Gurkirat##
+q3full_mean_ones <- round(mean(summary_state_analysis$X18ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q3full_mean_twos <- round(mean(summary_state_analysis$X18twos)*100,3) 
+q3full_mean_threes <- round(mean(summary_state_analysis$X18threes)*100,3)
+q3full_mean_fours <- round(mean(summary_state_analysis$X18fours)*100,3)
+q3full_plot <- c(q3full_mean_ones, q3full_mean_twos, q3full_mean_threes, q3full_mean_fours) 
+q3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.","Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.","Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.") 
+q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels) 
+q3full_plot_dta$wrapped_labels = str_wrap(q3full_plot_dta$q3full_plot_labels, width = 50)
+q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, fill = q3full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q3full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 3") +
+  newtheme
+
+q3full_plot
+
+
+##Gurkirat##
+```
+Example graph V: Question 8, X131 (Binary answers)
+Q. The unprecedented nature of this pandemic has meant that policy has had to constantly evolve and change to confront the challenges. Explanations for changes have rarely been given to the public. In this context, which statement would you agree with more?
+
+```{r}
+##Gurkirat##
+q8full_mean_ones <- round(mean(summary_state_analysis$X131ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q8full_mean_twos <- round(mean(summary_state_analysis$X131twos)*100,3) 
+q8full_mean_threes <- round(mean(summary_state_analysis$X131threes)*100,3)
+q8full_mean_fours <- round(mean(summary_state_analysis$X131fours)*100,3)
+q8full_plot <- c(q8full_mean_ones, q8full_mean_twos, q8full_mean_threes, q8full_mean_fours) 
+q8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.") 
+q8full_plot_dta <- data.frame(q8full_plot, q8full_plot_labels) 
+q8full_plot_dta$wrapped_labels = str_wrap(q8full_plot_dta$q8full_plot_labels, width = 50)
+q8full_plot <- ggplot(q8full_plot_dta, aes(x=q8full_plot_labels, y=q8full_plot, fill = q8full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q8full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q8full_plot_labels) str_wrap(q8full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 8") +
+  newtheme
+
+q8full_plot
+
+##Gurkirat##
+```
+
+Example graph VI: Question 9, X132 (4 responses)
+The government has been criticised for permitting large gatherings (during election campaigning and religious/cultural events like the kumbh mela) that may have accelerated the surge. Which of the following statements would you agree with most?
+```{r}
+##Gurkirat##
+
+q9full_mean_ones <- round(mean(summary_state_analysis$X132ones)*100,2) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q9full_mean_twos <- round(mean(summary_state_analysis$X132twos)*100,2)
+q9full_plot <- c(q9full_mean_ones, q9full_mean_twos) 
+q9full_plot_labels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation from the public.")
+q9full_plot_dta <- data.frame(q9full_plot, q9full_plot_labels) 
+q9full_plot_dta$wrapped_labels = str_wrap(q9full_plot_dta$q9full_plot_labels, width = 10)
+q9full_plot <- ggplot(q9full_plot_dta, aes(x=q9full_plot_labels, y=q9full_plot, fill = q9full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q9full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) + 
+  scale_x_discrete(labels = function(q9full_plot_labels) str_wrap(q9full_plot_labels, width = 40)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption= "Question 9") +
+  newtheme
+
+q9full_plot
+
+##Gurkirat##
+
+```
+
+Example graph VII: Question 10, X133 (3 responses)
+Q. India’s vaccine procurement policy has undergone multiple changes in a short span of time. What, in your opinion, best explains these frequent changes?
+```{r}
+##Gurkirat##
+q10full_mean_ones <- round(mean(summary_state_analysis$X133ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q10full_mean_twos <- round(mean(summary_state_analysis$X133twos)*100,3) 
+q10full_mean_threes <- round(mean(summary_state_analysis$X133threes)*100,3)
+q10full_plot <- c(q10full_mean_ones, q10full_mean_twos, q10full_mean_threes) 
+q10full_plot_labels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature of our country.") 
+q10full_plot_dta <- data.frame(q10full_plot, q10full_plot_labels) 
+q10full_plot_dta$wrapped_labels = str_wrap(q10full_plot_dta$q10full_plot_labels, width = 10)
+q10full_plot <- ggplot(q10full_plot_dta, aes(x=q10full_plot_labels, y=q10full_plot, fill = q10full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q10full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q10full_plot_labels) str_wrap(q10full_plot_labels, width = 30)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 10") +
+  newtheme
+
+q10full_plot
+
+##Gurkirat##
 ```
