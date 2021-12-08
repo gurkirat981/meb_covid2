@@ -69,10 +69,11 @@ ias_processed_dta<-ias_processed_dta %>%
   mutate(pre2012=rowSums(.[2:31])) %>% #1982 to 2011
   mutate(post2012=rowSums(.[32:40])) %>% 
   mutate(total= rowSums(.[41:42])) %>% 
-  mutate(prop_pre2012_age = pre2012/sum(pre2012)) %>% 
-  mutate(prop_post2012_age = post2012/sum(post2012)) %>% 
+  mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
+  mutate(age_weight_young = post2012/sum(post2012)) %>% 
   bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% #Help:I don't know why this red cross is showing up, because the code runs exactly like I want it to and without errors
   mutate(prop_pre2012_withinstate = pre2012/total) %>% 
+  mutate (state_weight = total/5279) %>% 
   mutate(prop_post2012_withinstate = post2012/total)  
   
   #prop_pre2012_age is the proportion of young officers in X state out of all young officers. The sum of prop_pre2012_age for all states is equal to 1 
