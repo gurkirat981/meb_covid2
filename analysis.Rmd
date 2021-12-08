@@ -129,7 +129,7 @@ processed_dta<-processed_dta %>%
 
 ```{r, include=FALSE}
 #Data Wrangling
-set.seed(24102020)
+set.seed(24102021)
 #Creating a dataset of currently serving officers with columns indicating (1) the allocated state (2) their SDG classification and (3) the age of the officers
 
 #Need to check and add the exact distribution of officers in the states and UT for combined cadres
@@ -332,11 +332,21 @@ X17_plot <- ggplot(X17_plot_dta, aes(x=X17_plot_labels, y=X17_plot_means, fill =
 ##Shubhangi##
 #Creating a column of weights for states within each SDG tier 
 #This code requires three different datasets: the summary_state (mean averages for each answer choice), ias_processed_dta (distribution of IAS officers by state and age) and full_serving (since it has a column denoting the SDG tiers) 
+
+
+#Creating vectors for the position of states in the IAS dataset according to their SDG tiers 
+aspirant<-which((ias_processed_dta$State=="Assam")| (ias_processed_dta$State=="Bihar") | (ias_processed_dta$State=="Uttar Pradesh"))
+frontrunner<-which((ias_processed_dta$State=="Puducherry")|(ias_processed_dta$State=="Tamil Nadu")|(ias_processed_dta$State=="Kerala")|(ias_processed_dta$State=="Himachal Pradesh")|(ias_processed_dta$State=="Chandigarh"))
+performers<-which(!(ias_processed_dta$State %in% ias_processed_dta$State[frontrunner])&!(ias_processed_dta$State %in% ias_processed_dta$State[aspirant]))
+
+
 summary_state_analysis <- summary_state %>% 
-  mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total/sum(full_serving$sdg=="Aspirant"), 
-                             ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total/sum(full_serving$sdg=="Frontrunner"), ias_processed_dta$total/sum(full_serving$sdg=="Performer"))))
+  mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
+                             ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
 ##Shubhangi##
 ```
+
+
 
 
 ```{r, include=FALSE}
@@ -345,14 +355,16 @@ summary_state_analysis <- summary_state %>%
 
 #Note: I had to combine two data frames (subset of ias_processed_dta & summary_state_analysis) because it is not  possible to execute dplyr commands with multiple data frames particularly when the row size is different across data frames ("Andaman and Nicobar Islands" and "Lakshadweep Islands" in IAS grouped data). It was rendering an error when I tried doing the analysis in a single data frame. (not the case with "ifelse")
 
-ias_processed_dta <- ias_processed_dta %>% 
-mutate (state_weight = total/sum(total)) %>% 
-mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
-mutate(age_weight_young = post2012/sum(post2012)) 
+# ias_processed_dta <- ias_processed_dta %>% 
+# mutate (state_weight = total/sum(total)) %>% 
+# mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
+# mutate(age_weight_young = post2012/sum(post2012)) 
+#Shubhangi says: this is already in the IAS distribution code under a different variable name, check and change the variable name in the following code!  
+
 
 ias_processed_dta1 <- ias_processed_dta %>% 
 dplyr:: select (State, age_weight_old, age_weight_young, state_weight) %>% 
-subset(State !="Andaman and Nicobar Islands" & State !="Lakshadweep Islands" & State !="Total")
+subset(State !="Andaman and Nicobar Islands" & State !="Lakshadweep Islands" & State !="Total"))
 
 summary_state_analysis <- cbind (summary_state_analysis, ias_processed_dta1)
 
