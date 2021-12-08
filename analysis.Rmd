@@ -129,7 +129,7 @@ processed_dta<-processed_dta %>%
 
 ```{r, include=FALSE}
 #Data Wrangling
-set.seed(24102021)
+set.seed(24102020)
 #Creating a dataset of currently serving officers with columns indicating (1) the allocated state (2) their SDG classification and (3) the age of the officers
 
 #Need to check and add the exact distribution of officers in the states and UT for combined cadres
@@ -138,8 +138,15 @@ full_serving <- processed_dta %>%
   filter(X13=="Yes, currently serving") 
 
 full_serving <- full_serving %>% 
-  mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
-                       ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12))) %>% 
+
+#previous code for AGMUT and AM division
+#mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
+                       #ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
+
+#altered code for AGMUT and AM division (needs to be reviewed)
+mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
+                       ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
+  
    mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
                        ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
    mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before"))
@@ -359,12 +366,13 @@ summary_state_analysis <- summary_state %>%
 # mutate (state_weight = total/sum(total)) %>% 
 # mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
 # mutate(age_weight_young = post2012/sum(post2012)) 
-#Shubhangi says: this is already in the IAS distribution code under a different variable name, check and change the variable name in the following code!  
+#Shubhangi says: this is already in the IAS distribution code under a different variable name, check and change the variable name in the following code! 
+#differing rows error:b need to get the alternate code reviewed before pushing changes.
 
 
 ias_processed_dta1 <- ias_processed_dta %>% 
 dplyr:: select (State, age_weight_old, age_weight_young, state_weight) %>% 
-subset(State !="Andaman and Nicobar Islands" & State !="Lakshadweep Islands" & State !="Total"))
+subset(State !="Total")
 
 summary_state_analysis <- cbind (summary_state_analysis, ias_processed_dta1)
 
