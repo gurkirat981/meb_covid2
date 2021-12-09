@@ -43,7 +43,7 @@ library(ggpubr)
 
 #Mac import
 
-raw_dta <- read_csv("meb2data_23nov.csv.csv", col_names = FALSE)
+raw_dta <- read_csv("meb2data_9dec.csv", col_names = FALSE)
 ```
 
 ```{r, include=FALSE}
@@ -51,12 +51,12 @@ raw_dta <- read_csv("meb2data_23nov.csv.csv", col_names = FALSE)
 processed_dta<-raw_dta[-c(1,2),-c(2, 5:9,15,140,141)]%>%
 unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>%
   unite('Merged2', X56:X92, remove = FALSE, na.rm=TRUE) %>%
-  unite('Merged3',X93:X129, remove=FALSE, na.rm=TRUE)%>% 
-  subset(select=-(X19:X55))%>%
-  subset(select=-(X56:X92))%>%
-  subset(select=-(X93:X129))%>%
+  unite('Merged3',X93:X129, remove=FALSE, na.rm=TRUE) %>% 
+  select(-c(X19:X55)) %>%
+  select(-c(X56:X92)) %>%
+  select(-c(X93:X129)) %>%
   #na.omit %>%
-  filter(!is.na(X139))%>%
+  filter(!is.na(X139))%>% #This is to filter out incomplete responses.
   filter(X10=="Yes") %>% 
  separate(Merged1, c('Merged1.1', 'Merged1.2'), sep = "([_])") %>% 
  separate(Merged2, c('Merged2.1', 'Merged2.2'), sep = "([_])") 
@@ -147,6 +147,8 @@ full_serving <- full_serving %>%
 mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
                        ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
   
+#check for alternatives for the sample command
+#
    mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
                        ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
    mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before"))
