@@ -143,7 +143,7 @@ full_serving <- full_serving %>%
 #mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
                        #ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
 
-#altered code for AGMUT and AM division (needs to be reviewed)
+#altered code for AGMUT and AM division (needs to be reviewed) 
 mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
                        ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
   
@@ -253,6 +253,45 @@ summary_cadre<-full_serving %>%
  
 ```
 
+
+```{r, include=FALSE}
+##Shubhangi##
+#Creating a column of weights for states within each SDG tier 
+#This code requires three different datasets: the summary_state (mean averages for each answer choice), ias_processed_dta (distribution of IAS officers by state and age) and full_serving (since it has a column denoting the SDG tiers) 
+
+
+#Creating vectors for the position of states in the IAS dataset according to their SDG tiers 
+aspirant<-which((ias_processed_dta$State=="Assam")| (ias_processed_dta$State=="Bihar") | (ias_processed_dta$State=="Uttar Pradesh"))
+frontrunner<-which((ias_processed_dta$State=="Puducherry")|(ias_processed_dta$State=="Tamil Nadu")|(ias_processed_dta$State=="Kerala")|(ias_processed_dta$State=="Himachal Pradesh")|(ias_processed_dta$State=="Chandigarh"))
+performers<-which(!(ias_processed_dta$State %in% ias_processed_dta$State[frontrunner])&!(ias_processed_dta$State %in% ias_processed_dta$State[aspirant]))
+
+
+summary_state_analysis <- summary_state %>% 
+  mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
+                             ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
+##Shubhangi##
+```
+
+
+
+
+```{r, include=FALSE}
+##Gurkirat##
+#Adding state weights and age weights, and then transferring them from "ias_processed_dta" to "summary_state_analysis"
+
+ias_processed_dta1 <- ias_processed_dta %>% 
+dplyr:: select (State, age_weight_old, age_weight_young, state_weight) %>% 
+subset(State !="Total")
+
+summary_state_analysis <- cbind (summary_state_analysis, ias_processed_dta1)
+
+summary_state_analysis <- summary_state_analysis %>% 
+dplyr :: select (-State)
+
+##Gurkirat##
+
+```
+
 Example graph I: Question 1, X16 (binary answers)
 Q. Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India? 
 ```{r}
@@ -341,54 +380,6 @@ X17_plot <- ggplot(X17_plot_dta, aes(x=X17_plot_labels, y=X17_plot_means, fill =
   ##Shubhangi##
 ```
 
-```{r, include=FALSE}
-##Shubhangi##
-#Creating a column of weights for states within each SDG tier 
-#This code requires three different datasets: the summary_state (mean averages for each answer choice), ias_processed_dta (distribution of IAS officers by state and age) and full_serving (since it has a column denoting the SDG tiers) 
-
-
-#Creating vectors for the position of states in the IAS dataset according to their SDG tiers 
-aspirant<-which((ias_processed_dta$State=="Assam")| (ias_processed_dta$State=="Bihar") | (ias_processed_dta$State=="Uttar Pradesh"))
-frontrunner<-which((ias_processed_dta$State=="Puducherry")|(ias_processed_dta$State=="Tamil Nadu")|(ias_processed_dta$State=="Kerala")|(ias_processed_dta$State=="Himachal Pradesh")|(ias_processed_dta$State=="Chandigarh"))
-performers<-which(!(ias_processed_dta$State %in% ias_processed_dta$State[frontrunner])&!(ias_processed_dta$State %in% ias_processed_dta$State[aspirant]))
-
-
-summary_state_analysis <- summary_state %>% 
-  mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
-                             ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
-##Shubhangi##
-```
-
-
-
-
-```{r, include=FALSE}
-##Gurkirat##
-#Adding state weights and age weights, and then transferring them from "ias_processed_dta" to "summary_state_analysis"
-
-#Note: I had to combine two data frames (subset of ias_processed_dta & summary_state_analysis) because it is not  possible to execute dplyr commands with multiple data frames particularly when the row size is different across data frames ("Andaman and Nicobar Islands" and "Lakshadweep Islands" in IAS grouped data). It was rendering an error when I tried doing the analysis in a single data frame. (not the case with "ifelse")
-
-# ias_processed_dta <- ias_processed_dta %>% 
-# mutate (state_weight = total/sum(total)) %>% 
-# mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
-# mutate(age_weight_young = post2012/sum(post2012)) 
-#Shubhangi says: this is already in the IAS distribution code under a different variable name, check and change the variable name in the following code! 
-#differing rows error:b need to get the alternate code reviewed before pushing changes.
-
-
-ias_processed_dta1 <- ias_processed_dta %>% 
-dplyr:: select (State, age_weight_old, age_weight_young, state_weight) %>% 
-subset(State !="Total")
-
-summary_state_analysis <- cbind (summary_state_analysis, ias_processed_dta1)
-
-summary_state_analysis <- summary_state_analysis %>% 
-dplyr :: select (-State)
-
-##Gurkirat##
-
-```
-
 Example graph III: Question 7, X130 (4 binary answers)
 Q. Some examples of successful management of the challenges posed by the pandemic show that civil servants can perform even under very difficult circumstances. Why is this situation not the norm? Choose the option that you consider more important.  
 ```{r}
@@ -442,7 +433,7 @@ q3full_plot
 ##Gurkirat##
 ```
 Example graph V: Question 8, X131 (Binary answers)
-Q. The unprecedented nature of this pandemic has meant that policy has had to constantly evolve and change to confront the challenges. Explanations for changes have rarely been given to the public. In this context, which statement would you agree with more?
+Q. The government has been criticised for permitting large gatherings (during election campaigning and religious/cultural events like the kumbh mela) that may have accelerated the surge. Which of the following statements would you agree with most?
 
 ```{r}
 ##Gurkirat##
@@ -469,7 +460,7 @@ q8full_plot
 ```
 
 Example graph VI: Question 9, X132 (4 responses)
-The government has been criticised for permitting large gatherings (during election campaigning and religious/cultural events like the kumbh mela) that may have accelerated the surge. Which of the following statements would you agree with most?
+Q. The unprecedented nature of this pandemic has meant that policy has had to constantly evolve and change to confront the challenges. Explanations for changes have rarely been given to the public. In this context, which statement would you agree with more?
 ```{r}
 ##Gurkirat##
 
