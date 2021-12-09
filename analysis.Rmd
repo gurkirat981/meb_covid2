@@ -32,6 +32,7 @@ library(janitor)
 library(gridExtra)
 library(grid)
 library(ggpubr)
+library(tidyr)
 ```
 
 ```{r, include=FALSE}
@@ -45,8 +46,6 @@ library(ggpubr)
 
 raw_dta <- read_csv("meb2data_16nov.csv", col_names = FALSE)
 ```
-
-
 
 
 
