@@ -147,8 +147,6 @@ full_serving <- full_serving %>%
 mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
                        ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
   
-#check for alternatives for the sample command
-#
    mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
                        ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
    mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before"))
@@ -263,17 +261,18 @@ summary_cadre<-full_serving %>%
 
 
 #Creating vectors for the position of states in the IAS dataset according to their SDG tiers 
-aspirant<-which((ias_processed_dta$State=="Assam")| (ias_processed_dta$State=="Bihar") | (ias_processed_dta$State=="Uttar Pradesh"))
-frontrunner<-which((ias_processed_dta$State=="Puducherry")|(ias_processed_dta$State=="Tamil Nadu")|(ias_processed_dta$State=="Kerala")|(ias_processed_dta$State=="Himachal Pradesh")|(ias_processed_dta$State=="Chandigarh"))
-performers<-which(!(ias_processed_dta$State %in% ias_processed_dta$State[frontrunner])&!(ias_processed_dta$State %in% ias_processed_dta$State[aspirant]))
+#aspirant<-which((ias_processed_dta$State=="Assam")| (ias_processed_dta$State=="Bihar") | (ias_processed_dta$State=="Uttar Pradesh"))
+#frontrunner<-which((ias_processed_dta$State=="Puducherry")|(ias_processed_dta$State=="Tamil Nadu")|(ias_processed_dta$State=="Kerala")|(ias_processed_dta$State=="Himachal Pradesh")|(ias_processed_dta$State=="Chandigarh"))
+#performers<-which(!(ias_processed_dta$State %in% ias_processed_dta$State[frontrunner])&!(ias_processed_dta$State %in% ias_processed_dta$State[aspirant]))
 
 
-summary_state_analysis <- summary_state %>% 
-  mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
-                             ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
+#summary_state_analysis <- summary_state %>% 
+  #mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
+                             #ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
 ##Shubhangi##
 
-#Identified errors in state-sdg weights, need to rectify.
+#Manually calculated some weights on excel and identified errors in "sdg_weight" obtained from this code.
+#We can consider copying the "IAS Distribution rmd" here as a separate code chunk.
 ```
 
 
@@ -284,10 +283,9 @@ summary_state_analysis <- summary_state %>%
 #Adding state weights and age weights, and then transferring them from "ias_processed_dta" to "summary_state_analysis"
 
 ias_processed_dta1 <- ias_processed_dta %>% 
-dplyr:: select (State, age_weight_old, age_weight_young, state_weight) %>% 
-subset(State !="Total")
+dplyr:: select (State, age_weight_old, age_weight_young, state_weight, sdgtier_weight) 
 
-summary_state_analysis <- cbind (summary_state_analysis, ias_processed_dta1)
+summary_state_analysis <- cbind (summary_state, ias_processed_dta1)
 
 summary_state_analysis <- summary_state_analysis %>% 
 dplyr :: select (-State)
