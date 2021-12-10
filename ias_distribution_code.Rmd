@@ -19,7 +19,7 @@ ias_processed_dta<-ias_raw_dta %>%
 ias_processed_dta$State<-as.character(ias_processed_dta$State) 
 #need to look for an alternative to divide combined cadres
 ias_processed_dta<-ias_processed_dta %>% 
-  mutate(State = ifelse(State=="Chhasttisgarh", "Chhattisgarh",State)) %>% 
+  mutate(State = ifelse(State=="Chhasttisgarh", "Chhattisgarh", ifelse(State== "Maharastra", "Maharashtra", State))) %>% 
   mutate(State = ifelse(State== "Assam Meghalya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(ias_processed_dta$State=="Assam Meghalya")), replace = TRUE),   
                        ifelse(State=="A G M U T", sample(c("Delhi", "Arunachal Pradesh","Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.05), size = length(which(ias_processed_dta$State=="A G M U T")), replace = TRUE),
                        ifelse(State=="Manipur-Tripura", sample(c("Manipur", "Tripura"), prob =c(0.5, 0.5), size=length(which(ias_processed_dta$State=="Manipur-Tripura")), replace =TRUE), State)))) %>% 
