@@ -49,7 +49,7 @@ raw_dta <- read_csv("meb2data_9dec.csv", col_names = FALSE)
 ```{r, include=FALSE}
 #Clean up: deleting extra columns, merging the state related questions, deleting the old state columns, removing all incomplete answers, adding two filters to ensure only responses by currently serving IAS officers
 processed_dta<-raw_dta[-c(1,2),-c(2, 5:9,15,140,141)]%>%
-unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>%
+unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>% #adding randomly to check
   unite('Merged2', X56:X92, remove = FALSE, na.rm=TRUE) %>%
   unite('Merged3',X93:X129, remove=FALSE, na.rm=TRUE) %>% 
   select(-c(X19:X55)) %>%
