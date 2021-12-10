@@ -272,6 +272,8 @@ summary_state_analysis <- summary_state %>%
   mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
                              ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
 ##Shubhangi##
+
+#Identified errors in state-sdg weights, need to rectify.
 ```
 
 
