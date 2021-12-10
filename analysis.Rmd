@@ -1,0 +1,513 @@
+---
+title: "Analysis of MEB COVID Survey 2"
+author: "MEB Team"
+date: "16 Nov 2021"
+output: pdf_document
+---
+
+\Large Note: Will explain later
+
+\newpage
+\tableofcontents 
+
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = FALSE)
+
+library(cowplot)
+library(tidyverse)
+library(ggplot2)
+library(MASS)
+library(ggrepel)
+library(RColorBrewer)
+library(stargazer)
+library(DeclareDesign)
+library(texreg)
+library(car)
+library(lubridate)
+library(scales)
+library(cowplot)
+library(writexl)
+library(janitor)
+library(gridExtra)
+library(grid)
+library(ggpubr)
+```
+
+```{r, include=FALSE}
+#Import data
+
+#PC import
+
+#raw_dta <- read_csv("C:/Users/Aditya/Google Drive (aditya.unnikrishnan@cprindia.org)/State Capacity/Moral Economy Survey/COVID Short Survey/data_analysis_results/01_raw_data/meb_02102020.csv", col_names = FALSE)
+
+#Mac import
+
+raw_dta <- read_csv("meb2data_9dec.csv", col_names = FALSE)
+```
+
+```{r, include=FALSE}
+#Clean up: deleting extra columns, merging the state related questions, deleting the old state columns, removing all incomplete answers, adding two filters to ensure only responses by currently serving IAS officers
+processed_dta<-raw_dta[-c(1,2),-c(2, 5:9,15,140,141)]%>%
+unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>% #adding randomly to check
+  unite('Merged2', X56:X92, remove = FALSE, na.rm=TRUE) %>%
+  unite('Merged3',X93:X129, remove=FALSE, na.rm=TRUE) %>% 
+  select(-c(X19:X55)) %>%
+  select(-c(X56:X92)) %>%
+  select(-c(X93:X129)) %>%
+  #na.omit %>%
+  filter(!is.na(X139))%>% #This is to filter out incomplete responses.
+  filter(X10=="Yes") %>% 
+ separate(Merged1, c('Merged1.1', 'Merged1.2'), sep = "([_])") %>% 
+ separate(Merged2, c('Merged2.1', 'Merged2.2'), sep = "([_])") 
+```
+
+```{r, include=FALSE}
+#Checking for outliers 
+#Batch outliers
+hist(as.numeric(raw_dta$X11), col="#ccf5ff", border=F, xlab="Year of Joining", ylab = "Frequency", main= "Distribution of IAS Batches")
+#None
+
+#Respondents who sped through the survey (min time = 3 minutes)
+processed_dta$time_spent<-mdy_hms(processed_dta$X4, tz="Asia/Kolkata")- mdy_hms(processed_dta$X3, tz="Asia/Kolkata")
+processed_dta<-processed_dta %>%
+  mutate(speeders=ifelse(time_spent<3, 1, 0)) 
+#Decided not to exclude anyone on this basis
+
+#The number of NA responses for each question in the processed data
+processed_dta %>% 
+  dplyr::select(everything()) %>% 
+  summarise_all(funs(sum(is.na(.))))
+#Column X136 has 69 NAs, all others have zero.
+```
+
+```{r, include=FALSE}
+#Define new theme 
+newtheme <- theme_bw() +
+  theme(panel.border = element_rect(color = "darkgrey", size = 2), 
+        panel.grid.major = element_blank()
+        )
+```
+
+```{r, include=FALSE}
+#Recoding answer options from character strings to numeric values for the processed_dta 
+#Q7 (X16) #Q8 (X17) #Q9 (X18) #Q13 (X130) #Q15 (X132)  #Q16 (X133) #Q17 (X134) #Q18 (X135) #20 (X137) #Q21 (X138) #Q22 (X139)
+#Deleting Q19 (X136) as is since this is the error question 
+
+processed_dta<-processed_dta %>% 
+  mutate(X16 = ifelse(X16== "The second Covid-19 surge was expected and should have seen much more advance planning.", 1, 2)) %>% 
+  mutate(X17 = ifelse(X17 =="Even proposals for advance planning received little purchase in the last one year.",1,
+                      ifelse(X17 =="Planning got lost mid-way due to signals that we have managed the pandemic well.", 2,
+                             ifelse(X17 == "Systematic advance planning has never been part of our ethos.", 3, 4)))) %>%
+  mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
+                      ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
+                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4)))) %>%                            
+  mutate(X130 = ifelse(X130=="Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", 1, 2)) %>% 
+  mutate(X131 =ifelse(X131=="Knowing the risks involved, such events should not have been scheduled at all.",1,
+                      ifelse(X131=="The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).", 2,
+                             ifelse(X131=="The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", 3,4)))) %>% 
+  mutate(X132 = ifelse(X132=="Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.", 1, 2)) %>% 
+  mutate (X133= ifelse (X133 == "During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.", 1, 
+                      ifelse(X133 == "Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.", 2, 3))) %>%
+  mutate (X134 = ifelse (X134 == "India has successfully followed this nationally laid down trajectory of vaccine implementation.", 1, 
+                       ifelse(X134 == "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", 2, 
+                              ifelse(X134 == "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", 3, 4)))) %>% 
+  mutate (X135 = ifelse (X135 == "We could at least use our networks to render some assistance at an individual level.", 1, 
+                       ifelse(X135 == "We should have done so much more to improve the system when we had the time.", 2, 
+                              ifelse(X135 == "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", 3, 4)))) %>%
+  mutate (X137 = ifelse (X137 == "The government’s fiscal situation did not permit such measures.", 1, 
+                       ifelse(X137 == "The pandemic’s limited initial impact led to a view that mass vaccination would not be urgently required in India.", 2, 
+                              ifelse(X137 == "The private sector in India does not inspire confidence.", 3, 4)))) %>% 
+  mutate (X138 = ifelse (X138 == "Slightly agree", 1, 
+                       ifelse(X138 == "Slightly disagree", 2, 
+                              ifelse(X138 == "Strongly agree", 3, 4)))) %>%
+  mutate (X139 = ifelse (X139 == "By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", 1, 
+                       ifelse(X139 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3))) %>% 
+  dplyr::select(-X136)
+```
+
+
+```{r, include=FALSE}
+#Data Wrangling
+set.seed(24102020)
+#Creating a dataset of currently serving officers with columns indicating (1) the allocated state (2) their SDG classification and (3) the age of the officers
+
+#Need to check and add the exact distribution of officers in the states and UT for combined cadres
+#Question for Aditya: how did the sample function work last time? 
+full_serving <- processed_dta %>% 
+  filter(X13=="Yes, currently serving") 
+
+full_serving <- full_serving %>% 
+
+#previous code for AGMUT and AM division
+#mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
+                       #ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
+
+#altered code for AGMUT and AM division (needs to be reviewed) 
+mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
+                       ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
+  
+#check for alternatives for the sample command
+#
+   mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
+                       ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
+   mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before"))
+
+
+#Creating a dataset of former IAS officers and adding the same three columns as above to help with merging the two datasets 
+full_former<-processed_dta %>% 
+  filter(X13=="No, I am a former IAS officer") %>% 
+  mutate(state = NA) %>% #state and sdg are kept NA for now. However we can make these allocations if needed 
+  mutate(sdg = NA) %>% 
+  mutate(age ="Former officer")
+```
+
+```{r}
+#Creating subsets
+
+#SDG subsets
+#Dataset of aspirant states 
+fullsdg_aspirant <- full_serving %>% 
+  filter(sdg == "Aspirant") #46 observations 
+
+#Dataset of performer states
+fullsdg_performer <- full_serving %>% 
+  filter(sdg == "Performer") #313 observations
+
+#Dataset of frontrunner states
+fullsdg_frunner <- full_serving %>% 
+  filter(sdg == "Frontrunner") #65 observations 
+
+#Age subsets
+#Dataset of young officers
+fullage_young <- full_serving %>% 
+  filter(age == "2012 and after") #231
+
+#Dataset with old officers
+fullage_old <- full_serving %>% 
+  filter(age == "2011 and before") #193
+
+#Dataset of all respondents, former and currently serving with columns for state, sdg and age 
+full_respondents<- full_serving %>% 
+  add_row(full_former)
+```
+
+```{r, include=FALSE}
+#Creating a dataset with the averages for each answer choice for all questions
+#Used to check with Survey Monkey 
+summary_nogroup<-full_serving %>% 
+  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139)) %>% 
+  summarise(X16ones=sum(X16==1)/length(X16), X16twos=sum(X16==2)/length(X16),
+            X17ones=sum(X17==1)/length(X17), X17twos=sum(X17==2)/length(X17), X17threes=sum(X17==3)/length(X17), X17fours=sum(X17==4)/length(X17),
+            X18ones=sum(X18==1)/length(X18), X18twos=sum(X18==2)/length(X18), X18threes=sum(X18==3)/length(X18), X18fours=sum(X18==4)/length(X18), 
+            X130ones=sum(X130==1)/length(X130), X130twos=sum(X130==2)/length(X130),
+            X131ones=sum(X131==1)/length(X131), X131twos=sum(X131==2)/length(X131), X131threes=sum(X131==3)/length(X131), X131fours=sum(X131==4)/length(X131), 
+            X132ones=sum(X132==1)/length(X132), X132twos=sum(X132==2)/length(X132),
+            X133ones=sum(X133==1)/length(X133), X133twos=sum(X133==2)/length(X133), X133threes=sum(X133==3)/length(X133),
+            X134ones=sum(X134==1)/length(X134), X134twos=sum(X134==2)/length(X134), X134threes=sum(X134==3)/length(X134), X134fours=sum(X134==4)/length(X134), 
+            X135ones=sum(X135==1)/length(X135), X135twos=sum(X135==2)/length(X135), X135threes=sum(X135==3)/length(X135), X135fours=sum(X135==4)/length(X135),
+            X137ones=sum(X137==1)/length(X137), X137twos=sum(X137==2)/length(X137), X137threes=sum(X137==3)/length(X137), X137fours=sum(X137==4)/length(X137),
+            X138ones=sum(X138==1)/length(X138), X138twos=sum(X138==2)/length(X138), X138threes=sum(X138==3)/length(X138), X138fours=sum(X138==4)/length(X138),
+            X139ones=sum(X139==1)/length(X139), X139twos=sum(X139==2)/length(X139), X139threes=sum(X139==3)/length(X139))%>% 
+  ungroup()
+```
+
+```{r, include=FALSE}
+#Creating a dataset with the averages for each answer choice for all questions grouped by the state 
+#Used for SDG comparison
+summary_state<-full_serving %>% 
+  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
+  group_by(state) %>% 
+  summarise(X16ones=sum(X16==1)/length(state), X16twos=sum(X16==2)/length(state),
+            X17ones=sum(X17==1)/length(state), X17twos=sum(X17==2)/length(state), X17threes=sum(X17==3)/length(state), X17fours=sum(X17==4)/length(state),
+            X18ones=sum(X18==1)/length(state), X18twos=sum(X18==2)/length(state), X18threes=sum(X18==3)/length(state), X18fours=sum(X18==4)/length(state), 
+            X130ones=sum(X130==1)/length(state), X130twos=sum(X130==2)/length(state),
+            X131ones=sum(X131==1)/length(state), X131twos=sum(X131==2)/length(state), X131threes=sum(X131==3)/length(state), X131fours=sum(X131==4)/length(state), 
+            X132ones=sum(X132==1)/length(state), X132twos=sum(X132==2)/length(state),
+            X133ones=sum(X133==1)/length(state), X133twos=sum(X133==2)/length(state), X133threes=sum(X133==3)/length(state),
+            X134ones=sum(X134==1)/length(state), X134twos=sum(X134==2)/length(state), X134threes=sum(X134==3)/length(state), X134fours=sum(X134==4)/length(state), 
+            X135ones=sum(X135==1)/length(state), X135twos=sum(X135==2)/length(state), X135threes=sum(X135==3)/length(state), X135fours=sum(X135==4)/length(state),
+            X137ones=sum(X137==1)/length(state), X137twos=sum(X137==2)/length(state), X137threes=sum(X137==3)/length(state), X137fours=sum(X137==4)/length(state),
+            X138ones=sum(X138==1)/length(state), X138twos=sum(X138==2)/length(state), X138threes=sum(X138==3)/length(state), X138fours=sum(X138==4)/length(state),
+            X139ones=sum(X139==1)/length(state), X139twos=sum(X139==2)/length(state), X139threes=sum(X139==3)/length(state)) %>% 
+  ungroup()
+```
+
+```{r}
+#Creating a dataset with the averages for each answer choice for all questions grouped by the cadre
+summary_cadre<-full_serving %>% 
+  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, X12)) %>% 
+  group_by(X12) %>% 
+  summarise(X16ones=sum(X16==1)/length(X12), X16twos=sum(X16==2)/length(X12),
+            X17ones=sum(X17==1)/length(X12), X17twos=sum(X17==2)/length(X12), X17threes=sum(X17==3)/length(X12), X17fours=sum(X17==4)/length(X12),
+            X18ones=sum(X18==1)/length(X12), X18twos=sum(X18==2)/length(X12), X18threes=sum(X18==3)/length(X12), X18fours=sum(X18==4)/length(X12), 
+            X130ones=sum(X130==1)/length(X12), X130twos=sum(X130==2)/length(X12),
+            X131ones=sum(X131==1)/length(X12), X131twos=sum(X131==2)/length(X12), X131threes=sum(X131==3)/length(X12), X131fours=sum(X131==4)/length(X12), 
+            X132ones=sum(X132==1)/length(X12), X132twos=sum(X132==2)/length(X12),
+            X133ones=sum(X133==1)/length(X12), X133twos=sum(X133==2)/length(X12), X133threes=sum(X133==3)/length(X12),
+            X134ones=sum(X134==1)/length(X12), X134twos=sum(X134==2)/length(X12), X134threes=sum(X134==3)/length(X12), X134fours=sum(X134==4)/length(X12), 
+            X135ones=sum(X135==1)/length(X12), X135twos=sum(X135==2)/length(X12), X135threes=sum(X135==3)/length(X12), X135fours=sum(X135==4)/length(X12),
+            X137ones=sum(X137==1)/length(X12), X137twos=sum(X137==2)/length(X12), X137threes=sum(X137==3)/length(X12), X137fours=sum(X137==4)/length(X12),
+            X138ones=sum(X138==1)/length(X12), X138twos=sum(X138==2)/length(X12), X138threes=sum(X138==3)/length(X12), X138fours=sum(X138==4)/length(X12),
+            X139ones=sum(X139==1)/length(X12), X139twos=sum(X139==2)/length(X12), X139threes=sum(X139==3)/length(X12)) %>% 
+  ungroup() %>% 
+  rename(cadre = "X12")
+ 
+```
+
+
+```{r, include=FALSE}
+##Shubhangi##
+#Creating a column of weights for states within each SDG tier 
+#This code requires three different datasets: the summary_state (mean averages for each answer choice), ias_processed_dta (distribution of IAS officers by state and age) and full_serving (since it has a column denoting the SDG tiers) 
+
+
+#Creating vectors for the position of states in the IAS dataset according to their SDG tiers 
+aspirant<-which((ias_processed_dta$State=="Assam")| (ias_processed_dta$State=="Bihar") | (ias_processed_dta$State=="Uttar Pradesh"))
+frontrunner<-which((ias_processed_dta$State=="Puducherry")|(ias_processed_dta$State=="Tamil Nadu")|(ias_processed_dta$State=="Kerala")|(ias_processed_dta$State=="Himachal Pradesh")|(ias_processed_dta$State=="Chandigarh"))
+performers<-which(!(ias_processed_dta$State %in% ias_processed_dta$State[frontrunner])&!(ias_processed_dta$State %in% ias_processed_dta$State[aspirant]))
+
+
+summary_state_analysis <- summary_state %>% 
+  mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
+                             ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
+##Shubhangi##
+```
+
+
+
+
+```{r, include=FALSE}
+##Gurkirat##
+#Adding state weights and age weights, and then transferring them from "ias_processed_dta" to "summary_state_analysis"
+
+ias_processed_dta1 <- ias_processed_dta %>% 
+dplyr:: select (State, age_weight_old, age_weight_young, state_weight) %>% 
+subset(State !="Total")
+
+summary_state_analysis <- cbind (summary_state_analysis, ias_processed_dta1)
+
+summary_state_analysis <- summary_state_analysis %>% 
+dplyr :: select (-State)
+
+##Gurkirat##
+
+```
+
+Example graph I: Question 1, X16 (binary answers)
+Q. Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India? 
+```{r}
+##Gurkirat##
+#Example graph for question 1. I have used Arithmetic Mean instead of Weighted Mean.
+q1full_mean_ones <- round(mean(summary_state_analysis$X16ones)*100,2) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q1full_mean_twos <- round(mean(summary_state_analysis$X16twos)*100,2)
+q1full_plot <- c(q1full_mean_ones, q1full_mean_twos) 
+q1full_plot_labels <- c("The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.", "The second Covid-19 surge was expected and should have seen much more advance planning.") 
+q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels) 
+q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_label, width = 10)
+q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q1full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 40)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption= "Question 1") +
+  newtheme
+
+q1full_plot
+
+##Gurkirat##
+```
+
+Example graph II: Question 15, X138 (4 responses)
+Q. To what extent would you agree with the following statement? 
+"NGOs and civil society rendered critical assistance to pandemic management in 2020. While they played an important role in the second wave (particularly for oxygen, hospital beds and food relief), increased regulation of their fundraising and activities has come in the way of their playing an even bigger role." 
+
+```{r}
+##Gurkirat##
+#Example graph for question 15. I have used Arithmetic Mean instead of Weighted Mean.
+
+q15full_mean_ones <- round(mean(summary_state_analysis$X138ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q15full_mean_twos <- round(mean(summary_state_analysis$X138twos)*100,3) 
+q15full_mean_threes <- round(mean(summary_state_analysis$X138threes)*100,3)
+q15full_mean_fours <- round(mean(summary_state_analysis$X138fours)*100,3)
+q15full_plot <- c(q15full_mean_ones, q15full_mean_twos, q15full_mean_threes, q15full_mean_fours) 
+q15full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree") 
+q15full_plot_dta <- data.frame(q15full_plot, q15full_plot_labels) 
+q15full_plot <- ggplot(q15full_plot_dta, aes(x=q15full_plot_labels, y=q15full_plot, fill = q15full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q15full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption= "Question 15") +
+  newtheme
+
+q15full_plot
+
+##Gurkirat##
+
+```
+
+#Rahul says: 
+#folks, the cadre wise dataset and example graphs look great. Next week, spend some time thinking about whether you want to improve the graph code we had written for the previous survey in any way. 
+#next steps: 
+#adding the weight by cadre - here my recommendation is not to do any manual addition of weights like we did last time. Rather, create a column of the number of officers by cadre from the TCPD population data. Merge that column with the cadre dataset. Then create a new column called weight = number_pop/sum(number_pop). 
+#creating a very simple dataset of final weighted responses for the full graphs. This should ideally have just one row with all the weighted averages and multiple columns for the responses. 
+#Replicate the graphs rather quickly (should be easy) for the full graphs. 
+
+#Pending decision - on weighting age. Let's chat about this Monday once we know the pop numbers. 
+
+
+```{r, include=FALSE}
+#Testing graphs
+##Shubhangi##
+X17_plot_means<-summary_cadre %>% 
+  dplyr::select(cadre, X17ones, X17twos, X17threes, X17fours) %>% 
+  mutate_if(is.numeric, ~ . * 100) %>% 
+  mutate_if(is.numeric, round,2) %>% 
+  bind_rows(summarise_all(.,~ if(is.numeric(.)) mean(.) else("Total"))) %>% 
+  slice_tail() %>% 
+  dplyr::select(-cadre) %>% 
+  unlist()
+
+X17_plot_labels<-c("Advance planning received little purchase in last 1 year", "Planning got lost due to signals that we have managed pandemic", "Advance planning has never been part of our ethos", "We took adequate measures to plan our responses") #labels are too long, will edit these later 
+X17_plot_dta <- data.frame(X17_plot_means, X17_plot_labels)
+
+X17_plot <- ggplot(X17_plot_dta, aes(x=X17_plot_labels, y=X17_plot_means, fill = X17_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE, fill=c("#fecc5c","#fd8d3c","#ffffb2",   "#e31a1c")) + 
+  geom_text(aes(label=scales::percent(X17_plot_means/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +  
+  labs(x="",y="Percent") +
+  newtheme
+  ##Shubhangi##
+```
+
+Example graph III: Question 7, X130 (4 binary answers)
+Q. Some examples of successful management of the challenges posed by the pandemic show that civil servants can perform even under very difficult circumstances. Why is this situation not the norm? Choose the option that you consider more important.  
+```{r}
+##Gurkirat##
+#I have continued to use arthimatic mean as it will be better to get weights reviewed and collectively verified once before pushing them on the graph code.
+
+q7full_mean_ones <- round(mean(summary_state_analysis$X130ones)*100,2) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q7full_mean_twos <- round(mean(summary_state_analysis$X130twos)*100,2)
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.")
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
+q7full_plot_dta$wrapped_labels = str_wrap(q7full_plot_dta$q7full_plot_labels, width = 10)
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q7full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) + 
+  scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 40)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption= "Question 7") +
+  newtheme
+
+q7full_plot
+
+##Gurkirat##
+
+```
+Example graph IV: Question 3, X18 (4 responses)
+Q. In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
+```{r}
+##Gurkirat##
+q3full_mean_ones <- round(mean(summary_state_analysis$X18ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q3full_mean_twos <- round(mean(summary_state_analysis$X18twos)*100,3) 
+q3full_mean_threes <- round(mean(summary_state_analysis$X18threes)*100,3)
+q3full_mean_fours <- round(mean(summary_state_analysis$X18fours)*100,3)
+q3full_plot <- c(q3full_mean_ones, q3full_mean_twos, q3full_mean_threes, q3full_mean_fours) 
+q3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.","Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.","Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.") 
+q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels) 
+q3full_plot_dta$wrapped_labels = str_wrap(q3full_plot_dta$q3full_plot_labels, width = 50)
+q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, fill = q3full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q3full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 3") +
+  newtheme
+
+q3full_plot
+
+
+##Gurkirat##
+```
+Example graph V: Question 8, X131 (Binary answers)
+Q. The government has been criticised for permitting large gatherings (during election campaigning and religious/cultural events like the kumbh mela) that may have accelerated the surge. Which of the following statements would you agree with most?
+
+```{r}
+##Gurkirat##
+q8full_mean_ones <- round(mean(summary_state_analysis$X131ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q8full_mean_twos <- round(mean(summary_state_analysis$X131twos)*100,3) 
+q8full_mean_threes <- round(mean(summary_state_analysis$X131threes)*100,3)
+q8full_mean_fours <- round(mean(summary_state_analysis$X131fours)*100,3)
+q8full_plot <- c(q8full_mean_ones, q8full_mean_twos, q8full_mean_threes, q8full_mean_fours) 
+q8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.") 
+q8full_plot_dta <- data.frame(q8full_plot, q8full_plot_labels) 
+q8full_plot_dta$wrapped_labels = str_wrap(q8full_plot_dta$q8full_plot_labels, width = 50)
+q8full_plot <- ggplot(q8full_plot_dta, aes(x=q8full_plot_labels, y=q8full_plot, fill = q8full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q8full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q8full_plot_labels) str_wrap(q8full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 8") +
+  newtheme
+
+q8full_plot
+
+##Gurkirat##
+```
+
+Example graph VI: Question 9, X132 (4 responses)
+Q. The unprecedented nature of this pandemic has meant that policy has had to constantly evolve and change to confront the challenges. Explanations for changes have rarely been given to the public. In this context, which statement would you agree with more?
+```{r}
+##Gurkirat##
+
+q9full_mean_ones <- round(mean(summary_state_analysis$X132ones)*100,2) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q9full_mean_twos <- round(mean(summary_state_analysis$X132twos)*100,2)
+q9full_plot <- c(q9full_mean_ones, q9full_mean_twos) 
+q9full_plot_labels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation from the public.")
+q9full_plot_dta <- data.frame(q9full_plot, q9full_plot_labels) 
+q9full_plot_dta$wrapped_labels = str_wrap(q9full_plot_dta$q9full_plot_labels, width = 10)
+q9full_plot <- ggplot(q9full_plot_dta, aes(x=q9full_plot_labels, y=q9full_plot, fill = q9full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q9full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) + 
+  scale_x_discrete(labels = function(q9full_plot_labels) str_wrap(q9full_plot_labels, width = 40)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption= "Question 9") +
+  newtheme
+
+q9full_plot
+
+##Gurkirat##
+
+```
+
+Example graph VII: Question 10, X133 (3 responses)
+Q. India’s vaccine procurement policy has undergone multiple changes in a short span of time. What, in your opinion, best explains these frequent changes?
+```{r}
+##Gurkirat##
+q10full_mean_ones <- round(mean(summary_state_analysis$X133ones)*100,3) #consider doing rounding and mean estimation at an earlier stage for all questions.
+q10full_mean_twos <- round(mean(summary_state_analysis$X133twos)*100,3) 
+q10full_mean_threes <- round(mean(summary_state_analysis$X133threes)*100,3)
+q10full_plot <- c(q10full_mean_ones, q10full_mean_twos, q10full_mean_threes) 
+q10full_plot_labels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature of our country.") 
+q10full_plot_dta <- data.frame(q10full_plot, q10full_plot_labels) 
+q10full_plot_dta$wrapped_labels = str_wrap(q10full_plot_dta$q10full_plot_labels, width = 10)
+q10full_plot <- ggplot(q10full_plot_dta, aes(x=q10full_plot_labels, y=q10full_plot, fill = q10full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=scales::percent(q10full_plot/100)), vjust=-0.3, size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q10full_plot_labels) str_wrap(q10full_plot_labels, width = 30)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 10") +
+  newtheme
+
+q10full_plot
+
+##Gurkirat##
+```
