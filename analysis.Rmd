@@ -1,14 +1,14 @@
 ---
 title: "Analysis of MEB COVID Survey 2"
 author: "MEB Team"
-date: "16 Nov 2021"
+date: "15 Dec 2021"
 output:
   pdf_document: default
   html_document:
     df_print: paged
 ---
 
-\Large Note: Will explain later
+\Large Note: This pdf contains full graphs for all survey questions weighted by states' share in population of IAS officers
 
 \newpage
 \tableofcontents 
@@ -16,7 +16,7 @@ output:
 
 ```{r setup, include=FALSE} 
 knitr::opts_chunk$set(echo = FALSE)
-#
+
 library(cowplot)
 library(tidyverse)
 library(ggplot2)
@@ -711,7 +711,7 @@ q15full_plot
 ```
 \newpage
 
-## Question 15
+## Question 16
 
 Question 16, X139 (3 responses)
 Q. Which of the following statements best describes the media’s coverage of the pandemic?
