@@ -2,7 +2,10 @@
 title: "Analysis of MEB COVID Survey 2"
 author: "MEB Team"
 date: "16 Nov 2021"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 \Large Note: Will explain later
@@ -43,7 +46,7 @@ library(ggpubr)
 
 #Mac import
 
-raw_dta <- read_csv("meb2data_9122021.csv", col_names = FALSE)
+raw_dta <- read_csv("meb2data_9dec.csv", col_names = FALSE)
 ```
 
 ```{r, include=FALSE}
@@ -275,7 +278,93 @@ summary_cadre<-full_serving %>%
 #We can consider copying the "IAS Distribution rmd" here as a separate code chunk.
 ```
 
+```{r, include=FALSE}
+#reading in libraries + dataset -- also adding the TCPD dataset to our git so that we can all run this code from the same working directory 
+library(tidyverse)
+library(xlsx)
+ias_raw_dta<-read.csv("ias-profile.csv")
+```
 
+```{r}
+#Creating a dataset where each row is a different state and each column in the allocation year. Additional columns indicating total number of officers, number of officers pre and post 2012, and their respective proportions are given. 
+#The last row are the total values
+
+ias_processed_dta<-ias_raw_dta %>% 
+  filter(Retired=="TRUE") %>%  
+  mutate(State = Cadre) 
+  
+ias_processed_dta$State<-as.character(ias_processed_dta$State) 
+#need to look for an alternative to divide combined cadres
+ias_processed_dta<-ias_processed_dta %>% 
+  mutate(State = ifelse(State=="Chhasttisgarh", "Chhattisgarh", ifelse(State== "Maharastra", "Maharashtra", State))) %>% 
+  mutate(State = ifelse(State== "Assam Meghalya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(ias_processed_dta$State=="Assam Meghalya")), replace = TRUE),   
+                       ifelse(State=="A G M U T", sample(c("Delhi", "Arunachal Pradesh","Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.05), size = length(which(ias_processed_dta$State=="A G M U T")), replace = TRUE),
+                       ifelse(State=="Manipur-Tripura", sample(c("Manipur", "Tripura"), prob =c(0.5, 0.5), size=length(which(ias_processed_dta$State=="Manipur-Tripura")), replace =TRUE), State)))) %>% 
+  dplyr::select(c(State, Allotment_Year)) %>% 
+  group_by(State) %>% 
+  summarise(Y1982=sum(Allotment_Year=="1982"),
+            Y1983=sum(Allotment_Year=="1983"),
+            Y1984=sum(Allotment_Year=="1984"),
+            Y1985=sum(Allotment_Year=="1985"),
+            Y1986=sum(Allotment_Year=="1986"),
+            Y1987=sum(Allotment_Year=="1987"),
+            Y1988=sum(Allotment_Year=="1988"),
+            Y1989=sum(Allotment_Year=="1989"),
+            Y1990=sum(Allotment_Year=="1990"),
+            Y1991=sum(Allotment_Year=="1991"),
+            Y1992=sum(Allotment_Year=="1992"),
+            Y1993=sum(Allotment_Year=="1993"),
+            Y1994=sum(Allotment_Year=="1994"),
+            Y1995=sum(Allotment_Year=="1995"),
+            Y1996=sum(Allotment_Year=="1996"),
+            Y1997=sum(Allotment_Year=="1997"),
+            Y1998=sum(Allotment_Year=="1998"),
+            Y1999=sum(Allotment_Year=="1999"),
+            Y2000=sum(Allotment_Year=="2000"),
+            Y2001=sum(Allotment_Year=="2001"),
+            Y2002=sum(Allotment_Year=="2002"),
+            Y2003=sum(Allotment_Year=="2003"),
+            Y2004=sum(Allotment_Year=="2004"),
+            Y2005=sum(Allotment_Year=="2005"),
+            Y2006=sum(Allotment_Year=="2006"),
+            Y2007=sum(Allotment_Year=="2007"),
+            Y2008=sum(Allotment_Year=="2008"),
+            Y2009=sum(Allotment_Year=="2009"),
+            Y2010=sum(Allotment_Year=="2010"),
+            Y2011=sum(Allotment_Year=="2011"),
+            Y2012=sum(Allotment_Year=="2012"),
+            Y2013=sum(Allotment_Year=="2013"),
+            Y2014=sum(Allotment_Year=="2014"),
+            Y2015=sum(Allotment_Year=="2015"),
+            Y2016=sum(Allotment_Year=="2016"),
+            Y2017=sum(Allotment_Year=="2017"),
+            Y2018=sum(Allotment_Year=="2018"),
+            Y2019=sum(Allotment_Year=="2019"),
+            Y2020=sum(Allotment_Year=="2020")) %>% 
+  ungroup() %>% 
+  mutate(pre2012=rowSums(.[2:31])) %>% #1982 to 2011
+  mutate(post2012=rowSums(.[32:40])) %>% 
+  mutate(total= rowSums(.[41:42])) %>% 
+  mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
+  mutate(age_weight_young = post2012/sum(post2012)) %>% 
+  mutate (state_weight = total/sum(total)) %>% 
+  #bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% #Help:I don't know why this red cross is showing up, because the code runs exactly like I want it to and without errors
+  mutate(prop_pre2012_withinstate = pre2012/sum(total)) %>% 
+  mutate(prop_post2012_withinstate = post2012/sum(total)) 
+  
+  ias_processed_dta <- ias_processed_dta %>% 
+  mutate(sdgtier = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
+                       ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer"))) %>% 
+  mutate(sdgtier_weight = ifelse(sdgtier == "Aspirant", total/886, 
+                             ifelse(sdgtier == "Frontrunner", total/629, total/3764)))
+                             
+#totals for sdg_tier(s) are manually caluculated: Aspirants: 886, Frontrunners: 629, Performers: 3764
+#totals are subjected to change if the state distribution is altered
+                             
+  
+  #prop_pre2012_age is the proportion of young officers in X state out of all young officers. The sum of prop_pre2012_age for all states is equal to 1 
+  #prop_pre2012_withinstate is the proportion of young officers in X state out of all officers in the state. The sum of prop_pre2012 and prop_post2012 within X state is equal to 1
+```
 
 
 ```{r, include=FALSE}
