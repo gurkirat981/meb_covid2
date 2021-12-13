@@ -43,7 +43,7 @@ library(ggpubr)
 
 #Mac import
 
-raw_dta <- read_csv("meb2data_9122021.csv", col_names = FALSE)
+raw_dta <- read_csv("meb2data_9dec.csv", col_names = FALSE)
 ```
 
 ```{r, include=FALSE}
