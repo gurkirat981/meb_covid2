@@ -35,8 +35,6 @@ library(janitor)
 library(gridExtra)
 library(grid)
 library(ggpubr)
-library(xlsx)
-
 ```
 
 ```{r, include=FALSE}
