@@ -35,6 +35,7 @@ library(janitor)
 library(gridExtra)
 library(grid)
 library(ggpubr)
+library(xlsx)
 ```
 
 ```{r, include=FALSE}
@@ -280,8 +281,7 @@ summary_cadre<-full_serving %>%
 
 ```{r, include=FALSE}
 #reading in libraries + dataset -- also adding the TCPD dataset to our git so that we can all run this code from the same working directory 
-library(tidyverse)
-library(xlsx)
+
 ias_raw_dta<-read.csv("ias-profile.csv")
 ```
 
