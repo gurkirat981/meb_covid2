@@ -16,13 +16,12 @@ ias_processed_dta<-ias_raw_dta %>%
   filter(Retired=="TRUE") %>%  
   mutate(State = Cadre) 
   
-ias_processed_dta$State<-as.character(ias_processed_dta$State)
-
+ias_processed_dta$State<-as.character(ias_processed_dta$State) 
+#need to look for an alternative to divide combined cadres
 ias_processed_dta<-ias_processed_dta %>% 
-  mutate(State = ifelse(State=="Chhasttisgarh", "Chhattisgarh", 
-                        ifelse(State=="Maharashtra", "Maharastra",State))) %>% 
+  mutate(State = ifelse(State=="Chhasttisgarh", "Chhattisgarh", ifelse(State== "Maharastra", "Maharashtra", State))) %>% 
   mutate(State = ifelse(State== "Assam Meghalya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(ias_processed_dta$State=="Assam Meghalya")), replace = TRUE),   
-                       ifelse(State=="A G M U T", sample(c("Delhi", "Arunachal Pradesh","Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(ias_processed_dta$State=="A G M U T")), replace = TRUE),
+                       ifelse(State=="A G M U T", sample(c("Delhi", "Arunachal Pradesh","Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.05), size = length(which(ias_processed_dta$State=="A G M U T")), replace = TRUE),
                        ifelse(State=="Manipur-Tripura", sample(c("Manipur", "Tripura"), prob =c(0.5, 0.5), size=length(which(ias_processed_dta$State=="Manipur-Tripura")), replace =TRUE), State)))) %>% 
   dplyr::select(c(State, Allotment_Year)) %>% 
   group_by(State) %>% 
@@ -71,10 +70,20 @@ ias_processed_dta<-ias_processed_dta %>%
   mutate(total= rowSums(.[41:42])) %>% 
   mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
   mutate(age_weight_young = post2012/sum(post2012)) %>% 
-  bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% #Help:I don't know why this red cross is showing up, because the code runs exactly like I want it to and without errors
-  mutate(prop_pre2012_withinstate = pre2012/total) %>% 
-  mutate (state_weight = total/5279) %>% 
-  mutate(prop_post2012_withinstate = post2012/total)  
+  mutate (state_weight = total/sum(total)) %>% 
+  #bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% #Help:I don't know why this red cross is showing up, because the code runs exactly like I want it to and without errors
+  mutate(prop_pre2012_withinstate = pre2012/sum(total)) %>% 
+  mutate(prop_post2012_withinstate = post2012/sum(total)) 
+  
+  ias_processed_dta <- ias_processed_dta %>% 
+  mutate(sdgtier = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
+                       ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer"))) %>% 
+  mutate(sdgtier_weight = ifelse(sdgtier == "Aspirant", total/886, 
+                             ifelse(sdgtier == "Frontrunner", total/629, total/3764)))
+                             
+#totals for sdg_tier(s) are manually caluculated: Aspirants: 886, Frontrunners: 629, Performers: 3764
+#totals are subjected to change if the state distribution is altered
+                             
   
   #prop_pre2012_age is the proportion of young officers in X state out of all young officers. The sum of prop_pre2012_age for all states is equal to 1 
   #prop_pre2012_withinstate is the proportion of young officers in X state out of all officers in the state. The sum of prop_pre2012 and prop_post2012 within X state is equal to 1
