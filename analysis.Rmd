@@ -160,7 +160,7 @@ agmut_fullserving <- full_serving %>%
 #Creating a subset of just AM responses to allocate states to 
 am_fullserving <- full_serving %>% 
   subset(X12=="Assam Meghalaya") %>% 
-  mutate(state=sample(c(rep("Assam",10), rep("Meghalya", 5))))
+  mutate(state=sample(c(rep("Assam",10), rep("Meghalaya", 5))))
 
 #Creating a subset of all responses except from AGMUT and AM to merge
 nocombined_full_serving <- full_serving %>% 
@@ -754,6 +754,8 @@ q16full_plot
 ```
 
 ```{r}
+#Wrangling data and calculating averages for question no. 4,5,6 
+
 q4_state_answers1 <- full_serving %>% 
 dplyr::select (state, Merged1.1) %>% 
 mutate (Merged = Merged1.1) %>% 
@@ -763,6 +765,44 @@ state_answers_q4 <- full_serving %>%
 dplyr::select (state, Merged1.2) %>% 
 mutate (Merged = Merged1.2) %>% 
 dplyr:: select (-Merged1.2) %>% 
-add_row(q4_state_answers1)
+add_row(q4_state_answers1) 
+
+
+state_answers_q4 <- na.omit(state_answers_q4)
+
+summary_q4 <- state_answers_q4 %>% 
+  dplyr::select(state, Merged) %>% 
+  group_by(state) %>% 
+  summarise(q4_ANIslands_mean=sum(Merged =="Andaman and Nicobar Islands")/length(state),
+            q4_AndhraPradesh_mean=sum(Merged =="Andhra Pradesh")/length(state), 
+            q4_ArunachalPradesh_mean=sum(Merged =="Arunachal Pradesh")/length(state),
+            q4_Assam_mean=sum(Merged =="Assam")/length(state),
+            q4_Bihar_mean=sum(Merged =="Bihar")/length(state),
+            q4_Chandigarh_mean=sum(Merged =="Chandigarh")/length(state),
+            q4_Chattisgarh_mean=sum(Merged =="Chattisgarh")/length(state),
+            q4_Delhi_mean=sum(Merged =="Delhi")/length(state),
+            q4_DNHandDD_mean=sum(Merged =="DNH and DD")/length(state),
+            q4_Goa_mean=sum(Merged =="Goa")/length(state),
+            q4_Haryana_mean=sum(Merged =="Haryana")/length(state),
+            q4_HimachalPradesh_mean=sum(Merged =="Himachal Pradesh")/length(state),
+            q4_JammuKashmir_mean=sum(Merged =="Jammu and Kashmir")/length(state),
+            q4_Karnataka_mean=sum(Merged =="Karnataka")/length(state),
+            q4_MadhyaPradesh_mean=sum(Merged =="Madhya Pradesh")/length(state),
+            q4_LakshadweepIslands_mean=sum(Merged =="Lakshadweep Islands")/length(state),
+            q4_Maharashtra_mean=sum(Merged =="Maharashtra")/length(state),
+            q4_Meghalaya_mean=sum(Merged =="Meghalaya")/length(state),
+            q4_Nagaland_mean=sum(Merged =="Nagaland")/length(state),
+            q4_Odisha_mean=sum(Merged =="Odisha")/length(state),
+            q4_Puducherry_mean=sum(Merged =="Puducherry")/length(state),
+            q4_Punjab_mean=sum(Merged =="Punjab")/length(state),
+            q4_Rajasthan_mean=sum(Merged =="Rajasthan")/length(state),
+            q4_Sikkim_mean=sum(Merged =="Sikkim")/length(state),
+            q4_TamilNadu_mean=sum(Merged =="Tamil Nadu")/length(state),
+            q4_Telangana_mean=sum(Merged =="Telangana")/length(state),
+            q4_Tripura_mean=sum(Merged =="Tripura")/length(state),
+            q4_UttarPradesh_mean=sum(Merged =="Uttar Pradesh")/length(state),
+            q4_Uttarakhand_mean=sum(Merged =="Uttarakhand")/length(state),
+            q4_WestBengal_mean=sum(Merged =="West Bengal")/length(state)) %>% 
+ungroup()
 ```
 
