@@ -250,7 +250,7 @@ summary_cadre<-full_serving %>%
             X135ones=sum(X135==1)/length(X12), X135twos=sum(X135==2)/length(X12), X135threes=sum(X135==3)/length(X12), X135fours=sum(X135==4)/length(X12),
             X137ones=sum(X137==1)/length(X12), X137twos=sum(X137==2)/length(X12), X137threes=sum(X137==3)/length(X12), X137fours=sum(X137==4)/length(X12),
             X138ones=sum(X138==1)/length(X12), X138twos=sum(X138==2)/length(X12), X138threes=sum(X138==3)/length(X12), X138fours=sum(X138==4)/length(X12),
-            X139ones=sum(X139==1)/length(X12), X139twos=sum(X139==2)/length(X12), X139threes=sum(X139==3)/length(X12)) %>% 
+            X139ones=sum(X139==1)/length(X12), X139twos=sum(X139==2)/length(X12), X139threes=sum(X139==3)/length(X12),.groups = 'drop') %>% 
   ungroup() %>% 
   rename(cadre = "X12")
  
@@ -339,7 +339,7 @@ ias_processed_dta<-ias_processed_dta %>%
             Y2017=sum(Allotment_Year=="2017"),
             Y2018=sum(Allotment_Year=="2018"),
             Y2019=sum(Allotment_Year=="2019"),
-            Y2020=sum(Allotment_Year=="2020")) %>% 
+            Y2020=sum(Allotment_Year=="2020"),.groups='drop') %>% 
   ungroup() %>% 
   mutate(pre2012=rowSums(.[2:31])) %>% #1982 to 2011
   mutate(post2012=rowSums(.[32:40])) %>% 
@@ -422,7 +422,7 @@ With regard to our planning and preparation for the second wave, which of these 
 
 \vspace{6mm}
 
-```{r, include=FALSE}
+```{r}
 q2full_mean_ones <- round(weighted.mean(summary_state_analysis$X17ones,
 summary_state_analysis$state_weight)*100,3) 
 q2full_mean_twos <- round(weighted.mean(summary_state_analysis$X17twos,
@@ -646,10 +646,14 @@ q12full_plot <- ggplot(q12full_plot_dta, aes(x=q12full_plot_labels, y=q12full_pl
 
 q12full_plot
 ```
-
-Question 13, X136 (4 responses)
+\newpage
+Question 13, X136 (2 responses)
 Q. Dealing with any pandemic of this scale is a collective responsibility and everyone has a part to play. However, in the final analysis, who do you think must shoulder a greater share of responsibility for any shortcomings?
-##Skipped for now##
+
+1. The public must shoulder the blame
+2. The government must acknowledge its failure. 
+
+#Question skipped#
 
 \newpage
 
@@ -731,7 +735,7 @@ q16full_plot <- ggplot(q16full_plot_dta, aes(x=q16full_plot_labels, y=q16full_pl
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q16full_plot_labels) str_wrap(q16full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 16") +
+  labs(x="",y="Percent", caption = "Question 16, Weighted") +
   newtheme
 
 q16full_plot
