@@ -140,8 +140,6 @@ set.seed(24102020)
 full_serving <- processed_dta %>% 
   filter(X13=="Yes, currently serving") 
 
-full_serving <- full_serving %>% 
-
 #previous code for AGMUT and AM division
 #mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
                        #ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
@@ -150,9 +148,7 @@ full_serving <- full_serving %>%
 # mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
 #                        ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
   
-   mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
-                       ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
-   mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before"))
+
 
 
 #New code for AGMUT and AM allocation, done by creating subsets 
@@ -173,9 +169,12 @@ nocombined_full_serving <- full_serving %>%
 
 #Merging the three above subsets to get the desired full_serving dataset with correct state allocations
 full_serving <- nocombined_full_serving %>% 
+  mutate(state=X12) %>% 
   add_row(am_fullserving) %>% 
-  add_row(agmut_fullserving)
-
+  add_row(agmut_fullserving) %>% 
+  mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
+                       ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
+   mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before"))
 #Creating a dataset of former IAS officers and adding the same three columns as above to help with merging the two datasets 
 full_former<-processed_dta %>% 
   filter(X13=="No, I am a former IAS officer") %>% 
@@ -279,7 +278,6 @@ summary_cadre<-full_serving %>%
 
 
 ```{r, include=FALSE}
-##Shubhangi##
 #Creating a column of weights for states within each SDG tier 
 #This code requires three different datasets: the summary_state (mean averages for each answer choice), ias_processed_dta (distribution of IAS officers by state and age) and full_serving (since it has a column denoting the SDG tiers) 
 
@@ -293,7 +291,6 @@ summary_cadre<-full_serving %>%
 #summary_state_analysis <- summary_state %>% 
   #mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
                              #ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
-##Shubhangi##
 
 #Manually calculated some weights on excel and identified errors in "sdg_weight" obtained from this code.
 #We can consider copying the "IAS Distribution rmd" here as a separate code chunk.
@@ -374,21 +371,18 @@ ias_processed_dta<-ias_processed_dta %>%
   
   ias_processed_dta <- ias_processed_dta %>% 
   mutate(sdgtier = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
-                       ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer"))) %>% 
-  mutate(sdgtier_weight = ifelse(sdgtier == "Aspirant", total/886, 
-                             ifelse(sdgtier == "Frontrunner", total/629, total/3764)))
-                             
-#totals for sdg_tier(s) are manually caluculated: Aspirants: 886, Frontrunners: 629, Performers: 3764
-#totals are subjected to change if the state distribution is altered
-                             
+                       ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer"))) 
   
-  #prop_pre2012_age is the proportion of young officers in X state out of all young officers. The sum of prop_pre2012_age for all states is equal to 1 
+ias_processed_dta <- ias_processed_dta %>% 
+  mutate(sdgtier_weight = ifelse(sdgtier == "Aspirant", total/sum(ias_processed_dta$total[ias_processed_dta$sdgtier=="Aspirant"]), 
+                             ifelse(sdgtier == "Frontrunner", total/sum(ias_processed_dta$total[ias_processed_dta$sdgtier=="Frontrunner"]), total/sum(ias_processed_dta$total[ias_processed_dta$sdgtier=="Performer"]))))
+  
+  #age_weight_young is the proportion of young officers in X state out of all young officers. The sum of prop_pre2012_age for all states is equal to 1 
   #prop_pre2012_withinstate is the proportion of young officers in X state out of all officers in the state. The sum of prop_pre2012 and prop_post2012 within X state is equal to 1
 ```
 
 
 ```{r, include=FALSE}
-##Gurkirat##
 #Adding state weights and age weights, and then transferring them from "ias_processed_dta" to "summary_state_analysis"
 
 ias_processed_dta1 <- ias_processed_dta %>% 
@@ -398,9 +392,6 @@ summary_state_analysis <- cbind (summary_state, ias_processed_dta1)
 
 summary_state_analysis <- summary_state_analysis %>% 
 dplyr :: select (-State)
-
-##Gurkirat##
-
 ```
 
 \newpage
