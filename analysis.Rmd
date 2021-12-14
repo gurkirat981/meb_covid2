@@ -754,6 +754,7 @@ q16full_plot
 ```
 
 ```{r}
+
 q4_state_answers1 <- full_serving %>% 
 dplyr::select (state, Merged1.1) %>% 
 mutate (Merged = Merged1.1) %>% 
@@ -765,4 +766,58 @@ mutate (Merged = Merged1.2) %>%
 dplyr:: select (-Merged1.2) %>% 
 add_row(q4_state_answers1)
 ```
+
+```{r}
+#Question 5 (the second state question, previously "Merged 2")
+
+q5_1 <- full_serving %>% 
+dplyr::select (state, Merged2.1) %>% 
+mutate (Merged = Merged2.1) %>% 
+dplyr:: select(-Merged2.1)
+
+state_answers_q5 <- full_serving %>% 
+  dplyr::select (state, Merged2.2) %>%
+  mutate (Merged = Merged2.2) %>% 
+  dplyr:: select (-Merged2.2) %>% 
+  add_row(q5_1) 
+
+summary_15<- state_answers_q5 %>% 
+  group_by(state) %>% 
+  na.omit() %>% 
+  summarise(ANIslands=sum(Merged=="Andaman and Nicobar Islands")/ length(state),
+            AP=sum(Merged=="Andhra Pradesh")/length(state),
+            Assam=sum(Merged=="Assam")/length(state),
+            Bihar=sum(Merged=="Bihar")/length(state),
+            Chhattisgarh=sum(Merged=="Chhattisgarh")/length(state),
+            Goa=sum(Merged=="Goa")/length(state),
+            Gujarat=sum(Merged=="Gujarat")/length(state),
+            Haryana=sum(Merged=="Haryana")/length(state),
+            HP=sum(Merged=="Himachal Pradesh")/length(state),
+            JK=sum(Merged=="Jammu and Kashmir")/length(state),
+            Jharkhand=sum(Merged=="Jharkhand")/length(state),
+            Karnataka=sum(Merged=="Karnataka")/length(state),
+            Kerala=sum(Merged=="Kerala")/length(state),
+            Lakshadweep=sum(Merged=="Lakshadweep")/length(state),
+            MP=sum(Merged=="Madhya Pradesh")/length(state),
+            Maharashtra=sum(Merged=="Maharashtra")/length(state),
+            Manipur=sum(Merged=="Manipur")/length(state),
+            Meghalaya=sum(Merged=="Meghalaya")/length(state),
+            Mizoram=sum(Merged=="Mizoram")/length(state),
+            Delhi=sum(Merged=="NCT of Delhi")/length(state),
+            None=sum(Merged=="No state has performed poorly")/length(state),
+            Puducherry=sum(Merged=="Puducherry")/length(state),
+            Punjab=sum(Merged=="Punjab")/length(state),
+            Rajasthan=sum(Merged=="Rajasthan")/length(state),
+            TN=sum(Merged=="Tamil Nadu")/length(state),
+            Telangana=sum(Merged=="Telangana")/length(state),
+            UP=sum(Merged=="Uttar Pradesh")/length(state),
+            Uttarakhand=sum(Merged=="Uttarakhand")/length(state),
+            WB=sum(Merged=="West Bengal")/length(state)) %>% 
+  ungroup() %>% 
+  mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
+ 
+
+#Merging with summary_state_analysis
+```
+
 
