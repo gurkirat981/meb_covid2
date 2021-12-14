@@ -147,13 +147,34 @@ full_serving <- full_serving %>%
                        #ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
 
 #altered code for AGMUT and AM division (needs to be reviewed) 
-mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
-                       ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
+# mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
+#                        ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
   
    mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
                        ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
    mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before"))
 
+
+#New code for AGMUT and AM allocation, done by creating subsets 
+#Creating a subset of just AGMUT responses to allocate states to 
+agmut_fullserving <- full_serving %>% 
+  subset(X12=="AGMUT") %>% 
+  mutate(state=sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE))
+
+#Creating a subset of just AM responses to allocate states to 
+am_fullserving <- full_serving %>% 
+  subset(X12=="Assam Meghalaya") %>% 
+  mutate(state=sample(c(rep("Assam",10), rep("Meghalya", 5))))
+
+#Creating a subset of all responses except from AGMUT and AM to merge
+nocombined_full_serving <- full_serving %>% 
+  subset(!X12=="AGMUT") %>% 
+  subset(!X12=="Assam Meghalaya")
+
+#Merging the three above subsets to get the desired full_serving dataset with correct state allocations
+full_serving <- nocombined_full_serving %>% 
+  add_row(am_fullserving) %>% 
+  add_row(agmut_fullserving)
 
 #Creating a dataset of former IAS officers and adding the same three columns as above to help with merging the two datasets 
 full_former<-processed_dta %>% 
