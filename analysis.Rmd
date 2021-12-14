@@ -824,7 +824,7 @@ summary_q5<- state_answers_q5 %>%
   group_by(state) %>% 
   na.omit() %>% 
   summarise(q5_anislands=sum(Merged=="Andaman and Nicobar Islands")/ length(state),
-            q5_andhra=sum(Merged=="Andhra Pradesh")/length(state),
+            q5_andhra=sum(Merged=="Andhra Pradesh")/length(state), 
             q5_arunachal=sum(Merged=="Arunachal Pradesh")/length(state),
             q5_assam=sum(Merged=="Assam")/length(state),
             q5_bihar=sum(Merged=="Bihar")/length(state),
@@ -860,4 +860,59 @@ summary_q5<- state_answers_q5 %>%
 #Merging with summary_state_analysis
 ```
 
+```{r}
+#Question 6 (the third state question, previously "Merged 3")
 
+q6 <- full_serving %>% 
+dplyr::select (state, Merged3) %>% 
+mutate (Merged = Merged3) %>% 
+dplyr:: select(-Merged3)
+
+summary_q6 <- q6 %>% 
+  group_by(state) %>% 
+  na.omit() %>% 
+  summarise(q6_anislands=sum(Merged =="Andaman and Nicobar Islands")/length(state),
+            q6_andhra=sum(Merged =="Andhra Pradesh")/length(state), 
+            q6_arunachal=sum(Merged =="Arunachal Pradesh")/length(state),
+            q6_assam=sum(Merged =="Assam")/length(state),
+            q6_bihar=sum(Merged =="Bihar")/length(state),
+            q6_chandigarh=sum(Merged =="Chandigarh")/length(state),
+            q6_chattisgarh=sum(Merged =="Chhattisgarh")/length(state),
+            q6_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(state),
+            q6_goa=sum(Merged =="Goa")/length(state),
+            q6_gujarat=sum(Merged =="Gujarat")/length(state),
+            q6_haryana=sum(Merged =="Haryana")/length(state),
+            q6_hp=sum(Merged =="Himachal Pradesh")/length(state),
+            q6_jk=sum(Merged =="Jammu and Kashmir")/length(state),
+            q6_jharkhand=sum(Merged =="Jharkhand")/length(state),
+            q6_karnataka=sum(Merged =="Karnataka")/length(state),
+            q6_kerala=sum(Merged =="Kerala")/length(state),
+            q6_ladakh=sum(Merged =="Ladakh")/length(state),
+            q6_lakshadweep=sum(Merged =="Lakshadweep")/length(state),
+            q6_mp=sum(Merged =="Madhya Pradesh")/length(state),
+            q6_maharashtra=sum(Merged =="Maharashtra")/length(state),
+            q6_manipur=sum(Merged =="Manipur")/length(state),
+            q6_meghalaya=sum(Merged =="Meghalaya")/length(state),
+            q6_mizoram=sum(Merged =="Mizoram")/length(state),
+            q6_nagaland=sum(Merged =="Nagaland")/length(state),
+            q6_delhi=sum(Merged =="NCT of Delhi")/length(state),
+            q6_none=sum(Merged =="No state has been under-appreciated")/length(state),
+            q6_odisha=sum(Merged =="Odisha")/length(state),
+            q6_puducherry=sum(Merged =="Puducherry")/length(state),
+            q6_punjab=sum(Merged =="Punjab")/length(state),
+            q6_rajasthan=sum(Merged =="Rajasthan")/length(state),
+            q6_sikkim=sum(Merged =="Sikkim")/length(state),
+            q6_tn=sum(Merged =="Tamil Nadu")/length(state),
+            q6_telangana=sum(Merged =="Telangana")/length(state),
+            q6_tripura=sum(Merged =="Tripura")/length(state),
+            q6_up=sum(Merged =="Uttar Pradesh")/length(state),
+            q6_uttarakhand=sum(Merged =="Uttarakhand")/length(state),
+            q6_wb=sum(Merged =="West Bengal")/length(state)) %>% 
+  ungroup() %>% 
+  mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
+
+summary_q6 <- cbind (summary_q6, ias_processed_dta1) 
+
+summary_q6 <- summary_q6 %>% 
+dplyr :: select (-State)
+```
