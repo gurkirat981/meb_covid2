@@ -752,3 +752,17 @@ q16full_plot <- ggplot(q16full_plot_dta, aes(x=q16full_plot_labels, y=q16full_pl
 
 q16full_plot
 ```
+
+```{r}
+q4_state_answers1 <- full_serving %>% 
+dplyr::select (state, Merged1.1) %>% 
+mutate (Merged = Merged1.1) %>% 
+dplyr:: select(-Merged1.1)
+
+state_answers_q4 <- full_serving %>% 
+dplyr::select (state, Merged1.2) %>% 
+mutate (Merged = Merged1.2) %>% 
+dplyr:: select (-Merged1.2) %>% 
+add_row(q4_state_answers1)
+```
+
