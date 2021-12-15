@@ -481,7 +481,6 @@ q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, 
 q3full_plot
 ```
 
-#Question 4,5,6 skipped for now#
 
 \newpage
 
@@ -801,7 +800,7 @@ summary_q4 <- state_answers_q4 %>%
             q4_tripura=sum(Merged =="Tripura")/length(state),
             q4_up=sum(Merged =="Uttar Pradesh")/length(state),
             q4_uttarakhand=sum(Merged =="Uttarakhand")/length(state),
-            q4_wb=sum(Merged =="West Bengal")/length(state)) %>% 
+            q4_wb=sum(Merged =="West Bengal")/length(state),.groups='drop') %>% 
   ungroup() %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
 
@@ -865,7 +864,7 @@ summary_q5<- state_answers_q5 %>%
             q5_tripura=sum(Merged =="Tripura")/length(state),
             q5_up=sum(Merged=="Uttar Pradesh")/length(state),
             q5_uttarakhand=sum(Merged=="Uttarakhand")/length(state),
-            q5_wb=sum(Merged=="West Bengal")/length(state)) %>% 
+            q5_wb=sum(Merged=="West Bengal")/length(state),.groups='drop') %>% 
   ungroup() %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
  
@@ -922,7 +921,7 @@ summary_q6 <- q6 %>%
             q6_tripura=sum(Merged =="Tripura")/length(state),
             q6_up=sum(Merged =="Uttar Pradesh")/length(state),
             q6_uttarakhand=sum(Merged =="Uttarakhand")/length(state),
-            q6_wb=sum(Merged =="West Bengal")/length(state)) %>% 
+            q6_wb=sum(Merged =="West Bengal")/length(state),.groups='drop') %>% 
   ungroup() %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
 
