@@ -770,7 +770,7 @@ summary_q4 <- state_answers_q4 %>%
             q4_assam=sum(Merged =="Assam")/length(state),
             q4_bihar=sum(Merged =="Bihar")/length(state),
             q4_chandigarh=sum(Merged =="Chandigarh")/length(state),
-            q4_chattisgarh=sum(Merged =="Chhattisgarh")/length(state),
+            q4_chhattisgarh=sum(Merged =="Chhattisgarh")/length(state),
             q4_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(state),
             q4_goa=sum(Merged =="Goa")/length(state),
             q4_gujarat=sum(Merged =="Gujarat")/length(state),
@@ -891,7 +891,7 @@ summary_q6 <- q6 %>%
             q6_assam=sum(Merged =="Assam")/length(state),
             q6_bihar=sum(Merged =="Bihar")/length(state),
             q6_chandigarh=sum(Merged =="Chandigarh")/length(state),
-            q6_chattisgarh=sum(Merged =="Chhattisgarh")/length(state),
+            q6_chhattisgarh=sum(Merged =="Chhattisgarh")/length(state),
             q6_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(state),
             q6_goa=sum(Merged =="Goa")/length(state),
             q6_gujarat=sum(Merged =="Gujarat")/length(state),
@@ -938,14 +938,14 @@ Question 4, Merged2
 Q. Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=5,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
 q4full_mean_anislands <- round(weighted.mean(summary_q4$q4_anislands, summary_q4$state_weight)*100,3)
 q4full_mean_andhra <- round(weighted.mean(summary_q4$q4_andhra, summary_q4$state_weight)*100,3)
 q4full_mean_arunachal <- round(weighted.mean(summary_q4$q4_arunachal, summary_q4$state_weight)*100,3)
 q4full_mean_assam <- round(weighted.mean(summary_q4$q4_assam, summary_q4$state_weight)*100,3)
 q4full_mean_bihar <- round(weighted.mean(summary_q4$q4_bihar, summary_q4$state_weight)*100,3)
 q4full_mean_chandigarh <- round(weighted.mean(summary_q4$q4_chandigarh, summary_q4$state_weight)*100,3)
-q4full_mean_chattisgarh <- round(weighted.mean(summary_q4$q4_chattisgarh, summary_q4$state_weight)*100,3)
+q4full_mean_chhattisgarh <- round(weighted.mean(summary_q4$q4_chhattisgarh, summary_q4$state_weight)*100,3)
 q4full_mean_dnhdd <- round(weighted.mean(summary_q4$q4_dnhdd, summary_q4$state_weight)*100,3)
 q4full_mean_goa <- round(weighted.mean(summary_q4$q4_goa, summary_q4$state_weight)*100,3)
 q4full_mean_gujarat <- round(weighted.mean(summary_q4$q4_gujarat, summary_q4$state_weight)*100,3)
@@ -977,7 +977,7 @@ q4full_mean_up <- round(weighted.mean(summary_q4$q4_up, summary_q4$state_weight)
 q4full_mean_uttarakhand <- round(weighted.mean(summary_q4$q4_uttarakhand, summary_q4$state_weight)*100,3)
 q4full_mean_wb <- round(weighted.mean(summary_q4$q4_wb, summary_q4$state_weight)*100,3)
 
-q4full_plot <- c(q4full_mean_anislands, q4full_mean_andhra, q4full_mean_arunachal, q4full_mean_assam, q4full_mean_bihar, q4full_mean_chandigarh, q4full_mean_chattisgarh, q4full_mean_delhi, q4full_mean_dnhdd, q4full_mean_goa, q4full_mean_gujarat, q4full_mean_haryana, q4full_mean_hp, q4full_mean_jharkhand, q4full_mean_jk, q4full_mean_karnataka, q4full_mean_kerala, q4full_mean_ladakh, q4full_mean_lakshadweep, q4full_mean_maharashtra, q4full_mean_manipur, q4full_mean_meghalaya, q4full_mean_mizoram, q4full_mean_mp, q4full_mean_nagaland, q4full_mean_none, q4full_mean_odisha, q4full_mean_puducherry, q4full_mean_punjab, q4full_mean_rajasthan, q4full_mean_sikkim, q4full_mean_telangana, q4full_mean_tn, q4full_mean_tripura, q4full_mean_up, q4full_mean_uttarakhand, q4full_mean_wb)
+q4full_plot <- c(q4full_mean_anislands, q4full_mean_andhra, q4full_mean_arunachal, q4full_mean_assam, q4full_mean_bihar, q4full_mean_chandigarh, q4full_mean_chhattisgarh, q4full_mean_delhi, q4full_mean_dnhdd, q4full_mean_goa, q4full_mean_gujarat, q4full_mean_haryana, q4full_mean_hp, q4full_mean_jharkhand, q4full_mean_jk, q4full_mean_karnataka, q4full_mean_kerala, q4full_mean_ladakh, q4full_mean_lakshadweep, q4full_mean_maharashtra, q4full_mean_manipur, q4full_mean_meghalaya, q4full_mean_mizoram, q4full_mean_mp, q4full_mean_nagaland, q4full_mean_none, q4full_mean_odisha, q4full_mean_puducherry, q4full_mean_punjab, q4full_mean_rajasthan, q4full_mean_sikkim, q4full_mean_telangana, q4full_mean_tn, q4full_mean_tripura, q4full_mean_up, q4full_mean_uttarakhand, q4full_mean_wb)
 
 
 q4full_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
@@ -994,7 +994,7 @@ q4full_plot <- ggplot(q4full_plot_dta, aes(x=q4full_plot_labels, y=q4full_plot, 
 
 q4full_plot      
 
-ggsave(file="q4.pdf", width=18, height=5, dpi=300) #renders a pdf with clear text
+
 ```
 \newpage
 
@@ -1004,14 +1004,14 @@ Question 5, Merged1
 Q. Please select upto two States that you think have performed their pandemic management responsibilities most poorly.
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=5,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
 q5full_mean_anislands <- round(weighted.mean(summary_q5$q5_anislands, summary_q5$state_weight)*100,3)
 q5full_mean_andhra <- round(weighted.mean(summary_q5$q5_andhra, summary_q5$state_weight)*100,3)
 q5full_mean_arunachal <- round(weighted.mean(summary_q5$q5_arunachal, summary_q5$state_weight)*100,3)
 q5full_mean_assam <- round(weighted.mean(summary_q5$q5_assam, summary_q5$state_weight)*100,3)
 q5full_mean_bihar <- round(weighted.mean(summary_q5$q5_bihar, summary_q5$state_weight)*100,3)
 q5full_mean_chandigarh <- round(weighted.mean(summary_q5$q5_chandigarh, summary_q5$state_weight)*100,3)
-q5full_mean_chattisgarh <- round(weighted.mean(summary_q5$q5_chhattisgarh, summary_q5$state_weight)*100,3)
+q5full_mean_chhattisgarh <- round(weighted.mean(summary_q5$q5_chhattisgarh, summary_q5$state_weight)*100,3)
 q5full_mean_dnhdd <- round(weighted.mean(summary_q5$q5_dnhdd, summary_q5$state_weight)*100,3)
 q5full_mean_goa <- round(weighted.mean(summary_q5$q5_goa, summary_q5$state_weight)*100,3)
 q5full_mean_gujarat <- round(weighted.mean(summary_q5$q5_gujarat, summary_q5$state_weight)*100,3)
@@ -1060,7 +1060,7 @@ q5full_plot <- ggplot(q5full_plot_dta, aes(x=q5full_plot_labels, y=q5full_plot, 
 
 q5full_plot      
 
-ggsave(file="q5.pdf", width=18, height=5, dpi=300) #renders a pdf with clear text
+
 ```
 \newpage
 
@@ -1070,7 +1070,7 @@ Question 6, Merged3
 Q. Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=5,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
 
 q6full_mean_anislands <- round(weighted.mean(summary_q6$q6_anislands, summary_q6$state_weight)*100,3)
 q6full_mean_andhra <- round(weighted.mean(summary_q6$q6_andhra, summary_q6$state_weight)*100,3)
@@ -1078,7 +1078,7 @@ q6full_mean_arunachal <- round(weighted.mean(summary_q6$q6_arunachal, summary_q6
 q6full_mean_assam <- round(weighted.mean(summary_q6$q6_assam, summary_q6$state_weight)*100,3)
 q6full_mean_bihar <- round(weighted.mean(summary_q6$q6_bihar, summary_q6$state_weight)*100,3)
 q6full_mean_chandigarh <- round(weighted.mean(summary_q6$q6_chandigarh, summary_q6$state_weight)*100,3)
-q6full_mean_chattisgarh <- round(weighted.mean(summary_q6$q6_chattisgarh, summary_q6$state_weight)*100,3)
+q6full_mean_chhattisgarh <- round(weighted.mean(summary_q6$q6_chhattisgarh, summary_q6$state_weight)*100,3)
 q6full_mean_dnhdd <- round(weighted.mean(summary_q6$q6_dnhdd, summary_q6$state_weight)*100,3)
 q6full_mean_goa <- round(weighted.mean(summary_q6$q6_goa, summary_q6$state_weight)*100,3)
 q6full_mean_gujarat <- round(weighted.mean(summary_q6$q6_gujarat, summary_q6$state_weight)*100,3)
@@ -1127,6 +1127,6 @@ q6full_plot <- ggplot(q6full_plot_dta, aes(x=q6full_plot_labels, y=q6full_plot, 
 
 q6full_plot      
 
-ggsave(file="q6.pdf", width=18, height=5, dpi=300) #renders a pdf with clear text
+
 ```
 
