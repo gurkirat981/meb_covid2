@@ -45,13 +45,12 @@ raw_dta <- read_csv("meb2data_9dec.csv", col_names = FALSE)
 ```{r, include=FALSE}
 #Clean up: deleting extra columns, merging the state related questions, deleting the old state columns, removing all incomplete answers, adding two filters to ensure only responses by currently serving IAS officers
 processed_dta<-raw_dta[-c(1,2),-c(2, 5:9,15,140,141)]%>%
-  unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>% #adding randomly to check
+  unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>% 
   unite('Merged2', X56:X92, remove = FALSE, na.rm=TRUE) %>%
   unite('Merged3',X93:X129, remove=FALSE, na.rm=TRUE) %>% 
   dplyr::select(-c(X19:X55)) %>%
   dplyr::select(-c(X56:X92)) %>%
   dplyr::select(-c(X93:X129)) %>%
-  #na.omit %>%
   filter(!is.na(X139))%>% #This is to filter out incomplete responses.
   filter(X10=="Yes") %>% 
   separate(Merged1, c('Merged1.1', 'Merged1.2'), sep = "([_])") %>%
@@ -87,7 +86,7 @@ newtheme <- theme_bw() +
 
 ```{r, include=FALSE}
 #Recoding answer options from character strings to numeric values for the processed_dta 
-#Q7 (X16) #Q8 (X17) #Q9 (X18) #Q13 (X130) #Q15 (X132)  #Q16 (X133) #Q17 (X134) #Q18 (X135) #20 (X137) #Q21 (X138) #Q22 (X139)
+#Q7 (X16) #Q8 (X17) #Q9 (X18) #Q13 (X130) #Q15 (X132)  #Q16 (X133) #Q17 (X134) #Q18 (X135) #Q20 (X137) #Q21 (X138) #Q22 (X139)
 #Deleting Q19 (X136) since this is the error question 
 
 processed_dta<-processed_dta %>% 
@@ -137,13 +136,6 @@ full_serving <- processed_dta %>%
 #mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
                        #ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
 
-#altered code for AGMUT and AM division (needs to be reviewed) 
-# mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.71, 0.29), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
-#                        ifelse(X12=="AGMUT", sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE), X12))) %>% 
-  
-
-
-
 #New code for AGMUT and AM allocation, done by creating subsets 
 #Creating a subset of just AGMUT responses to allocate states to 
 agmut_fullserving <- full_serving %>% 
@@ -160,7 +152,7 @@ nocombined_full_serving <- full_serving %>%
   subset(!X12=="AGMUT") %>% 
   subset(!X12=="Assam Meghalaya")
 
-#Merging the three above subsets to get the desired full_serving dataset with correct state allocations
+#Merging the three above subsets to get the desired full_serving dataset with correct state allocations and adding a column indicating the SDG classification and age bracket 
 full_serving <- nocombined_full_serving %>% 
   mutate(state=X12) %>% 
   add_row(am_fullserving) %>% 
@@ -168,6 +160,7 @@ full_serving <- nocombined_full_serving %>%
   mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
                        ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
    mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before"))
+
 #Creating a dataset of former IAS officers and adding the same three columns as above to help with merging the two datasets 
 full_former<-processed_dta %>% 
   filter(X13=="No, I am a former IAS officer") %>% 
@@ -178,6 +171,7 @@ full_former<-processed_dta %>%
 
 ```{r}
 #Creating subsets
+#Shubhangi says: we can actually remove this entire chunk of code! 
 
 #SDG subsets
 #Dataset of aspirant states 
@@ -228,7 +222,6 @@ summary_nogroup<-full_serving %>%
 
 ```{r, include=FALSE}
 #Creating a dataset with the averages for each answer choice for all questions grouped by the state 
-#Used for SDG comparison
 summary_state<-full_serving %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
   group_by(state) %>% 
@@ -249,6 +242,7 @@ summary_state<-full_serving %>%
 
 ```{r}
 #Creating a dataset with the averages for each answer choice for all questions grouped by the cadre
+#Shubhangi says: we can remove this entire chunk of code as well
 summary_cadre<-full_serving %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, X12)) %>% 
   group_by(X12) %>% 
@@ -269,47 +263,43 @@ summary_cadre<-full_serving %>%
  
 ```
 
-
 ```{r, include=FALSE}
-#Creating a column of weights for states within each SDG tier 
-#This code requires three different datasets: the summary_state (mean averages for each answer choice), ias_processed_dta (distribution of IAS officers by state and age) and full_serving (since it has a column denoting the SDG tiers) 
-
-
-#Creating vectors for the position of states in the IAS dataset according to their SDG tiers 
-#aspirant<-which((ias_processed_dta$State=="Assam")| (ias_processed_dta$State=="Bihar") | (ias_processed_dta$State=="Uttar Pradesh"))
-#frontrunner<-which((ias_processed_dta$State=="Puducherry")|(ias_processed_dta$State=="Tamil Nadu")|(ias_processed_dta$State=="Kerala")|(ias_processed_dta$State=="Himachal Pradesh")|(ias_processed_dta$State=="Chandigarh"))
-#performers<-which(!(ias_processed_dta$State %in% ias_processed_dta$State[frontrunner])&!(ias_processed_dta$State %in% ias_processed_dta$State[aspirant]))
-
-
-#summary_state_analysis <- summary_state %>% 
-  #mutate(sdg_weight = ifelse(state== "Uttar Pradesh" | state == "Bihar" | state =="Assam", ias_processed_dta$total[aspirant]/sum(ias_processed_dta$total[aspirant]), 
-                             #ifelse(state=="Puducherry"|state=="Tamil Nadu"|state=="Kerala"|state=="Himachal Pradesh"|state=="Chandigarh", ias_processed_dta$total[frontrunner]/sum(ias_processed_dta$total[frontrunner]), ias_processed_dta$total[performers]/sum(ias_processed_dta$total[performers]))))
-
-#Manually calculated some weights on excel and identified errors in "sdg_weight" obtained from this code.
-#We can consider copying the "IAS Distribution rmd" here as a separate code chunk.
-```
-
-```{r, include=FALSE}
-#reading in libraries + dataset -- also adding the TCPD dataset to our git so that we can all run this code from the same working directory 
-
+#Importing IAS data from TCPD
 ias_raw_dta<-read.csv("ias-profile.csv")
 ```
 
 ```{r}
-#Creating a dataset where each row is a different state and each column in the allocation year. Additional columns indicating total number of officers, number of officers pre and post 2012, and their respective proportions are given. 
+#Creating a dataset where each row is a different state and each column is the allocation year. Additional columns indicating total number of officers, number of officers pre and post 2012, and their respective proportions are given. 
 #The last row are the total values
 
 ias_processed_dta<-ias_raw_dta %>% 
   filter(Retired=="TRUE") %>%  
   mutate(State = Cadre) 
-  
-ias_processed_dta$State<-as.character(ias_processed_dta$State) 
-#need to look for an alternative to divide combined cadres
-ias_processed_dta<-ias_processed_dta %>% 
+ias_processed_dta$State<-as.character(ias_processed_dta$State)
+
+#Dividing combined cadres in the same way we allocated them in our survey data 
+agmut_ias<-ias_processed_dta %>% 
+  subset(State=="A G M U T") %>% 
+  mutate(State=sample(c(rep("Arunachal Pradesh", 60), rep("Goa", 33), rep("Mizoram", 46),rep("Andaman and Nicobar Islands", 22), rep("Chandigarh", 13), rep("DNH and DD", 9), rep("Delhi", 108),  rep("Lakshadweep Islands",4), rep("Puducherry", 20)), replace = FALSE))
+
+am_ias<-ias_processed_dta %>% 
+  subset(State=="Assam Meghalya") %>% 
+  mutate(State=sample(c(rep("Assam",136), rep("Meghalaya", 58))))
+
+mt_ias<-ias_processed_dta %>% 
+  subset(State=="Manipur-Tripura") %>% 
+  mutate(State=sample(c(rep("Manipur",2), rep("Tripura", 2))))
+
+nocombined_ias<-ias_processed_dta %>% 
+  subset(!State=="A G M U T") %>% 
+  subset(!State=="Assam Meghalya") %>% 
+  subset(!State=="Manipur-Tripura")
+
+ias_processed_dta<-nocombined_ias %>% 
+  add_row(agmut_ias) %>% 
+  add_row(am_ias) %>%
+  add_row(mt_ias) %>% 
   mutate(State = ifelse(State=="Chhasttisgarh", "Chhattisgarh", ifelse(State== "Maharastra", "Maharashtra", State))) %>% 
-  mutate(State = ifelse(State== "Assam Meghalya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(ias_processed_dta$State=="Assam Meghalya")), replace = TRUE),   
-                       ifelse(State=="A G M U T", sample(c("Delhi", "Arunachal Pradesh","Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.05), size = length(which(ias_processed_dta$State=="A G M U T")), replace = TRUE),
-                       ifelse(State=="Manipur-Tripura", sample(c("Manipur", "Tripura"), prob =c(0.5, 0.5), size=length(which(ias_processed_dta$State=="Manipur-Tripura")), replace =TRUE), State)))) %>% 
   dplyr::select(c(State, Allotment_Year)) %>% 
   group_by(State) %>% 
   summarise(Y1982=sum(Allotment_Year=="1982"),
@@ -353,38 +343,28 @@ ias_processed_dta<-ias_processed_dta %>%
             Y2020=sum(Allotment_Year=="2020"),.groups='drop') %>% 
   ungroup() %>% 
   mutate(pre2012=rowSums(.[2:31])) %>% #1982 to 2011
-  mutate(post2012=rowSums(.[32:40])) %>% 
+  mutate(post2012=rowSums(.[32:40])) %>% #2012 to 2020
   mutate(total= rowSums(.[41:42])) %>% 
-  mutate(age_weight_old = pre2012/sum(pre2012)) %>% 
-  mutate(age_weight_young = post2012/sum(post2012)) %>% 
   mutate (state_weight = total/sum(total)) %>% 
-  #bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% #Help:I don't know why this red cross is showing up, because the code runs exactly like I want it to and without errors
-  mutate(prop_pre2012_withinstate = pre2012/sum(total)) %>% 
-  mutate(prop_post2012_withinstate = post2012/sum(total)) 
-  
-  ias_processed_dta <- ias_processed_dta %>% 
-  mutate(sdgtier = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
+  #bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% 
+  mutate(prop_pre2012_withinstate = pre2012/sum(total)) %>% #proportion of young officers in a state out of all officers in the state. The sum of prop_pre2012 and prop_post2012 within X state is equal to 1
+  mutate(prop_post2012_withinstate = post2012/sum(total)) %>% 
+  mutate(sdg = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
                        ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer"))) 
-  
+
 ias_processed_dta <- ias_processed_dta %>% 
-  mutate(sdgtier_weight = ifelse(sdgtier == "Aspirant", total/sum(ias_processed_dta$total[ias_processed_dta$sdgtier=="Aspirant"]), 
-                             ifelse(sdgtier == "Frontrunner", total/sum(ias_processed_dta$total[ias_processed_dta$sdgtier=="Frontrunner"]), total/sum(ias_processed_dta$total[ias_processed_dta$sdgtier=="Performer"]))))
-  
-  #age_weight_young is the proportion of young officers in X state out of all young officers. The sum of prop_pre2012_age for all states is equal to 1 
-  #prop_pre2012_withinstate is the proportion of young officers in X state out of all officers in the state. The sum of prop_pre2012 and prop_post2012 within X state is equal to 1
+  mutate(sdg_weight = ifelse(sdg == "Aspirant", total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Aspirant"]), 
+                             ifelse(sdg == "Frontrunner", total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Frontrunner"]), total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Performer"]))))
 ```
 
 
 ```{r, include=FALSE}
-#Adding state weights and age weights, and then transferring them from "ias_processed_dta" to "summary_state_analysis"
-
-ias_processed_dta1 <- ias_processed_dta %>% 
-dplyr:: select (State, age_weight_old, age_weight_young, state_weight, sdgtier_weight) 
-
-summary_state_analysis <- cbind (summary_state, ias_processed_dta1)
-
-summary_state_analysis <- summary_state_analysis %>% 
-dplyr :: select (-State)
+#Adding state weights and age weights to summary_state to create a new dataset called summary_state_analysis
+summary_state_analysis<-summary_state %>% 
+  mutate(state_weight=ias_processed_dta$state_weight) %>% 
+  mutate(sdg_weight=ias_processed_dta$sdg_weight) %>% 
+  mutate(age_weight_young=ias_processed_dta$prop_pre2012_withinstate) %>% 
+  mutate(age_weight_old=ias_processed_dta$prop_post2012_withinstate)  
 ```
 
 \newpage
@@ -415,7 +395,6 @@ q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, 
   newtheme
 
 q1full_plot
-
 ```
 
 \newpage
@@ -508,7 +487,6 @@ q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, 
   newtheme
 
 q7full_plot
-
 ```
 \newpage
 
@@ -563,7 +541,6 @@ q9full_plot <- ggplot(q9full_plot_dta, aes(x=q9full_plot_labels, y=q9full_plot, 
   newtheme
 
 q9full_plot
-
 ```
 \newpage
 
@@ -716,7 +693,6 @@ q15full_plot <- ggplot(q15full_plot_dta, aes(x=q15full_plot_labels, y=q15full_pl
   newtheme
 
 q15full_plot
-
 ```
 \newpage
 
@@ -747,9 +723,7 @@ q16full_plot
 ```
 
 ```{r}
-#Wrangling data and calculating averages for question no. 4
-
-
+#Calculating averages for question 4 (previously "Merged 1")
 q4_state_answers1 <- full_serving %>% 
   dplyr::select (state, Merged1.1) %>% 
   mutate (Merged = Merged1.1) %>% 
@@ -813,8 +787,7 @@ dplyr :: select (-State)
 ```
 
 ```{r}
-#Question 5 (the second state question, previously "Merged 2")
-
+#Calculating averages for question 5 (previously "Merged 2")
 q5_1 <- full_serving %>% 
 dplyr::select (state, Merged2.1) %>% 
 mutate (Merged = Merged2.1) %>% 
@@ -876,8 +849,7 @@ dplyr :: select (-State)
 ```
 
 ```{r}
-#Question 6 (the third state question, previously "Merged 3")
-
+#Calculating averages for question 6 (previously "Merged 3")
 q6 <- full_serving %>% 
 dplyr::select (state, Merged3) %>% 
 mutate (Merged = Merged3) %>% 
