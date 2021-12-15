@@ -1,5 +1,5 @@
 ---
-title: "Analysis of MEB COVID Survey 2"
+title: "Analysis of MEB COVID Survey 2*"
 author: "MEB Team"
 date: "15 Dec 2021"
 output:
@@ -8,12 +8,10 @@ output:
     df_print: paged
 ---
 
-\Large Note: This pdf contains full graphs for all survey questions weighted by states' share in population of IAS officers
+\Large Note: This pdf contains full graphs for all survey questions weighted by states' share in population of IAS officers as well as the age of IAS officers within each state
 
 \newpage
 \tableofcontents 
-
-
 ```{r setup, include=FALSE} 
 knitr::opts_chunk$set(echo = FALSE)
 
@@ -222,45 +220,34 @@ summary_nogroup<-full_serving %>%
 
 ```{r, include=FALSE}
 #Creating a dataset with the averages for each answer choice for all questions grouped by the state 
-summary_state<-full_serving %>% 
-  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
+summary_state_age<-full_serving %>% 
+  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state, age)) %>% 
   group_by(state) %>% 
-  summarise(X16ones=sum(X16==1)/length(state), X16twos=sum(X16==2)/length(state),
-            X17ones=sum(X17==1)/length(state), X17twos=sum(X17==2)/length(state), X17threes=sum(X17==3)/length(state), X17fours=sum(X17==4)/length(state),
-            X18ones=sum(X18==1)/length(state), X18twos=sum(X18==2)/length(state), X18threes=sum(X18==3)/length(state), X18fours=sum(X18==4)/length(state), 
-            X130ones=sum(X130==1)/length(state), X130twos=sum(X130==2)/length(state),
-            X131ones=sum(X131==1)/length(state), X131twos=sum(X131==2)/length(state), X131threes=sum(X131==3)/length(state), X131fours=sum(X131==4)/length(state), 
-            X132ones=sum(X132==1)/length(state), X132twos=sum(X132==2)/length(state),
-            X133ones=sum(X133==1)/length(state), X133twos=sum(X133==2)/length(state), X133threes=sum(X133==3)/length(state),
-            X134ones=sum(X134==1)/length(state), X134twos=sum(X134==2)/length(state), X134threes=sum(X134==3)/length(state), X134fours=sum(X134==4)/length(state), 
-            X135ones=sum(X135==1)/length(state), X135twos=sum(X135==2)/length(state), X135threes=sum(X135==3)/length(state), X135fours=sum(X135==4)/length(state),
-            X137ones=sum(X137==1)/length(state), X137twos=sum(X137==2)/length(state), X137threes=sum(X137==3)/length(state), X137fours=sum(X137==4)/length(state),
-            X138ones=sum(X138==1)/length(state), X138twos=sum(X138==2)/length(state), X138threes=sum(X138==3)/length(state), X138fours=sum(X138==4)/length(state),
-            X139ones=sum(X139==1)/length(state), X139twos=sum(X139==2)/length(state), X139threes=sum(X139==3)/length(state)) %>% 
+  summarise(X16ones_young=sum(X16[age=="2011 and before"]==1)/length(state), X16twos_young=sum(X16[age=="2011 and before"]==2)/length(state),
+            X16ones_old=sum(X16[age=="2012 and after"]==1)/length(state), X16twos_old=sum(X16[age=="2012 and after"]==2)/length(state),
+            X17ones_young=sum(X17[age=="2011 and before"]==1)/length(state), X17twos_young=sum(X17[age=="2011 and before"]==2)/length(state), X17threes_young=sum(X17[age=="2011 and before"]==3)/length(state), X17fours_young=sum(X17[age=="2011 and before"]==4)/length(state),
+            X17ones_old=sum(X17[age=="2012 and after"]==1)/length(state), X17twos_old=sum(X17[age=="2012 and after"]==2)/length(state), X17threes_old=sum(X17[age=="2012 and after"]==3)/length(state), X17fours_old=sum(X17[age=="2012 and after"]==4)/length(state),
+            X18ones_young=sum(X18[age=="2011 and before"]==1)/length(state), X18twos_young=sum(X18[age=="2011 and before"]==2)/length(state), X18threes_young=sum(X18[age=="2011 and before"]==3)/length(state), X18fours_young=sum(X18[age=="2011 and before"]==4)/length(state),
+            X18ones_old=sum(X18[age=="2012 and after"]==1)/length(state), X18twos_old=sum(X18[age=="2012 and after"]==2)/length(state), X18threes_old=sum(X18[age=="2012 and after"]==3)/length(state), X18fours_old=sum(X18[age=="2012 and after"]==4)/length(state),
+            X130ones_young=sum(X130[age=="2011 and before"]==1)/length(state), X130twos_young=sum(X130[age=="2011 and before"]==2)/length(state),
+            X130ones_old=sum(X130[age=="2012 and after"]==1)/length(state), X130twos_old=sum(X130[age=="2012 and after"]==2)/length(state),
+            X131ones_young=sum(X131[age=="2011 and before"]==1)/length(state), X131twos_young=sum(X131[age=="2011 and before"]==2)/length(state), X131threes_young=sum(X131[age=="2011 and before"]==3)/length(state), X131fours_young=sum(X131[age=="2011 and before"]==4)/length(state),
+            X131ones_old=sum(X131[age=="2012 and after"]==1)/length(state), X131twos_old=sum(X131[age=="2012 and after"]==2)/length(state), X131threes_old=sum(X131[age=="2012 and after"]==3)/length(state), X131fours_old=sum(X131[age=="2012 and after"]==4)/length(state),
+            X132ones_young=sum(X132[age=="2011 and before"]==1)/length(state), X132twos_young=sum(X132[age=="2011 and before"]==2)/length(state),
+            X132ones_old=sum(X132[age=="2012 and after"]==1)/length(state), X132twos_old=sum(X132[age=="2012 and after"]==2)/length(state),
+            X133ones_young=sum(X133[age=="2011 and before"]==1)/length(state), X133twos_young=sum(X133[age=="2011 and before"]==2)/length(state), X133threes_young=sum(X133[age=="2011 and before"]==3)/length(state),
+            X133ones_old=sum(X133[age=="2012 and after"]==1)/length(state), X133twos_old=sum(X133[age=="2012 and after"]==2)/length(state), X133threes_old=sum(X133[age=="2012 and after"]==3)/length(state),
+            X134ones_young=sum(X134[age=="2011 and before"]==1)/length(state), X134twos_young=sum(X134[age=="2011 and before"]==2)/length(state), X134threes_young=sum(X134[age=="2011 and before"]==3)/length(state), X134fours_young=sum(X134[age=="2011 and before"]==4)/length(state),
+            X134ones_old=sum(X134[age=="2012 and after"]==1)/length(state), X134twos_old=sum(X134[age=="2012 and after"]==2)/length(state), X134threes_old=sum(X134[age=="2012 and after"]==3)/length(state), X134fours_old=sum(X134[age=="2012 and after"]==4)/length(state),
+            X135ones_young=sum(X135[age=="2011 and before"]==1)/length(state), X135twos_young=sum(X135[age=="2011 and before"]==2)/length(state), X135threes_young=sum(X135[age=="2011 and before"]==3)/length(state), X135fours_young=sum(X135[age=="2011 and before"]==4)/length(state),
+            X135ones_old=sum(X135[age=="2012 and after"]==1)/length(state), X135twos_old=sum(X135[age=="2012 and after"]==2)/length(state), X135threes_old=sum(X135[age=="2012 and after"]==3)/length(state), X135fours_old=sum(X135[age=="2012 and after"]==4)/length(state),
+            X137ones_young=sum(X137[age=="2011 and before"]==1)/length(state), X137twos_young=sum(X137[age=="2011 and before"]==2)/length(state), X137threes_young=sum(X137[age=="2011 and before"]==3)/length(state), X137fours_young=sum(X137[age=="2011 and before"]==4)/length(state),
+            X137ones_old=sum(X137[age=="2012 and after"]==1)/length(state), X137twos_old=sum(X137[age=="2012 and after"]==2)/length(state), X137threes_old=sum(X137[age=="2012 and after"]==3)/length(state), X137fours_old=sum(X137[age=="2012 and after"]==4)/length(state), 
+            X138ones_young=sum(X138[age=="2011 and before"]==1)/length(state), X138twos_young=sum(X138[age=="2011 and before"]==2)/length(state), X138threes_young=sum(X138[age=="2011 and before"]==3)/length(state), X138fours_young=sum(X138[age=="2011 and before"]==4)/length(state),
+            X138ones_old=sum(X138[age=="2012 and after"]==1)/length(state), X138twos_old=sum(X138[age=="2012 and after"]==2)/length(state), X138threes_old=sum(X138[age=="2012 and after"]==3)/length(state), X138fours_old=sum(X138[age=="2012 and after"]==4)/length(state),
+            X139ones_young=sum(X139[age=="2011 and before"]==1)/length(state), X139twos_young=sum(X139[age=="2011 and before"]==2)/length(state), X139threes_young=sum(X139[age=="2011 and before"]==3)/length(state),
+            X139ones_old=sum(X139[age=="2012 and after"]==1)/length(state), X139twos_old=sum(X139[age=="2012 and after"]==2)/length(state), X139threes_old=sum(X139[age=="2012 and after"]==3)/length(state)) %>%  
   ungroup()
-```
-
-```{r}
-#Creating a dataset with the averages for each answer choice for all questions grouped by the cadre
-#Shubhangi says: we can remove this entire chunk of code as well
-summary_cadre<-full_serving %>% 
-  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, X12)) %>% 
-  group_by(X12) %>% 
-  summarise(X16ones=sum(X16==1)/length(X12), X16twos=sum(X16==2)/length(X12),
-            X17ones=sum(X17==1)/length(X12), X17twos=sum(X17==2)/length(X12), X17threes=sum(X17==3)/length(X12), X17fours=sum(X17==4)/length(X12),
-            X18ones=sum(X18==1)/length(X12), X18twos=sum(X18==2)/length(X12), X18threes=sum(X18==3)/length(X12), X18fours=sum(X18==4)/length(X12), 
-            X130ones=sum(X130==1)/length(X12), X130twos=sum(X130==2)/length(X12),
-            X131ones=sum(X131==1)/length(X12), X131twos=sum(X131==2)/length(X12), X131threes=sum(X131==3)/length(X12), X131fours=sum(X131==4)/length(X12), 
-            X132ones=sum(X132==1)/length(X12), X132twos=sum(X132==2)/length(X12),
-            X133ones=sum(X133==1)/length(X12), X133twos=sum(X133==2)/length(X12), X133threes=sum(X133==3)/length(X12),
-            X134ones=sum(X134==1)/length(X12), X134twos=sum(X134==2)/length(X12), X134threes=sum(X134==3)/length(X12), X134fours=sum(X134==4)/length(X12), 
-            X135ones=sum(X135==1)/length(X12), X135twos=sum(X135==2)/length(X12), X135threes=sum(X135==3)/length(X12), X135fours=sum(X135==4)/length(X12),
-            X137ones=sum(X137==1)/length(X12), X137twos=sum(X137==2)/length(X12), X137threes=sum(X137==3)/length(X12), X137fours=sum(X137==4)/length(X12),
-            X138ones=sum(X138==1)/length(X12), X138twos=sum(X138==2)/length(X12), X138threes=sum(X138==3)/length(X12), X138fours=sum(X138==4)/length(X12),
-            X139ones=sum(X139==1)/length(X12), X139twos=sum(X139==2)/length(X12), X139threes=sum(X139==3)/length(X12),.groups = 'drop') %>% 
-  ungroup() %>% 
-  rename(cadre = "X12")
- 
 ```
 
 ```{r, include=FALSE}
@@ -347,26 +334,83 @@ ias_processed_dta<-nocombined_ias %>%
   mutate(total= rowSums(.[41:42])) %>% 
   mutate (state_weight = total/sum(total)) %>% 
   #bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% 
-  mutate(prop_pre2012_withinstate = pre2012/sum(total)) %>% #proportion of young officers in a state out of all officers in the state. The sum of prop_pre2012 and prop_post2012 within X state is equal to 1
-  mutate(prop_post2012_withinstate = post2012/sum(total)) %>% 
+  mutate(prop_pre2012_withinstate = pre2012/total) %>% 
+  mutate(prop_post2012_withinstate = post2012/total) %>% 
   mutate(sdg = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
                        ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer"))) 
+#proportion of young officers in a state out of all officers in the state. The sum of prop_pre2012 and prop_post2012 within X state is equal to 1
 
 ias_processed_dta <- ias_processed_dta %>% 
   mutate(sdg_weight = ifelse(sdg == "Aspirant", total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Aspirant"]), 
                              ifelse(sdg == "Frontrunner", total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Frontrunner"]), total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Performer"]))))
 ```
 
-
 ```{r, include=FALSE}
 #Adding state weights and age weights to summary_state to create a new dataset called summary_state_analysis
-summary_state_analysis<-summary_state %>% 
+summary_state_analysis_age<-summary_state_age %>% 
   mutate(state_weight=ias_processed_dta$state_weight) %>% 
   mutate(sdg_weight=ias_processed_dta$sdg_weight) %>% 
   mutate(age_weight_young=ias_processed_dta$prop_pre2012_withinstate) %>% 
   mutate(age_weight_old=ias_processed_dta$prop_post2012_withinstate)  
 ```
 
+```{r}
+#Computing the age weights so that the new summary_state_analysis has an age-weighted mean for each answer choice for each question 
+summary_state_analysis_age<-summary_state_analysis_age %>% 
+  mutate(X16ones=(X16ones_young*age_weight_young)+(X16ones_old*age_weight_old)) %>% 
+  mutate(X16twos=(X16twos_young*age_weight_young)+(X16twos_old*age_weight_old)) %>%
+  mutate(X17ones=(X17ones_young*age_weight_young)+(X17ones_old*age_weight_old)) %>% 
+  mutate(X17twos=(X17twos_young*age_weight_young)+(X17twos_old*age_weight_old)) %>%
+  mutate(X17threes=(X17threes_young*age_weight_young)+(X17threes_old*age_weight_old)) %>% 
+  mutate(X17fours=(X17fours_young*age_weight_young)+(X17fours_old*age_weight_old)) %>%
+  mutate(X18ones=(X18ones_young*age_weight_young)+(X18ones_old*age_weight_old)) %>% 
+  mutate(X18twos=(X18twos_young*age_weight_young)+(X18twos_old*age_weight_old)) %>%
+  mutate(X18threes=(X18threes_young*age_weight_young)+(X18threes_old*age_weight_old)) %>% 
+  mutate(X18fours=(X18fours_young*age_weight_young)+(X18fours_old*age_weight_old)) %>%
+  mutate(X130ones=(X130ones_young*age_weight_young)+(X130ones_old*age_weight_old)) %>% 
+  mutate(X130twos=(X130twos_young*age_weight_young)+(X130twos_old*age_weight_old)) %>%
+  mutate(X131ones=(X131ones_young*age_weight_young)+(X131ones_old*age_weight_old)) %>% 
+  mutate(X131twos=(X131twos_young*age_weight_young)+(X131twos_old*age_weight_old)) %>%
+  mutate(X131threes=(X131threes_young*age_weight_young)+(X131threes_old*age_weight_old)) %>% 
+  mutate(X131fours=(X131fours_young*age_weight_young)+(X131fours_old*age_weight_old)) %>%
+  mutate(X132ones=(X132ones_young*age_weight_young)+(X132ones_old*age_weight_old)) %>% 
+  mutate(X132twos=(X132twos_young*age_weight_young)+(X132twos_old*age_weight_old)) %>%
+  mutate(X133ones=(X133ones_young*age_weight_young)+(X133ones_old*age_weight_old)) %>% 
+  mutate(X133twos=(X133twos_young*age_weight_young)+(X133twos_old*age_weight_old)) %>%
+  mutate(X133threes=(X133threes_young*age_weight_young)+(X133threes_old*age_weight_old)) %>% 
+  mutate(X134ones=(X134ones_young*age_weight_young)+(X134ones_old*age_weight_old)) %>% 
+  mutate(X134twos=(X134twos_young*age_weight_young)+(X134twos_old*age_weight_old)) %>%
+  mutate(X134threes=(X134threes_young*age_weight_young)+(X134threes_old*age_weight_old)) %>% 
+  mutate(X134fours=(X134fours_young*age_weight_young)+(X134fours_old*age_weight_old)) %>%
+  mutate(X135ones=(X135ones_young*age_weight_young)+(X135ones_old*age_weight_old)) %>% 
+  mutate(X135twos=(X135twos_young*age_weight_young)+(X135twos_old*age_weight_old)) %>%
+  mutate(X135threes=(X135threes_young*age_weight_young)+(X135threes_old*age_weight_old)) %>% 
+  mutate(X135fours=(X135fours_young*age_weight_young)+(X135fours_old*age_weight_old)) %>%
+  mutate(X137ones=(X137ones_young*age_weight_young)+(X137ones_old*age_weight_old)) %>% 
+  mutate(X137twos=(X137twos_young*age_weight_young)+(X137twos_old*age_weight_old)) %>%
+  mutate(X137threes=(X137threes_young*age_weight_young)+(X137threes_old*age_weight_old)) %>% 
+  mutate(X137fours=(X137fours_young*age_weight_young)+(X137fours_old*age_weight_old)) %>%
+  mutate(X138ones=(X138ones_young*age_weight_young)+(X138ones_old*age_weight_old)) %>% 
+  mutate(X138twos=(X138twos_young*age_weight_young)+(X138twos_old*age_weight_old)) %>%
+  mutate(X138threes=(X138threes_young*age_weight_young)+(X138threes_old*age_weight_old)) %>% 
+  mutate(X138fours=(X138fours_young*age_weight_young)+(X138fours_old*age_weight_old)) %>%
+  mutate(X139ones=(X139ones_young*age_weight_young)+(X139ones_old*age_weight_old)) %>% 
+  mutate(X139twos=(X139twos_young*age_weight_young)+(X139twos_old*age_weight_old)) %>%
+  mutate(X139threes=(X139threes_young*age_weight_young)+(X139threes_old*age_weight_old)) %>% 
+  dplyr::select(-X16ones_young, -X16ones_old, -X16twos_young, -X16twos_old,
+                -X17ones_young, -X17ones_old, -X17twos_young, -X17twos_old, -X17threes_young, -X17threes_old, -X17fours_young, -X17fours_old, 
+                -X18ones_young, -X18ones_old, -X18twos_young, -X18twos_old, -X18threes_young, -X18threes_old, -X18fours_young, -X18fours_old,
+                -X130ones_young, -X130ones_old, -X130twos_young, -X130twos_old,
+                -X131ones_young, -X131ones_old, -X131twos_young, -X131twos_old, -X131threes_young, -X131threes_old, -X131fours_young, -X131fours_old,
+                -X132ones_young, -X132ones_old, -X132twos_young, -X132twos_old, 
+                -X133ones_young, -X133ones_old, -X133twos_young, -X133twos_old, -X133threes_young, -X133threes_old, 
+                -X134ones_young, -X134ones_old, -X134twos_young, -X134twos_old, -X134threes_young, -X134threes_old, -X134fours_young, -X134fours_old,
+                -X135ones_young, -X135ones_old, -X135twos_young, -X135twos_old, -X135threes_young, -X135threes_old, -X135fours_young, -X135fours_old,
+                -X137ones_young, -X137ones_old, -X137twos_young, -X137twos_old, -X137threes_young, -X137threes_old, -X137fours_young, -X137fours_old,
+                -X138ones_young, -X138ones_old, -X138twos_young, -X138twos_old, -X138threes_young, -X138threes_old, -X138fours_young, -X138fours_old,
+                -X139ones_young, -X139ones_old, -X139twos_young, -X139twos_old, -X139threes_young, -X139threes_old)
+
+```
 \newpage
 
 ## Question 1 
@@ -377,10 +421,10 @@ Q. Most countries in the world experienced a second wave of Covid-19 characteris
 \vspace{6mm}
 
 ```{r}
-q1full_mean_ones <- round(weighted.mean(summary_state_analysis$X16ones,
-summary_state_analysis$state_weight)*100,2) 
-q1full_mean_twos <- round(weighted.mean(summary_state_analysis$X16twos,
-summary_state_analysis$state_weight)*100,2)
+q1full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X16ones,
+summary_state_analysis_age$state_weight)*100,2) 
+q1full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X16twos,
+summary_state_analysis_age$state_weight)*100,2)
 q1full_plot <- c(q1full_mean_ones, q1full_mean_twos) 
 q1full_plot_labels <- c("The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.", "The second Covid-19 surge was expected and should have seen much more advance planning.") 
 q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels) 
@@ -407,12 +451,12 @@ With regard to our planning and preparation for the second wave, which of these 
 \vspace{6mm}
 
 ```{r}
-q2full_mean_ones <- round(weighted.mean(summary_state_analysis$X17ones,
-summary_state_analysis$state_weight)*100,3) 
-q2full_mean_twos <- round(weighted.mean(summary_state_analysis$X17twos,
-summary_state_analysis$state_weight)*100,3) 
-q2full_mean_threes <- round(weighted.mean(summary_state_analysis$X17threes, summary_state_analysis$state_weight)*100,3)
-q2full_mean_fours <- round(weighted.mean(summary_state_analysis$X17fours, summary_state_analysis$state_weight)*100,3)
+q2full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X17ones,
+summary_state_analysis_age$state_weight)*100,3) 
+q2full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X17twos,
+summary_state_analysis_age$state_weight)*100,3) 
+q2full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X17threes, summary_state_analysis_age$state_weight)*100,3)
+q2full_mean_fours <- round(weighted.mean(summary_state_analysis_age$X17fours, summary_state_analysis_age$state_weight)*100,3)
 q2full_plot <- c(q2full_mean_ones, q2full_mean_twos, q2full_mean_threes, q2full_mean_fours) 
 q2full_plot_labels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.") 
 q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels) 
@@ -438,12 +482,12 @@ Q. In our survey of IAS officers during the first wave of the pandemic, almost 7
 \vspace{6mm}
 
 ```{r}
-q3full_mean_ones <- round(weighted.mean(summary_state_analysis$X18ones,
-summary_state_analysis$state_weight)*100,3) 
-q3full_mean_twos <- round(weighted.mean(summary_state_analysis$X18twos,
-summary_state_analysis$state_weight)*100,3) 
-q3full_mean_threes <- round(weighted.mean(summary_state_analysis$X18threes, summary_state_analysis$state_weight)*100,3)
-q3full_mean_fours <- round(weighted.mean(summary_state_analysis$X18fours, summary_state_analysis$state_weight)*100,3)
+q3full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X18ones,
+summary_state_analysis_age$state_weight)*100,3) 
+q3full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X18twos,
+summary_state_analysis_age$state_weight)*100,3) 
+q3full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X18threes, summary_state_analysis_age$state_weight)*100,3)
+q3full_mean_fours <- round(weighted.mean(summary_state_analysis_age$X18fours, summary_state_analysis_age$state_weight)*100,3)
 q3full_plot <- c(q3full_mean_ones, q3full_mean_twos, q3full_mean_threes, q3full_mean_fours) 
 q3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.","Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.","Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.") 
 q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels) 
@@ -460,6 +504,7 @@ q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, 
 q3full_plot
 ```
 
+#Question 4,5,6 skipped for now#
 
 \newpage
 
@@ -470,8 +515,8 @@ Q. Some examples of successful management of the challenges posed by the pandemi
 \vspace{6mm}
 
 ```{r}
-q7full_mean_ones <- round(weighted.mean(summary_state_analysis$X130ones, summary_state_analysis$state_weight)*100,2) 
-q7full_mean_twos <- round(weighted.mean(summary_state_analysis$X130twos, summary_state_analysis$state_weight)*100,2)
+q7full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X130ones, summary_state_analysis_age$state_weight)*100,2) 
+q7full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X130twos, summary_state_analysis_age$state_weight)*100,2)
 q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
 q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.")
 q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
@@ -496,10 +541,10 @@ Q. The government has been criticised for permitting large gatherings (during el
 \vspace{6mm}
 
 ```{r}
-q8full_mean_ones <- round(weighted.mean(summary_state_analysis$X131ones, summary_state_analysis$state_weight)*100,3) 
-q8full_mean_twos <- round(weighted.mean(summary_state_analysis$X131twos, summary_state_analysis$state_weight)*100,3) 
-q8full_mean_threes <- round(weighted.mean(summary_state_analysis$X131threes, summary_state_analysis$state_weight)*100,3)
-q8full_mean_fours <- round(weighted.mean(summary_state_analysis$X131fours, summary_state_analysis$state_weight)*100,3)
+q8full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X131ones, summary_state_analysis_age$state_weight)*100,3) 
+q8full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X131twos, summary_state_analysis_age$state_weight)*100,3) 
+q8full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X131threes, summary_state_analysis_age$state_weight)*100,3)
+q8full_mean_fours <- round(weighted.mean(summary_state_analysis_age$X131fours, summary_state_analysis_age$state_weight)*100,3)
 q8full_plot <- c(q8full_mean_ones, q8full_mean_twos, q8full_mean_threes, q8full_mean_fours) 
 q8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.") 
 q8full_plot_dta <- data.frame(q8full_plot, q8full_plot_labels) 
@@ -524,8 +569,8 @@ Q. The unprecedented nature of this pandemic has meant that policy has had to co
 \vspace{6mm}
 
 ```{r}
-q9full_mean_ones <- round(weighted.mean(summary_state_analysis$X132ones, summary_state_analysis$state_weight)*100,2) 
-q9full_mean_twos <- round(weighted.mean(summary_state_analysis$X132twos, summary_state_analysis$state_weight)*100,2)
+q9full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X132ones, summary_state_analysis_age$state_weight)*100,2) 
+q9full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X132twos, summary_state_analysis_age$state_weight)*100,2)
 q9full_plot <- c(q9full_mean_ones, q9full_mean_twos) 
 q9full_plot_labels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation from the public.")
 q9full_plot_dta <- data.frame(q9full_plot, q9full_plot_labels) 
@@ -551,9 +596,9 @@ Q. India’s vaccine procurement policy has undergone multiple changes in a shor
 \vspace{6mm}
 
 ```{r}
-q10full_mean_ones <- round(weighted.mean(summary_state_analysis$X133ones, summary_state_analysis$state_weight)*100,3) 
-q10full_mean_twos <- round(weighted.mean(summary_state_analysis$X133twos, summary_state_analysis$state_weight)*100,3) 
-q10full_mean_threes <- round(weighted.mean(summary_state_analysis$X133threes, summary_state_analysis$state_weight)*100,3)
+q10full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X133ones, summary_state_analysis_age$state_weight)*100,3) 
+q10full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X133twos, summary_state_analysis_age$state_weight)*100,3) 
+q10full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X133threes, summary_state_analysis_age$state_weight)*100,3)
 q10full_plot <- c(q10full_mean_ones, q10full_mean_twos, q10full_mean_threes) 
 q10full_plot_labels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature of our country.") 
 q10full_plot_dta <- data.frame(q10full_plot, q10full_plot_labels) 
@@ -579,10 +624,10 @@ Q. Successful vaccination policy across most of the world has prioritised high r
 \vspace{6mm}
 
 ```{r}
-q11full_mean_ones <- round(weighted.mean(summary_state_analysis$X134ones, summary_state_analysis$state_weight)*100,3) 
-q11full_mean_twos <- round(weighted.mean(summary_state_analysis$X134twos, summary_state_analysis$state_weight)*100,3) 
-q11full_mean_threes <- round(weighted.mean(summary_state_analysis$X134threes, summary_state_analysis$state_weight)*100,3)
-q11full_mean_fours <- round(weighted.mean(summary_state_analysis$X134fours, summary_state_analysis$state_weight)*100,3)
+q11full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X134ones, summary_state_analysis_age$state_weight)*100,3) 
+q11full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X134twos, summary_state_analysis_age$state_weight)*100,3) 
+q11full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X134threes, summary_state_analysis_age$state_weight)*100,3)
+q11full_mean_fours <- round(weighted.mean(summary_state_analysis_age$X134fours, summary_state_analysis_age$state_weight)*100,3)
 q11full_plot <- c(q11full_mean_ones, q11full_mean_twos, q11full_mean_threes, q11full_mean_fours) 
 q11full_plot_labels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.") 
 q11full_plot_dta <- data.frame(q11full_plot, q11full_plot_labels) 
@@ -608,10 +653,10 @@ Q. Choose the option that best describes the overriding feeling among IAS office
 \vspace{6mm}
 
 ```{r}
-q12full_mean_ones <- round(weighted.mean(summary_state_analysis$X135ones, summary_state_analysis$state_weight)*100,3) 
-q12full_mean_twos <- round(weighted.mean(summary_state_analysis$X135twos, summary_state_analysis$state_weight)*100,3) 
-q12full_mean_threes <- round(weighted.mean(summary_state_analysis$X135threes, summary_state_analysis$state_weight)*100,3)
-q12full_mean_fours <- round(weighted.mean(summary_state_analysis$X135fours, summary_state_analysis$state_weight)*100,3)
+q12full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X135ones, summary_state_analysis_age$state_weight)*100,3) 
+q12full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X135twos, summary_state_analysis_age$state_weight)*100,3) 
+q12full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X135threes, summary_state_analysis_age$state_weight)*100,3)
+q12full_mean_fours <- round(weighted.mean(summary_state_analysis_age$X135fours, summary_state_analysis_age$state_weight)*100,3)
 q12full_plot <- c(q12full_mean_ones, q12full_mean_twos, q12full_mean_threes, q12full_mean_fours) 
 q12full_plot_labels <- c("We could at least use our networks to render some assistance at an individual level.", "We should have done so much more to improve the system when we had the time.", "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", "We were proud that our colleagues were able to deliver so much despite such adverse circumstances.") 
 q12full_plot_dta <- data.frame(q12full_plot, q12full_plot_labels) 
@@ -646,10 +691,10 @@ Q. The government support for India’s huge vaccine production capacity appears
 \vspace{6mm}
 
 ```{r}
-q14full_mean_ones <- round(weighted.mean(summary_state_analysis$X137ones, summary_state_analysis$state_weight)*100,3) 
-q14full_mean_twos <- round(weighted.mean(summary_state_analysis$X137twos, summary_state_analysis$state_weight)*100,3) 
-q14full_mean_threes <- round(weighted.mean(summary_state_analysis$X137threes, summary_state_analysis$state_weight)*100,3)
-q14full_mean_fours <- round(weighted.mean(summary_state_analysis$X137fours, summary_state_analysis$state_weight)*100,3)
+q14full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X137ones, summary_state_analysis_age$state_weight)*100,3) 
+q14full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X137twos, summary_state_analysis_age$state_weight)*100,3) 
+q14full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X137threes, summary_state_analysis_age$state_weight)*100,3)
+q14full_mean_fours <- round(weighted.mean(summary_state_analysis_age$X137fours, summary_state_analysis_age$state_weight)*100,3)
 q14full_plot <- c(q14full_mean_ones, q14full_mean_twos, q14full_mean_threes, q14full_mean_fours) 
 q14full_plot_labels <- c("The government’s fiscal situation did not permit such measures.", "The pandemic’s limited initial impact led to a view that mass vaccination would not be urgently required in India.", "The private sector in India does not inspire confidence.", "The private sector makes profits and should therefore assume the risk involved.") 
 q14full_plot_dta <- data.frame(q14full_plot, q14full_plot_labels) 
@@ -676,10 +721,10 @@ Q. To what extent would you agree with the following statement?
 \vspace{6mm}
 
 ```{r}
-q15full_mean_ones <- round(weighted.mean(summary_state_analysis$X138ones, summary_state_analysis$state_weight)*100,3) 
-q15full_mean_twos <- round(weighted.mean(summary_state_analysis$X138twos, summary_state_analysis$state_weight)*100,3) 
-q15full_mean_threes <- round(weighted.mean(summary_state_analysis$X138threes, summary_state_analysis$state_weight)*100,3)
-q15full_mean_fours <- round(weighted.mean(summary_state_analysis$X138fours, summary_state_analysis$state_weight)*100,3)
+q15full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X138ones, summary_state_analysis_age$state_weight)*100,3) 
+q15full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X138twos, summary_state_analysis_age$state_weight)*100,3) 
+q15full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X138threes, summary_state_analysis_age$state_weight)*100,3)
+q15full_mean_fours <- round(weighted.mean(summary_state_analysis_age$X138fours, summary_state_analysis_age$state_weight)*100,3)
 q15full_plot <- c(q15full_mean_ones, q15full_mean_twos, q15full_mean_threes, q15full_mean_fours) 
 q15full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree") 
 q15full_plot_dta <- data.frame(q15full_plot, q15full_plot_labels) 
@@ -702,9 +747,9 @@ Q. Which of the following statements best describes the media’s coverage of th
 
 \vspace{6mm}
 ```{r}
-q16full_mean_ones <- round(weighted.mean(summary_state_analysis$X139ones, summary_state_analysis$state_weight)*100,3) 
-q16full_mean_twos <- round(weighted.mean(summary_state_analysis$X139twos, summary_state_analysis$state_weight)*100,3) 
-q16full_mean_threes <- round(weighted.mean(summary_state_analysis$X139threes, summary_state_analysis$state_weight)*100,3)
+q16full_mean_ones <- round(weighted.mean(summary_state_analysis_age$X139ones, summary_state_analysis_age$state_weight)*100,3) 
+q16full_mean_twos <- round(weighted.mean(summary_state_analysis_age$X139twos, summary_state_analysis_age$state_weight)*100,3) 
+q16full_mean_threes <- round(weighted.mean(summary_state_analysis_age$X139threes, summary_state_analysis_age$state_weight)*100,3)
 q16full_plot <- c(q16full_mean_ones, q16full_mean_twos, q16full_mean_threes) 
 q16full_plot_labels <- c("By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", "The media has failed to capture the full scale and intensity of the disaster.", "The media has made an effort to communicate a realistic picture and rightly drawn attention to the inadequate government response at various places.") 
 q16full_plot_dta <- data.frame(q16full_plot, q16full_plot_labels) 
@@ -744,7 +789,7 @@ summary_q4 <- state_answers_q4 %>%
             q4_assam=sum(Merged =="Assam")/length(state),
             q4_bihar=sum(Merged =="Bihar")/length(state),
             q4_chandigarh=sum(Merged =="Chandigarh")/length(state),
-            q4_chhattisgarh=sum(Merged =="Chhattisgarh")/length(state),
+            q4_chattisgarh=sum(Merged =="Chhattisgarh")/length(state),
             q4_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(state),
             q4_goa=sum(Merged =="Goa")/length(state),
             q4_gujarat=sum(Merged =="Gujarat")/length(state),
@@ -774,7 +819,7 @@ summary_q4 <- state_answers_q4 %>%
             q4_tripura=sum(Merged =="Tripura")/length(state),
             q4_up=sum(Merged =="Uttar Pradesh")/length(state),
             q4_uttarakhand=sum(Merged =="Uttarakhand")/length(state),
-            q4_wb=sum(Merged =="West Bengal")/length(state),.groups='drop') %>% 
+            q4_wb=sum(Merged =="West Bengal")/length(state)) %>% 
   ungroup() %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
 
@@ -837,7 +882,7 @@ summary_q5<- state_answers_q5 %>%
             q5_tripura=sum(Merged =="Tripura")/length(state),
             q5_up=sum(Merged=="Uttar Pradesh")/length(state),
             q5_uttarakhand=sum(Merged=="Uttarakhand")/length(state),
-            q5_wb=sum(Merged=="West Bengal")/length(state),.groups='drop') %>% 
+            q5_wb=sum(Merged=="West Bengal")/length(state)) %>% 
   ungroup() %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
  
@@ -863,7 +908,7 @@ summary_q6 <- q6 %>%
             q6_assam=sum(Merged =="Assam")/length(state),
             q6_bihar=sum(Merged =="Bihar")/length(state),
             q6_chandigarh=sum(Merged =="Chandigarh")/length(state),
-            q6_chhattisgarh=sum(Merged =="Chhattisgarh")/length(state),
+            q6_chattisgarh=sum(Merged =="Chhattisgarh")/length(state),
             q6_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(state),
             q6_goa=sum(Merged =="Goa")/length(state),
             q6_gujarat=sum(Merged =="Gujarat")/length(state),
@@ -893,7 +938,7 @@ summary_q6 <- q6 %>%
             q6_tripura=sum(Merged =="Tripura")/length(state),
             q6_up=sum(Merged =="Uttar Pradesh")/length(state),
             q6_uttarakhand=sum(Merged =="Uttarakhand")/length(state),
-            q6_wb=sum(Merged =="West Bengal")/length(state),.groups='drop') %>% 
+            q6_wb=sum(Merged =="West Bengal")/length(state)) %>% 
   ungroup() %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
 
@@ -910,14 +955,14 @@ Question 4, Merged2
 Q. Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=5,fig.width=18, warning=FALSE}
 q4full_mean_anislands <- round(weighted.mean(summary_q4$q4_anislands, summary_q4$state_weight)*100,3)
 q4full_mean_andhra <- round(weighted.mean(summary_q4$q4_andhra, summary_q4$state_weight)*100,3)
 q4full_mean_arunachal <- round(weighted.mean(summary_q4$q4_arunachal, summary_q4$state_weight)*100,3)
 q4full_mean_assam <- round(weighted.mean(summary_q4$q4_assam, summary_q4$state_weight)*100,3)
 q4full_mean_bihar <- round(weighted.mean(summary_q4$q4_bihar, summary_q4$state_weight)*100,3)
 q4full_mean_chandigarh <- round(weighted.mean(summary_q4$q4_chandigarh, summary_q4$state_weight)*100,3)
-q4full_mean_chhattisgarh <- round(weighted.mean(summary_q4$q4_chhattisgarh, summary_q4$state_weight)*100,3)
+q4full_mean_chattisgarh <- round(weighted.mean(summary_q4$q4_chattisgarh, summary_q4$state_weight)*100,3)
 q4full_mean_dnhdd <- round(weighted.mean(summary_q4$q4_dnhdd, summary_q4$state_weight)*100,3)
 q4full_mean_goa <- round(weighted.mean(summary_q4$q4_goa, summary_q4$state_weight)*100,3)
 q4full_mean_gujarat <- round(weighted.mean(summary_q4$q4_gujarat, summary_q4$state_weight)*100,3)
@@ -949,7 +994,7 @@ q4full_mean_up <- round(weighted.mean(summary_q4$q4_up, summary_q4$state_weight)
 q4full_mean_uttarakhand <- round(weighted.mean(summary_q4$q4_uttarakhand, summary_q4$state_weight)*100,3)
 q4full_mean_wb <- round(weighted.mean(summary_q4$q4_wb, summary_q4$state_weight)*100,3)
 
-q4full_plot <- c(q4full_mean_anislands, q4full_mean_andhra, q4full_mean_arunachal, q4full_mean_assam, q4full_mean_bihar, q4full_mean_chandigarh, q4full_mean_chhattisgarh, q4full_mean_delhi, q4full_mean_dnhdd, q4full_mean_goa, q4full_mean_gujarat, q4full_mean_haryana, q4full_mean_hp, q4full_mean_jharkhand, q4full_mean_jk, q4full_mean_karnataka, q4full_mean_kerala, q4full_mean_ladakh, q4full_mean_lakshadweep, q4full_mean_maharashtra, q4full_mean_manipur, q4full_mean_meghalaya, q4full_mean_mizoram, q4full_mean_mp, q4full_mean_nagaland, q4full_mean_none, q4full_mean_odisha, q4full_mean_puducherry, q4full_mean_punjab, q4full_mean_rajasthan, q4full_mean_sikkim, q4full_mean_telangana, q4full_mean_tn, q4full_mean_tripura, q4full_mean_up, q4full_mean_uttarakhand, q4full_mean_wb)
+q4full_plot <- c(q4full_mean_anislands, q4full_mean_andhra, q4full_mean_arunachal, q4full_mean_assam, q4full_mean_bihar, q4full_mean_chandigarh, q4full_mean_chattisgarh, q4full_mean_delhi, q4full_mean_dnhdd, q4full_mean_goa, q4full_mean_gujarat, q4full_mean_haryana, q4full_mean_hp, q4full_mean_jharkhand, q4full_mean_jk, q4full_mean_karnataka, q4full_mean_kerala, q4full_mean_ladakh, q4full_mean_lakshadweep, q4full_mean_maharashtra, q4full_mean_manipur, q4full_mean_meghalaya, q4full_mean_mizoram, q4full_mean_mp, q4full_mean_nagaland, q4full_mean_none, q4full_mean_odisha, q4full_mean_puducherry, q4full_mean_punjab, q4full_mean_rajasthan, q4full_mean_sikkim, q4full_mean_telangana, q4full_mean_tn, q4full_mean_tripura, q4full_mean_up, q4full_mean_uttarakhand, q4full_mean_wb)
 
 
 q4full_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
@@ -966,7 +1011,7 @@ q4full_plot <- ggplot(q4full_plot_dta, aes(x=q4full_plot_labels, y=q4full_plot, 
 
 q4full_plot      
 
-
+ggsave(file="q4.pdf", width=18, height=5, dpi=300) #renders a pdf with clear text
 ```
 \newpage
 
@@ -976,14 +1021,14 @@ Question 5, Merged1
 Q. Please select upto two States that you think have performed their pandemic management responsibilities most poorly.
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=5,fig.width=18, warning=FALSE}
 q5full_mean_anislands <- round(weighted.mean(summary_q5$q5_anislands, summary_q5$state_weight)*100,3)
 q5full_mean_andhra <- round(weighted.mean(summary_q5$q5_andhra, summary_q5$state_weight)*100,3)
 q5full_mean_arunachal <- round(weighted.mean(summary_q5$q5_arunachal, summary_q5$state_weight)*100,3)
 q5full_mean_assam <- round(weighted.mean(summary_q5$q5_assam, summary_q5$state_weight)*100,3)
 q5full_mean_bihar <- round(weighted.mean(summary_q5$q5_bihar, summary_q5$state_weight)*100,3)
 q5full_mean_chandigarh <- round(weighted.mean(summary_q5$q5_chandigarh, summary_q5$state_weight)*100,3)
-q5full_mean_chhattisgarh <- round(weighted.mean(summary_q5$q5_chhattisgarh, summary_q5$state_weight)*100,3)
+q5full_mean_chattisgarh <- round(weighted.mean(summary_q5$q5_chhattisgarh, summary_q5$state_weight)*100,3)
 q5full_mean_dnhdd <- round(weighted.mean(summary_q5$q5_dnhdd, summary_q5$state_weight)*100,3)
 q5full_mean_goa <- round(weighted.mean(summary_q5$q5_goa, summary_q5$state_weight)*100,3)
 q5full_mean_gujarat <- round(weighted.mean(summary_q5$q5_gujarat, summary_q5$state_weight)*100,3)
@@ -1032,7 +1077,7 @@ q5full_plot <- ggplot(q5full_plot_dta, aes(x=q5full_plot_labels, y=q5full_plot, 
 
 q5full_plot      
 
-
+ggsave(file="q5.pdf", width=18, height=5, dpi=300) #renders a pdf with clear text
 ```
 \newpage
 
@@ -1042,7 +1087,7 @@ Question 6, Merged3
 Q. Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=5,fig.width=18, warning=FALSE}
 
 q6full_mean_anislands <- round(weighted.mean(summary_q6$q6_anislands, summary_q6$state_weight)*100,3)
 q6full_mean_andhra <- round(weighted.mean(summary_q6$q6_andhra, summary_q6$state_weight)*100,3)
@@ -1050,7 +1095,7 @@ q6full_mean_arunachal <- round(weighted.mean(summary_q6$q6_arunachal, summary_q6
 q6full_mean_assam <- round(weighted.mean(summary_q6$q6_assam, summary_q6$state_weight)*100,3)
 q6full_mean_bihar <- round(weighted.mean(summary_q6$q6_bihar, summary_q6$state_weight)*100,3)
 q6full_mean_chandigarh <- round(weighted.mean(summary_q6$q6_chandigarh, summary_q6$state_weight)*100,3)
-q6full_mean_chhattisgarh <- round(weighted.mean(summary_q6$q6_chhattisgarh, summary_q6$state_weight)*100,3)
+q6full_mean_chattisgarh <- round(weighted.mean(summary_q6$q6_chattisgarh, summary_q6$state_weight)*100,3)
 q6full_mean_dnhdd <- round(weighted.mean(summary_q6$q6_dnhdd, summary_q6$state_weight)*100,3)
 q6full_mean_goa <- round(weighted.mean(summary_q6$q6_goa, summary_q6$state_weight)*100,3)
 q6full_mean_gujarat <- round(weighted.mean(summary_q6$q6_gujarat, summary_q6$state_weight)*100,3)
@@ -1099,6 +1144,6 @@ q6full_plot <- ggplot(q6full_plot_dta, aes(x=q6full_plot_labels, y=q6full_plot, 
 
 q6full_plot      
 
-
+ggsave(file="q6.pdf", width=18, height=5, dpi=300) #renders a pdf with clear text
 ```
 
