@@ -33,7 +33,6 @@ library(janitor)
 library(gridExtra)
 library(grid)
 library(ggpubr)
-library(patchwork)
 ```
 
 ```{r}
@@ -489,9 +488,12 @@ summary_alt2.3<-summary_state_age %>%
 ```
 \newpage
 
-## Question 1
+## Question 1: Age Weighted within Each State
 
-```{r, echo=FALSE, out.height="200%"}
+Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India?
+
+\vspace{6mm}
+```{r}
 q1full_mean_ones <- round(weighted.mean(summary_alt1.1$X16ones,
 summary_alt1.1$state_weight)*100,3) 
 q1full_mean_twos <- round(weighted.mean(summary_alt1.1$X16twos,
@@ -501,15 +503,25 @@ q1full_plot <- c(q1full_mean_ones, q1full_mean_twos)
 q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.") 
 q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels) 
 q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_labels, width = 50)
-q1full_plot_1 <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
+q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q1full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
-  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 20)) +
+  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
   labs(x="",y="Percent", caption = "Question 1, Age Weighted Within Each State") +
   newtheme
 
+q1full_plot
+```
+\newpage
+
+## Question 1: Only State Weighted
+
+Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India?
+
+\vspace{6mm}
+```{r}
 q1full_mean_ones <- round(weighted.mean(summary_state_analysis$X16ones,
 summary_state_analysis$state_weight)*100,3) 
 q1full_mean_twos <- round(weighted.mean(summary_state_analysis$X16twos,
@@ -519,15 +531,25 @@ q1full_plot <- c(q1full_mean_ones, q1full_mean_twos)
 q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.")  
 q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels) 
 q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_labels, width = 50)
-q1full_plot_2 <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
+q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q1full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
-  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 20)) +
+  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
   labs(x="",y="Percent", caption = "Question 1, Only State Weighted") +
   newtheme
 
+q1full_plot
+```
+\newpage
+
+## Question 1: Weighted by Overall Age Distribution Across the Country 
+
+Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India?
+
+\vspace{6mm}
+```{r}
 q1full_mean_ones_young <- round(weighted.mean(summary_alt1.3$X16ones_young,
 summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
 q1full_mean_ones_old <- round(weighted.mean(summary_alt1.3$X16ones_old,
@@ -544,24 +566,22 @@ q1full_plot <- c(q1full_mean_ones, q1full_mean_twos)
 q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.") 
 q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels)
 q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_labels, width = 50)
-q1full_plot_3 <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
+q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
-  geom_text(aes(label=scales::percent(q1full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
-  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 20)) +
+  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
   labs(x="",y="Percent", caption = "Question 1, Overall Age Weighted") +
   newtheme
 
-
-
-q1full_plot_1/q1full_plot_2/q1full_plot_3
+q1full_plot
 ```
 \newpage
 
-## Question 2: First Set of Comparisons
+## Question 2: Age Weighted within Each State
 
-1.1 Weighting age in all states except problem states that retain their un-weighted means 
+With regard to our planning and preparation for the second wave, which of these statements would you agree with most?
 
 \vspace{6mm}
 ```{r}
@@ -577,7 +597,7 @@ q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels)
 q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
 q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q2full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -588,9 +608,9 @@ q2full_plot
 ```
 \newpage
 
-## Question 2: First Set of Comparisons
+## Question 2: Only State Weighted
 
-1.2 Only weighting the responses by state, not age 
+With regard to our planning and preparation for the second wave, which of these statements would you agree with most?
 
 \vspace{6mm}
 ```{r}
@@ -606,7 +626,7 @@ q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels)
 q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
 q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q2full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -617,9 +637,9 @@ q2full_plot
 ```
 \newpage
 
-## Question 2: First Set of Comparisons
+## Question 2: Weighted by Overall Age Distribution Across the Country 
 
-1.3 Weighting the overall means by age and not within each state
+With regard to our planning and preparation for the second wave, which of these statements would you agree with most?
 
 \vspace{6mm}
 ```{r}
@@ -649,7 +669,7 @@ q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels)
 q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
 q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
-  geom_text(aes(label=scales::percent(q2full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -658,14 +678,12 @@ q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, 
 
 q2full_plot
 ```
-
-
-
 \newpage
 
-## Question 3: First Set of Comparisons
+## Question 3: Age Weighted within Each State
 
-1.1 Weighting age in all states except problem states that retain their un-weighted means 
+In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
+
 
 \vspace{6mm}
 ```{r}
@@ -681,7 +699,7 @@ q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels)
 q3full_plot_dta$wrapped_labels = str_wrap(q3full_plot_dta$q3full_plot_labels, width = 50)
 q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, fill = q3full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q3full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -692,9 +710,9 @@ q3full_plot
 ```
 \newpage
 
-## Question3: First Set of Comparisons
+## Question 3: Only State Weighted
 
-1.2 Only weighting the responses by state, not age 
+In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
 
 \vspace{6mm}
 ```{r}
@@ -710,7 +728,7 @@ q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels)
 q3full_plot_dta$wrapped_labels = str_wrap(q3full_plot_dta$q3full_plot_labels, width = 50)
 q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, fill = q3full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q3full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -721,9 +739,9 @@ q3full_plot
 ```
 \newpage
 
-## Question 3: First Set of Comparisons
+## Question 3: Weighted by Overall Age Distribution Across the Country 
 
-1.3 Weighting the overall means by age and not within each state
+In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
 
 \vspace{6mm}
 ```{r}
@@ -753,7 +771,7 @@ q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels)
 q3full_plot_dta$wrapped_labels = str_wrap(q3full_plot_dta$q3full_plot_labels, width = 50)
 q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, fill = q3full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
-  geom_text(aes(label=scales::percent(q3full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -764,159 +782,99 @@ q3full_plot
 ```
 \newpage
 
-## Question 4: First Set of Comparisons
+## Question 7: Age Weighted within Each State
 
-1.1 Weighting age in all states except problem states that retain their un-weighted means 
+Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
 \vspace{6mm}
 ```{r}
-q4full_mean_ones <- round(weighted.mean(summary_alt1.1$X130ones,
+q7full_mean_ones <- round(weighted.mean(summary_alt1.1$X130ones,
 summary_alt1.1$state_weight)*100,3) 
-q4full_mean_twos <- round(weighted.mean(summary_alt1.1$X130twos,
+q7full_mean_twos <- round(weighted.mean(summary_alt1.1$X130twos,
 summary_alt1.1$state_weight)*100,3) 
 
-q4full_plot <- c(q4full_mean_ones, q4full_mean_twos) 
-q4full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
-q4full_plot_dta <- data.frame(q4full_plot, q4full_plot_labels) 
-q4full_plot_dta$wrapped_labels = str_wrap(q4full_plot_dta$q4full_plot_labels, width = 50)
-q4full_plot <- ggplot(q4full_plot_dta, aes(x=q4full_plot_labels, y=q4full_plot, fill = q4full_plot_labels)) +
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
+q7full_plot_dta$wrapped_labels = str_wrap(q7full_plot_dta$q7full_plot_labels, width = 50)
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q4full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
-  scale_x_discrete(labels = function(q4full_plot_labels) str_wrap(q4full_plot_labels, width = 20)) +
+  scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 4, Age Weighted Within Each State") +
+  labs(x="",y="Percent", caption = "Question 7, Age Weighted Within Each State") +
   newtheme
 
-q4full_plot
+q7full_plot
 ```
 \newpage
 
-## Question 4: First Set of Comparisons
+## Question 7: Only State Weighted
 
-1.2 Only weighting the responses by state, not age 
+Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
 \vspace{6mm}
 ```{r}
-q4full_mean_ones <- round(weighted.mean(summary_state_analysis$X130ones,
+q7full_mean_ones <- round(weighted.mean(summary_state_analysis$X130ones,
 summary_state_analysis$state_weight)*100,3) 
-q4full_mean_twos <- round(weighted.mean(summary_state_analysis$X130twos,
+q7full_mean_twos <- round(weighted.mean(summary_state_analysis$X130twos,
 summary_state_analysis$state_weight)*100,3) 
 
-q4full_plot <- c(q4full_mean_ones, q4full_mean_twos) 
-q4full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
-q4full_plot_dta <- data.frame(q4full_plot, q4full_plot_labels) 
-q4full_plot_dta$wrapped_labels = str_wrap(q4full_plot_dta$q4full_plot_labels, width = 50)
-q4full_plot <- ggplot(q4full_plot_dta, aes(x=q4full_plot_labels, y=q4full_plot, fill = q4full_plot_labels)) +
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
+q7full_plot_dta$wrapped_labels = str_wrap(q7full_plot_dta$q7full_plot_labels, width = 50)
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=scales::percent(q4full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
-  scale_x_discrete(labels = function(q4full_plot_labels) str_wrap(q4full_plot_labels, width = 20)) +
+  scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 4, Only State Weighted") +
+  labs(x="",y="Percent", caption = "Question 7, Only State Weighted") +
   newtheme
 
-q4full_plot
+q7full_plot
 ```
 \newpage
 
-## Question 4: First Set of Comparisons
+## Question 7: Weighted by Overall Age Distribution Across the Country 
 
-1.3 Weighting the overall means by age and not within each state
+Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
 \vspace{6mm}
 ```{r}
-q4full_mean_ones_young <- round(weighted.mean(summary_alt1.3$X130ones_young,
+q7full_mean_ones_young <- round(weighted.mean(summary_alt1.3$X130ones_young,
 summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
-q4full_mean_ones_old <- round(weighted.mean(summary_alt1.3$X130ones_old,
+q7full_mean_ones_old <- round(weighted.mean(summary_alt1.3$X130ones_old,
 summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
-q4full_mean_ones<-q4full_mean_ones_young+q4full_mean_ones_old
+q7full_mean_ones<-q7full_mean_ones_young+q7full_mean_ones_old
 
-q4full_mean_twos_young <- round(weighted.mean(summary_alt1.3$X130twos_young,
+q7full_mean_twos_young <- round(weighted.mean(summary_alt1.3$X130twos_young,
 summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
-q4full_mean_twos_old <- round(weighted.mean(summary_alt1.3$X130twos_old,
+q7full_mean_twos_old <- round(weighted.mean(summary_alt1.3$X130twos_old,
 summary_alt1.3$state_weight)*100,3) *  sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
-q4full_mean_twos<-q4full_mean_twos_young+q4full_mean_twos_old
+q7full_mean_twos<-q7full_mean_twos_young+q7full_mean_twos_old
 
-q4full_plot <- c(q4full_mean_ones, q4full_mean_twos)
-q4full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
-q4full_plot_dta <- data.frame(q4full_plot, q4full_plot_labels)
-q4full_plot_dta$wrapped_labels = str_wrap(q4full_plot_dta$q4full_plot_labels, width = 50)
-q4full_plot <- ggplot(q4full_plot_dta, aes(x=q4full_plot_labels, y=q4full_plot, fill = q4full_plot_labels)) +
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos)
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels)
+q7full_plot_dta$wrapped_labels = str_wrap(q7full_plot_dta$q7full_plot_labels, width = 50)
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
-  geom_text(aes(label=scales::percent(q4full_plot/100)), vjust=-0.3, size=3.5) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +
-  scale_x_discrete(labels = function(q4full_plot_labels) str_wrap(q4full_plot_labels, width = 20)) +
+  scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 4, Overall Age Weighted") +
+  labs(x="",y="Percent", caption = "Question 7, Overall Age Weighted") +
   newtheme
 
-q4full_plot
+q7full_plot
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\newpage
-
-## Second Set of Comparisons
-
-2.1 Weighting age in all states except problem states that retain their un-weighted means 
-
-\vspace{6mm}
 ```{r}
+
+##The same comparisons excluding the problem states 
 # q2full_mean_ones <- round(weighted.mean(summary_alt2.1$X17ones,
 # summary_alt2.1$state_weight)*100,3) 
 # q2full_mean_twos <- round(weighted.mean(summary_alt2.1$X17twos,
@@ -939,13 +897,6 @@ q4full_plot
 # q2full_plot
 ```
 
-\newpage
-
-## Second Set of Comparisons
-
-2.2 Only weighting the responses by state, not age 
-
-\vspace{6mm}
 ```{r}
 # q2full_mean_ones <- round(weighted.mean(summary_alt2.2$X17ones,
 # summary_alt2.2$state_weight)*100,3) 
@@ -968,13 +919,7 @@ q4full_plot
 # 
 # q2full_plot
 ```
-\newpage
 
-## Second Set of Comparisons
-
-2.3 Weighting the overall means by age and not within each state
-
-\vspace{6mm}
 ```{r}
 # q2full_mean_ones_young <- round(weighted.mean(summary_alt2.3$X17ones_young,
 # summary_alt2.3$state_weight, summary_alt2.3$age_weight_young)*100,3)
