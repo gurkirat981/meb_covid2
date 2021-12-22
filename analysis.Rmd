@@ -1045,6 +1045,9 @@ q15full_mean_fours <- round(weighted.mean(summary_state_analysis$X138fours, summ
 q15full_plot <- c(q15full_mean_fours, q15full_mean_twos,q15full_mean_ones, q15full_mean_threes) 
 q15full_plot_labels <- c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree") 
 q15full_plot_dta <- data.frame(q15full_plot, q15full_plot_labels) 
+
+q15full_plot_dta$q15full_plot_labels <- factor(q15full_plot_dta$q15full_plot_labels,
+                                               levels = c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree"))
 q15full_plot <- ggplot(q15full_plot_dta, aes(x=q15full_plot_labels, y=q15full_plot, fill = q15full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q15full_plot),"%"), vjust=-0.3), size=3.5) +
