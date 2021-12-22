@@ -278,7 +278,7 @@ agmut_ias<-ias_processed_dta %>%
   mutate(State=sample(c(rep("Arunachal Pradesh", 60), rep("Goa", 33), rep("Mizoram", 46),rep("Andaman and Nicobar Islands", 22), rep("Chandigarh", 13), rep("DNH and DD", 9), rep("Delhi", 108),  rep("Lakshadweep Islands",4), rep("Puducherry", 20)), replace = FALSE))
 
 am_ias<-ias_processed_dta %>% 
-  subset(State=="Assam Meghalya") %>% 
+  subset(State=="Assam Meghalya") %>% #spelt this way since ias_rawdata spells it this way
   mutate(State=sample(c(rep("Assam",136), rep("Meghalaya", 58))))
 
 mt_ias<-ias_processed_dta %>% 
