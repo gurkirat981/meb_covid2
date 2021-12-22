@@ -544,6 +544,7 @@ summary_q6 <- summary_q6 %>%
   mutate(age_weight_young=ias_processed_dta$prop_post2012_withinstate) %>% 
   mutate(age_weight_old=ias_processed_dta$prop_pre2012_withinstate)
 ```
+
 \newpage
 
 ## Question 1 
@@ -558,7 +559,7 @@ summary_state_analysis$state_weight)*100,2)
 q1full_mean_twos <- round(weighted.mean(summary_state_analysis$X16twos,
 summary_state_analysis$state_weight)*100,2)
 q1full_plot <- c(q1full_mean_ones, q1full_mean_twos) 
-q1full_plot_labels <- c("The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.", "The second Covid-19 surge was expected and should have seen much more advance planning.") 
+q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.") 
 q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels) 
 q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_label, width = 10)
 q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
