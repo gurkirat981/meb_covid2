@@ -1,0 +1,959 @@
+---
+title: "Comparing Ways to Weight by Age"
+author: "MEB Team"
+date: "20 Dec 2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+\Large Three different weighting strategies are compared in this document. First, we weight for age within each state. For states or union territories with only young or old respondents, we do not add an age weight. Second, we weight only by state and not age. And finally, we weight the overall results by the age proportions of all serving IAS officers, not concerned with the age split in each state.    
+
+\newpage
+\tableofcontents 
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(echo = FALSE)
+
+library(cowplot)
+library(tidyverse)
+library(ggplot2)
+library(MASS)
+library(ggrepel)
+library(RColorBrewer)
+library(stargazer)
+library(DeclareDesign)
+library(texreg)
+library(car)
+library(lubridate)
+library(scales)
+library(cowplot)
+library(writexl)
+library(janitor)
+library(gridExtra)
+library(grid)
+library(ggpubr)
+```
+
+```{r}
+#Notes: 
+#The code on this file can only run if analysis and analysis2 have been run and are in the environment
+#Every comparison produces a graph for Question 2
+
+#Problem states/UTs: A&N Islands, Chandigarh, Lakshadweep Islands, Mizoram, Nagaland, Puducherry
+```
+
+```{r, include=FALSE}
+#Importing data
+raw_dta <- read_csv("meb2data_9dec.csv", col_names = FALSE)
+```
+
+```{r, include=FALSE}
+#Clean up: deleting extra columns, merging the state related questions, deleting the old state columns, removing all incomplete answers, adding two filters to ensure only responses by currently serving IAS officers
+processed_dta<-raw_dta[-c(1,2),-c(2, 5:9,15,140,141)]%>%
+  unite('Merged1', X19:X55, remove=FALSE, na.rm=TRUE) %>% 
+  unite('Merged2', X56:X92, remove = FALSE, na.rm=TRUE) %>%
+  unite('Merged3',X93:X129, remove=FALSE, na.rm=TRUE) %>% 
+  dplyr::select(-c(X19:X55)) %>%
+  dplyr::select(-c(X56:X92)) %>%
+  dplyr::select(-c(X93:X129)) %>%
+  filter(!is.na(X139))%>% #This is to filter out incomplete responses.
+  filter(X10=="Yes") %>% 
+  separate(Merged1, c('Merged1.1', 'Merged1.2'), sep = "([_])") %>%
+  separate(Merged2, c('Merged2.1', 'Merged2.2'), sep = "([_])") 
+```
+
+```{r, include=FALSE}
+#Checking for outliers 
+#Batch outliers
+hist(as.numeric(raw_dta$X11), col="#ccf5ff", border=F, xlab="Year of Joining", ylab = "Frequency", main= "Distribution of IAS Batches")
+#None
+
+#Respondents who sped through the survey (min time = 3 minutes)
+processed_dta$time_spent<-mdy_hms(processed_dta$X4, tz="Asia/Kolkata")- mdy_hms(processed_dta$X3, tz="Asia/Kolkata")
+processed_dta<-processed_dta %>%
+  mutate(speeders=ifelse(time_spent<3, 1, 0)) 
+#Decided not to exclude anyone on this basis
+
+#The number of NA responses for each question in the processed data
+processed_dta %>% 
+  dplyr::select(everything()) %>% 
+  summarise_all(funs(sum(is.na(.))))
+#Column X136 has 69 NAs, all others have zero.
+```
+
+```{r, include=FALSE}
+#Define new theme (to be used for our ggplots later) 
+newtheme <- theme_bw() +
+  theme(panel.border = element_rect(color = "darkgrey", size = 2), 
+        panel.grid.major = element_blank()
+        )
+```
+
+```{r, include=FALSE}
+#Recoding answer options from character strings to numeric values for the processed_dta 
+#Q7 (X16) #Q8 (X17) #Q9 (X18) #Q13 (X130) #Q15 (X132)  #Q16 (X133) #Q17 (X134) #Q18 (X135) #Q20 (X137) #Q21 (X138) #Q22 (X139)
+#Deleting Q19 (X136) since this is the error question 
+
+processed_dta<-processed_dta %>% 
+  mutate(X16 = ifelse(X16== "The second Covid-19 surge was expected and should have seen much more advance planning.", 1, 2)) %>% 
+  mutate(X17 = ifelse(X17 =="Even proposals for advance planning received little purchase in the last one year.",1,
+                      ifelse(X17 =="Planning got lost mid-way due to signals that we have managed the pandemic well.", 2,
+                             ifelse(X17 == "Systematic advance planning has never been part of our ethos.", 3, 4)))) %>%
+  mutate(X18 = ifelse(X18 == "Building health system preparedness was not adequately prioritised.",1,
+                      ifelse(X18=="Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.", 2, 
+                             ifelse(X18=="Health system preparedness increased substantially and performed adequately.", 3, 4)))) %>%                            
+  mutate(X130 = ifelse(X130=="Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", 1, 2)) %>% 
+  mutate(X131 =ifelse(X131=="Knowing the risks involved, such events should not have been scheduled at all.",1,
+                      ifelse(X131=="The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).", 2,
+                             ifelse(X131=="The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", 3,4)))) %>% 
+  mutate(X132 = ifelse(X132=="Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.", 1, 2)) %>% 
+  mutate (X133= ifelse (X133 == "During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.", 1, 
+                      ifelse(X133 == "Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.", 2, 3))) %>%
+  mutate (X134 = ifelse (X134 == "India has successfully followed this nationally laid down trajectory of vaccine implementation.", 1, 
+                       ifelse(X134 == "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", 2, 
+                              ifelse(X134 == "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", 3, 4)))) %>% 
+  mutate (X135 = ifelse (X135 == "We could at least use our networks to render some assistance at an individual level.", 1, 
+                       ifelse(X135 == "We should have done so much more to improve the system when we had the time.", 2, 
+                              ifelse(X135 == "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", 3, 4)))) %>%
+  mutate (X137 = ifelse (X137 == "The government’s fiscal situation did not permit such measures.", 1, 
+                       ifelse(X137 == "The pandemic’s limited initial impact led to a view that mass vaccination would not be urgently required in India.", 2, 
+                              ifelse(X137 == "The private sector in India does not inspire confidence.", 3, 4)))) %>% 
+  mutate (X138 = ifelse (X138 == "Slightly agree", 1, 
+                       ifelse(X138 == "Slightly disagree", 2, 
+                              ifelse(X138 == "Strongly agree", 3, 4)))) %>%
+  mutate (X139 = ifelse (X139 == "By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", 1, 
+                       ifelse(X139 == "The media has failed to capture the full scale and intensity of the disaster.", 2, 3))) %>% 
+  dplyr::select(-X136)
+```
+
+```{r, include=FALSE}
+#Data Wrangling
+set.seed(24102020)
+#Creating a dataset of currently serving officers with columns indicating (1) the allocated state (2) their SDG classification and (3) the age of the officers
+
+#Need to check and add the exact distribution of officers in the states and UT for combined cadres
+#Question for Aditya: how did the sample function work last time? 
+full_serving <- processed_dta %>% 
+  filter(X13=="Yes, currently serving") 
+
+#previous code for AGMUT and AM division
+#mutate(state = ifelse(X12=="Assam Meghalaya", sample(c("Assam", "Meghalaya"), prob = c(0.69, 0.31), size = length(which(full_serving$X12=="Assam Meghalaya")), replace = TRUE),
+                       #ifelse(X12=="AGMUT", sample(c("Delhi", "Arunachal Pradesh",  "Mizoram","Goa", "DNH and DD","Chandigarh", "Andaman and Nicobar Islands", "Lakshadweep Islands", "Puducherry"), prob = c(0.36, 0.18, 0.14, 0.09, 0.05, 0.05,0.05, 0.05, 0.5), size = length(which(full_serving$X12=="AGMUT")), replace = TRUE), X12)))
+
+#New code for AGMUT and AM allocation, done by creating subsets 
+#Creating a subset of just AGMUT responses to allocate states to 
+agmut_fullserving <- full_serving %>% 
+  subset(X12=="AGMUT") %>% 
+  mutate(state=sample(c(rep("Delhi",10), rep("Arunachal Pradesh",5),  rep("Mizoram",4), rep("Goa",3), rep("DNH and DD",2) ,rep("Chandigarh",1), rep("Andaman and Nicobar Islands",1), rep("Lakshadweep Islands",1), rep("Puducherry",1)), size = length(which(full_serving$X12=="AGMUT")), replace = FALSE))
+
+#Creating a subset of just AM responses to allocate states to 
+am_fullserving <- full_serving %>% 
+  subset(X12=="Assam Meghalaya") %>% 
+  mutate(state=sample(c(rep("Assam",10), rep("Meghalaya", 5))))
+
+#Creating a subset of all responses except from AGMUT and AM to merge
+nocombined_full_serving <- full_serving %>% 
+  subset(!X12=="AGMUT") %>% 
+  subset(!X12=="Assam Meghalaya")
+
+#Merging the three above subsets to get the desired full_serving dataset with correct state allocations and adding a column indicating the SDG classification and age bracket 
+full_serving <- nocombined_full_serving %>% 
+  mutate(state=X12) %>% 
+  add_row(am_fullserving) %>% 
+  add_row(agmut_fullserving) %>% 
+  mutate(sdg = ifelse(state== "Uttar Pradesh" | state=="Bihar" | state =="Assam", "Aspirant", 
+                       ifelse(state=="Puducherry"|state=="Tamil Nadu"| state=="Chandigarh"| state=="Himachal Pradesh"|state=="Kerala", "Frontrunner", "Performer"))) %>% 
+  mutate(age = ifelse(X11>2011, "2012 and after", "2011 and before")) 
+
+#Creating a dataset of former IAS officers and adding the same three columns as above to help with merging the two datasets 
+full_former<-processed_dta %>% 
+  filter(X13=="No, I am a former IAS officer") %>% 
+  mutate(state = NA) %>% #state and sdg are kept NA for now. However we can make these allocations if needed 
+  mutate(sdg = NA) %>% 
+  mutate(age ="Former officer")
+```
+
+```{r, include=FALSE}
+#Creating a dataset with the averages for each answer choice for all questions grouped by the state 
+summary_state_age<-full_serving %>% 
+  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state, age)) %>% 
+  group_by(state) %>% 
+  summarise(X16ones_old=sum(X16[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X16twos_old=sum(X16[age=="2011 and before"]==2)/length(state[age=="2011 and before"]),
+            X16ones_young=sum(X16[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X16twos_young=sum(X16[age=="2012 and after"]==2)/length(state[age=="2012 and after"]),
+            X17ones_old=sum(X17[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X17twos_old=sum(X17[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X17threes_old=sum(X17[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X17fours_old=sum(X17[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
+            X17ones_young=sum(X17[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X17twos_young=sum(X17[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X17threes_young=sum(X17[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X17fours_young=sum(X17[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X18ones_old=sum(X18[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X18twos_old=sum(X18[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X18threes_old=sum(X18[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X18fours_old=sum(X18[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
+          X18ones_young=sum(X18[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X18twos_young=sum(X18[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X18threes_young=sum(X18[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X18fours_young=sum(X18[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X130ones_old=sum(X130[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X130twos_old=sum(X130[age=="2011 and before"]==2)/length(state[age=="2011 and before"]),
+          X130ones_young=sum(X130[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X130twos_young=sum(X130[age=="2012 and after"]==2)/length(state[age=="2012 and after"]),
+          X131ones_old=sum(X131[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X131twos_old=sum(X131[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X131threes_old=sum(X131[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X131fours_old=sum(X131[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
+          X131ones_young=sum(X131[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X131twos_young=sum(X131[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X131threes_young=sum(X131[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X131fours_young=sum(X131[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X132ones_old=sum(X132[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X132twos_old=sum(X132[age=="2011 and before"]==2)/length(state[age=="2011 and before"]),
+          X132ones_young=sum(X132[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X132twos_young=sum(X132[age=="2012 and after"]==2)/length(state[age=="2012 and after"]),
+          X133ones_old=sum(X133[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X133twos_old=sum(X133[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X133threes_old=sum(X133[age=="2011 and before"]==3)/length(state[age=="2011 and before"]),
+          X133ones_young=sum(X133[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X133twos_young=sum(X133[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X133threes_young=sum(X133[age=="2012 and after"]==3)/length(state[age=="2012 and after"]),
+          X134ones_old=sum(X134[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X134twos_old=sum(X134[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X134threes_old=sum(X134[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X134fours_old=sum(X134[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
+          X134ones_young=sum(X134[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X134twos_young=sum(X134[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X134threes_young=sum(X134[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X134fours_young=sum(X134[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X135ones_old=sum(X135[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X135twos_old=sum(X135[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X135threes_old=sum(X135[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X135fours_old=sum(X135[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
+          X135ones_young=sum(X135[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X135twos_young=sum(X135[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X135threes_young=sum(X135[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X135fours_young=sum(X135[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X137ones_old=sum(X137[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X137twos_old=sum(X137[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X137threes_old=sum(X137[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X137fours_old=sum(X137[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
+          X137ones_young=sum(X137[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X137twos_young=sum(X137[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X137threes_young=sum(X137[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X137fours_young=sum(X137[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X138ones_old=sum(X138[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X138twos_old=sum(X138[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X138threes_old=sum(X138[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X138fours_old=sum(X138[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
+          X138ones_young=sum(X138[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X138twos_young=sum(X138[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X138threes_young=sum(X138[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X138fours_young=sum(X138[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X139ones_old=sum(X139[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X139twos_old=sum(X139[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X139threes_old=sum(X139[age=="2011 and before"]==3)/length(state[age=="2011 and before"]),
+          X139ones_young=sum(X139[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X139twos_young=sum(X139[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X139threes_young=sum(X139[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), 
+          sample_stateresp=sum(length(state))) %>% 
+  ungroup() %>% 
+  mutate(sample_stateweight=sample_stateresp/length(full_serving$state))
+
+#Converting NaN values to 0
+is.nan.data.frame <- function(x)
+do.call(cbind, lapply(x, is.nan))
+summary_state_age[is.nan(summary_state_age)] <- 0
+```
+
+```{r, include=FALSE}
+#Importing IAS data from TCPD
+ias_raw_dta<-read.csv("ias-profile.csv")
+```
+
+```{r}
+#Creating a dataset where each row is a different state and each column is the allocation year. Additional columns indicating total number of officers, number of officers pre and post 2012, and their respective proportions are given. 
+#The last row are the total values
+
+ias_processed_dta<-ias_raw_dta %>% 
+  filter(Retired=="TRUE") %>%  
+  mutate(State = Cadre) 
+ias_processed_dta$State<-as.character(ias_processed_dta$State)
+
+#Dividing combined cadres in the same way we allocated them in our survey data 
+agmut_ias<-ias_processed_dta %>% 
+  subset(State=="A G M U T") %>% 
+  mutate(State=sample(c(rep("Arunachal Pradesh", 60), rep("Goa", 33), rep("Mizoram", 46),rep("Andaman and Nicobar Islands", 22), rep("Chandigarh", 13), rep("DNH and DD", 9), rep("Delhi", 108),  rep("Lakshadweep Islands",4), rep("Puducherry", 20)), replace = FALSE))
+
+am_ias<-ias_processed_dta %>% 
+  subset(State=="Assam Meghalya") %>% 
+  mutate(State=sample(c(rep("Assam",136), rep("Meghalaya", 58))))
+
+mt_ias<-ias_processed_dta %>% 
+  subset(State=="Manipur-Tripura") %>% 
+  mutate(State=sample(c(rep("Manipur",2), rep("Tripura", 2))))
+
+nocombined_ias<-ias_processed_dta %>% 
+  subset(!State=="A G M U T") %>% 
+  subset(!State=="Assam Meghalya") %>% 
+  subset(!State=="Manipur-Tripura")
+
+ias_processed_dta<-nocombined_ias %>% 
+  add_row(agmut_ias) %>% 
+  add_row(am_ias) %>%
+  add_row(mt_ias) %>% 
+  mutate(State = ifelse(State=="Chhasttisgarh", "Chhattisgarh", ifelse(State== "Maharastra", "Maharashtra", State))) %>% 
+  dplyr::select(c(State, Allotment_Year)) %>% 
+  group_by(State) %>% 
+  summarise(Y1982=sum(Allotment_Year=="1982"),
+            Y1983=sum(Allotment_Year=="1983"),
+            Y1984=sum(Allotment_Year=="1984"),
+            Y1985=sum(Allotment_Year=="1985"),
+            Y1986=sum(Allotment_Year=="1986"),
+            Y1987=sum(Allotment_Year=="1987"),
+            Y1988=sum(Allotment_Year=="1988"),
+            Y1989=sum(Allotment_Year=="1989"),
+            Y1990=sum(Allotment_Year=="1990"),
+            Y1991=sum(Allotment_Year=="1991"),
+            Y1992=sum(Allotment_Year=="1992"),
+            Y1993=sum(Allotment_Year=="1993"),
+            Y1994=sum(Allotment_Year=="1994"),
+            Y1995=sum(Allotment_Year=="1995"),
+            Y1996=sum(Allotment_Year=="1996"),
+            Y1997=sum(Allotment_Year=="1997"),
+            Y1998=sum(Allotment_Year=="1998"),
+            Y1999=sum(Allotment_Year=="1999"),
+            Y2000=sum(Allotment_Year=="2000"),
+            Y2001=sum(Allotment_Year=="2001"),
+            Y2002=sum(Allotment_Year=="2002"),
+            Y2003=sum(Allotment_Year=="2003"),
+            Y2004=sum(Allotment_Year=="2004"),
+            Y2005=sum(Allotment_Year=="2005"),
+            Y2006=sum(Allotment_Year=="2006"),
+            Y2007=sum(Allotment_Year=="2007"),
+            Y2008=sum(Allotment_Year=="2008"),
+            Y2009=sum(Allotment_Year=="2009"),
+            Y2010=sum(Allotment_Year=="2010"),
+            Y2011=sum(Allotment_Year=="2011"),
+            Y2012=sum(Allotment_Year=="2012"),
+            Y2013=sum(Allotment_Year=="2013"),
+            Y2014=sum(Allotment_Year=="2014"),
+            Y2015=sum(Allotment_Year=="2015"),
+            Y2016=sum(Allotment_Year=="2016"),
+            Y2017=sum(Allotment_Year=="2017"),
+            Y2018=sum(Allotment_Year=="2018"),
+            Y2019=sum(Allotment_Year=="2019"),
+            Y2020=sum(Allotment_Year=="2020"),.groups='drop') %>% 
+  ungroup() %>% 
+  mutate(pre2012=rowSums(.[2:31])) %>% #1982 to 2011
+  mutate(post2012=rowSums(.[32:40])) %>% #2012 to 2020
+  mutate(total= rowSums(.[41:42])) %>% 
+  mutate (state_weight = total/sum(total)) %>% 
+  #bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% 
+  mutate(prop_pre2012_withinstate = pre2012/total) %>% 
+  mutate(prop_post2012_withinstate = post2012/total) %>% 
+  mutate(sdg = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
+                       ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer")))
+#proportion of young officers in a state out of all officers in the state. The sum of prop_pre2012 and prop_post2012 within X state is equal to 1
+
+ias_processed_dta <- ias_processed_dta %>% 
+  mutate(sdg_weight = ifelse(sdg == "Aspirant", total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Aspirant"]), 
+                             ifelse(sdg == "Frontrunner", total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Frontrunner"]), total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Performer"]))))
+```
+
+```{r, include=FALSE}
+#Adding state weights and age weights to summary_state to create a new dataset called summary_state_analysis
+summary_state_analysis_age<-summary_state_age %>% 
+  mutate(state_weight=ias_processed_dta$state_weight) %>% 
+  mutate(sdg_weight=ias_processed_dta$sdg_weight) %>% 
+  mutate(age_weight_young=ias_processed_dta$prop_pre2012_withinstate) %>% 
+  mutate(age_weight_old=ias_processed_dta$prop_post2012_withinstate)
+```
+
+```{r, include=FALSE}
+#Creating a dataset with the averages for each answer choice for all questions grouped by the state 
+summary_state<-full_serving %>% 
+  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
+  group_by(state) %>% 
+  summarise(X16ones=sum(X16==1)/length(state), X16twos=sum(X16==2)/length(state),
+            X17ones=sum(X17==1)/length(state), X17twos=sum(X17==2)/length(state), X17threes=sum(X17==3)/length(state), X17fours=sum(X17==4)/length(state),
+            X18ones=sum(X18==1)/length(state), X18twos=sum(X18==2)/length(state), X18threes=sum(X18==3)/length(state), X18fours=sum(X18==4)/length(state), 
+            X130ones=sum(X130==1)/length(state), X130twos=sum(X130==2)/length(state),
+            X131ones=sum(X131==1)/length(state), X131twos=sum(X131==2)/length(state), X131threes=sum(X131==3)/length(state), X131fours=sum(X131==4)/length(state), 
+            X132ones=sum(X132==1)/length(state), X132twos=sum(X132==2)/length(state),
+            X133ones=sum(X133==1)/length(state), X133twos=sum(X133==2)/length(state), X133threes=sum(X133==3)/length(state),
+            X134ones=sum(X134==1)/length(state), X134twos=sum(X134==2)/length(state), X134threes=sum(X134==3)/length(state), X134fours=sum(X134==4)/length(state), 
+            X135ones=sum(X135==1)/length(state), X135twos=sum(X135==2)/length(state), X135threes=sum(X135==3)/length(state), X135fours=sum(X135==4)/length(state),
+            X137ones=sum(X137==1)/length(state), X137twos=sum(X137==2)/length(state), X137threes=sum(X137==3)/length(state), X137fours=sum(X137==4)/length(state),
+            X138ones=sum(X138==1)/length(state), X138twos=sum(X138==2)/length(state), X138threes=sum(X138==3)/length(state), X138fours=sum(X138==4)/length(state),
+            X139ones=sum(X139==1)/length(state), X139twos=sum(X139==2)/length(state), X139threes=sum(X139==3)/length(state)) %>% 
+  ungroup()
+```
+
+```{r, include=FALSE}
+#Adding state weights and age weights to summary_state to create a new dataset called summary_state_analysis
+summary_state_analysis<-summary_state %>% 
+  mutate(state_weight=ias_processed_dta$state_weight) %>% 
+  mutate(sdg_weight=ias_processed_dta$sdg_weight) %>% 
+  mutate(age_weight_young=ias_processed_dta$prop_post2012_withinstate) %>% 
+  mutate(age_weight_old=ias_processed_dta$prop_pre2012_withinstate)  
+```
+
+```{r}
+#Computing the age weights so that the new summary_state_analysis has an age-weighted mean for each answer choice for each question 
+summary_state_analysis_age<-summary_state_age %>% 
+  mutate(state_weight=ias_processed_dta$state_weight) %>% 
+  mutate(weights_diff=(sample_stateweight-state_weight)*100) %>% 
+  mutate(sdg_weight=ias_processed_dta$sdg_weight) %>% 
+  mutate(age_weight_young=ias_processed_dta$prop_pre2012_withinstate) %>% 
+  mutate(age_weight_old=ias_processed_dta$prop_post2012_withinstate) %>% 
+  mutate(X16ones=(X16ones_young*age_weight_young)+(X16ones_old*age_weight_old)) %>% 
+  mutate(X16twos=(X16twos_young*age_weight_young)+(X16twos_old*age_weight_old)) %>%
+  mutate(X17ones=(X17ones_young*age_weight_young)+(X17ones_old*age_weight_old)) %>% 
+  mutate(X17twos=(X17twos_young*age_weight_young)+(X17twos_old*age_weight_old)) %>%
+  mutate(X17threes=(X17threes_young*age_weight_young)+(X17threes_old*age_weight_old)) %>% 
+  mutate(X17fours=(X17fours_young*age_weight_young)+(X17fours_old*age_weight_old)) %>%
+  mutate(X18ones=(X18ones_young*age_weight_young)+(X18ones_old*age_weight_old)) %>% 
+  mutate(X18twos=(X18twos_young*age_weight_young)+(X18twos_old*age_weight_old)) %>%
+  mutate(X18threes=(X18threes_young*age_weight_young)+(X18threes_old*age_weight_old)) %>% 
+  mutate(X18fours=(X18fours_young*age_weight_young)+(X18fours_old*age_weight_old)) %>%
+  mutate(X130ones=(X130ones_young*age_weight_young)+(X130ones_old*age_weight_old)) %>% 
+  mutate(X130twos=(X130twos_young*age_weight_young)+(X130twos_old*age_weight_old)) %>%
+  mutate(X131ones=(X131ones_young*age_weight_young)+(X131ones_old*age_weight_old)) %>% 
+  mutate(X131twos=(X131twos_young*age_weight_young)+(X131twos_old*age_weight_old)) %>%
+  mutate(X131threes=(X131threes_young*age_weight_young)+(X131threes_old*age_weight_old)) %>% 
+  mutate(X131fours=(X131fours_young*age_weight_young)+(X131fours_old*age_weight_old)) %>%
+  mutate(X132ones=(X132ones_young*age_weight_young)+(X132ones_old*age_weight_old)) %>% 
+  mutate(X132twos=(X132twos_young*age_weight_young)+(X132twos_old*age_weight_old)) %>%
+  mutate(X133ones=(X133ones_young*age_weight_young)+(X133ones_old*age_weight_old)) %>% 
+  mutate(X133twos=(X133twos_young*age_weight_young)+(X133twos_old*age_weight_old)) %>%
+  mutate(X133threes=(X133threes_young*age_weight_young)+(X133threes_old*age_weight_old)) %>% 
+  mutate(X134ones=(X134ones_young*age_weight_young)+(X134ones_old*age_weight_old)) %>% 
+  mutate(X134twos=(X134twos_young*age_weight_young)+(X134twos_old*age_weight_old)) %>%
+  mutate(X134threes=(X134threes_young*age_weight_young)+(X134threes_old*age_weight_old)) %>% 
+  mutate(X134fours=(X134fours_young*age_weight_young)+(X134fours_old*age_weight_old)) %>%
+  mutate(X135ones=(X135ones_young*age_weight_young)+(X135ones_old*age_weight_old)) %>% 
+  mutate(X135twos=(X135twos_young*age_weight_young)+(X135twos_old*age_weight_old)) %>%
+  mutate(X135threes=(X135threes_young*age_weight_young)+(X135threes_old*age_weight_old)) %>% 
+  mutate(X135fours=(X135fours_young*age_weight_young)+(X135fours_old*age_weight_old)) %>%
+  mutate(X137ones=(X137ones_young*age_weight_young)+(X137ones_old*age_weight_old)) %>% 
+  mutate(X137twos=(X137twos_young*age_weight_young)+(X137twos_old*age_weight_old)) %>%
+  mutate(X137threes=(X137threes_young*age_weight_young)+(X137threes_old*age_weight_old)) %>% 
+  mutate(X137fours=(X137fours_young*age_weight_young)+(X137fours_old*age_weight_old)) %>%
+  mutate(X138ones=(X138ones_young*age_weight_young)+(X138ones_old*age_weight_old)) %>% 
+  mutate(X138twos=(X138twos_young*age_weight_young)+(X138twos_old*age_weight_old)) %>%
+  mutate(X138threes=(X138threes_young*age_weight_young)+(X138threes_old*age_weight_old)) %>% 
+  mutate(X138fours=(X138fours_young*age_weight_young)+(X138fours_old*age_weight_old)) %>%
+  mutate(X139ones=(X139ones_young*age_weight_young)+(X139ones_old*age_weight_old)) %>% 
+  mutate(X139twos=(X139twos_young*age_weight_young)+(X139twos_old*age_weight_old)) %>%
+  mutate(X139threes=(X139threes_young*age_weight_young)+(X139threes_old*age_weight_old)) %>% 
+  dplyr::select(-X16ones_young, -X16ones_old, -X16twos_young, -X16twos_old,
+                -X17ones_young, -X17ones_old, -X17twos_young, -X17twos_old, -X17threes_young, -X17threes_old, -X17fours_young, -X17fours_old, 
+                -X18ones_young, -X18ones_old, -X18twos_young, -X18twos_old, -X18threes_young, -X18threes_old, -X18fours_young, -X18fours_old,
+                -X130ones_young, -X130ones_old, -X130twos_young, -X130twos_old,
+                -X131ones_young, -X131ones_old, -X131twos_young, -X131twos_old, -X131threes_young, -X131threes_old, -X131fours_young, -X131fours_old,
+                -X132ones_young, -X132ones_old, -X132twos_young, -X132twos_old, 
+                -X133ones_young, -X133ones_old, -X133twos_young, -X133twos_old, -X133threes_young, -X133threes_old, 
+                -X134ones_young, -X134ones_old, -X134twos_young, -X134twos_old, -X134threes_young, -X134threes_old, -X134fours_young, -X134fours_old,
+                -X135ones_young, -X135ones_old, -X135twos_young, -X135twos_old, -X135threes_young, -X135threes_old, -X135fours_young, -X135fours_old,
+                -X137ones_young, -X137ones_old, -X137twos_young, -X137twos_old, -X137threes_young, -X137threes_old, -X137fours_young, -X137fours_old,
+                -X138ones_young, -X138ones_old, -X138twos_young, -X138twos_old, -X138threes_young, -X138threes_old, -X138fours_young, -X138fours_old,
+                -X139ones_young, -X139ones_old, -X139twos_young, -X139twos_old, -X139threes_young, -X139threes_old, -sample_stateresp)
+#check for percentage difference formula! 
+```
+
+```{r}
+#Creating a subset of the summary_state_age and summary_state_analysis_age for our problem states
+summary_analysis_probsubset<-summary_state_analysis_age %>% 
+  filter(state=="Andaman and Nicobar Islands"|state=="Chandigarh"|state== "Lakshadweep Islands"|state== "Mizoram"|state== "Nagaland"|state== "Puducherry")
+
+summary_probsubset<-full_serving %>% 
+  filter(state=="Andaman and Nicobar Islands"|state=="Chandigarh"|state== "Lakshadweep Islands"|state== "Mizoram"|state== "Nagaland"|state== "Puducherry") %>% 
+  dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
+  group_by(state) %>% 
+  summarise(X16ones=sum(X16==1)/length(state), X16twos=sum(X16==2)/length(state),
+            X17ones=sum(X17==1)/length(state), X17twos=sum(X17==2)/length(state), X17threes=sum(X17==3)/length(state), X17fours=sum(X17==4)/length(state),
+            X18ones=sum(X18==1)/length(state), X18twos=sum(X18==2)/length(state), X18threes=sum(X18==3)/length(state), X18fours=sum(X18==4)/length(state), 
+            X130ones=sum(X130==1)/length(state), X130twos=sum(X130==2)/length(state),
+            X131ones=sum(X131==1)/length(state), X131twos=sum(X131==2)/length(state), X131threes=sum(X131==3)/length(state), X131fours=sum(X131==4)/length(state), 
+            X132ones=sum(X132==1)/length(state), X132twos=sum(X132==2)/length(state),
+            X133ones=sum(X133==1)/length(state), X133twos=sum(X133==2)/length(state), X133threes=sum(X133==3)/length(state),
+            X134ones=sum(X134==1)/length(state), X134twos=sum(X134==2)/length(state), X134threes=sum(X134==3)/length(state), X134fours=sum(X134==4)/length(state), 
+            X135ones=sum(X135==1)/length(state), X135twos=sum(X135==2)/length(state), X135threes=sum(X135==3)/length(state), X135fours=sum(X135==4)/length(state),
+            X137ones=sum(X137==1)/length(state), X137twos=sum(X137==2)/length(state), X137threes=sum(X137==3)/length(state), X137fours=sum(X137==4)/length(state),
+            X138ones=sum(X138==1)/length(state), X138twos=sum(X138==2)/length(state), X138threes=sum(X138==3)/length(state), X138fours=sum(X138==4)/length(state),
+            X139ones=sum(X139==1)/length(state), X139twos=sum(X139==2)/length(state), X139threes=sum(X139==3)/length(state)) %>% 
+  ungroup() %>%
+  mutate(sample_stateweight=summary_analysis_probsubset$sample_stateweight) %>%
+  mutate(state_weight=summary_analysis_probsubset$state_weight) %>% 
+  mutate(weights_diff=summary_analysis_probsubset$weights_diff) %>% 
+  mutate(sdg_weight=summary_analysis_probsubset$sdg_weight) %>% 
+  mutate(age_weight_young=summary_analysis_probsubset$age_weight_young) %>%
+  mutate(age_weight_old=summary_analysis_probsubset$age_weight_old) %>%
+  relocate(sample_stateweight, state_weight, weights_diff, sdg_weight, age_weight_young, age_weight_old, .after=state)
+```
+
+```{r, include=FALSE}
+#First set of comparisons: includes all states and UTs
+#Comparing three different types of weighting (1.1) weighting age in all states except the problem states (these retain their non-age weighted means) (1.2) not weighting age at all (1.3) adding age weights for all respondents at the end and not within each state
+
+#Dataset for 1.1
+summary_alt1.1<-summary_state_analysis_age %>% 
+  rows_delete(tibble(state=c("Andaman and Nicobar Islands","Chandigarh", "Lakshadweep Islands", "Mizoram", "Nagaland", "Puducherry"))) %>% 
+  add_row(summary_probsubset) %>% 
+  arrange(state)
+
+#Dataset for 1.2 is summary_state_analysis 
+
+#Dataset for 1.3
+summary_alt1.3<-summary_state_age %>% 
+  dplyr::select(-sample_stateresp) %>% 
+  mutate(sample_stateweight=summary_state_analysis_age$sample_stateweight) %>%
+  mutate(state_weight=summary_state_analysis_age$state_weight) %>%
+  mutate(weights_diff=summary_state_analysis_age$weights_diff) %>%
+  mutate(sdg_weight=summary_state_analysis_age$sdg_weight) %>%
+  mutate(age_weight_young=summary_state_analysis_age$age_weight_young) %>%
+  mutate(age_weight_old=summary_state_analysis_age$age_weight_old) %>%
+  relocate(sample_stateweight, state_weight, weights_diff, sdg_weight, age_weight_young, age_weight_old, .after=state)
+
+#Second set of comparisions: excludes our problem states
+#Comparing three different types of weighting (2.1) weighting age in all states except the problem states (1.2) not weighting age at all (1.3) adding age weights for all respondents at the end and not within each state 
+
+#Dataset for 2.1
+summary_alt2.1<-summary_state_analysis_age %>% 
+  rows_delete(tibble(state=c("Andaman and Nicobar Islands","Chandigarh", "Lakshadweep Islands", "Mizoram", "Nagaland", "Puducherry")))
+
+#Dataset for 2.2
+summary_alt2.2<-summary_state_analysis %>% 
+  rows_delete(tibble(state=c("Andaman and Nicobar Islands","Chandigarh", "Lakshadweep Islands", "Mizoram", "Nagaland", "Puducherry")))
+
+#Dataset for 2.3
+summary_alt2.3<-summary_state_age %>% 
+  dplyr::select(-sample_stateresp) %>% 
+  mutate(sample_stateweight=summary_state_analysis_age$sample_stateweight) %>%
+  mutate(state_weight=summary_state_analysis_age$state_weight) %>%
+  mutate(weights_diff=summary_state_analysis_age$weights_diff) %>%
+  mutate(sdg_weight=summary_state_analysis_age$sdg_weight) %>%
+  mutate(age_weight_young=summary_state_analysis_age$age_weight_young) %>%
+  mutate(age_weight_old=summary_state_analysis_age$age_weight_old) %>% 
+  relocate(sample_stateweight, state_weight, weights_diff, sdg_weight, age_weight_young, age_weight_old, .after=state) %>% 
+  rows_delete(tibble(state=c("Andaman and Nicobar Islands","Chandigarh", "Lakshadweep Islands", "Mizoram", "Nagaland", "Puducherry"))) 
+```
+\newpage
+
+## Question 1: Age Weighted within Each State
+
+Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India?
+
+\vspace{6mm}
+```{r}
+q1full_mean_ones <- round(weighted.mean(summary_alt1.1$X16ones,
+summary_alt1.1$state_weight)*100,3) 
+q1full_mean_twos <- round(weighted.mean(summary_alt1.1$X16twos,
+summary_alt1.1$state_weight)*100,3) 
+
+q1full_plot <- c(q1full_mean_ones, q1full_mean_twos) 
+q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.") 
+q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels) 
+q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_labels, width = 50)
+q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 30)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 1, Age Weighted Within Each State") +
+  newtheme
+
+q1full_plot
+```
+\newpage
+
+## Question 1: Only State Weighted
+
+Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India?
+
+\vspace{6mm}
+```{r}
+q1full_mean_ones <- round(weighted.mean(summary_state_analysis$X16ones,
+summary_state_analysis$state_weight)*100,3) 
+q1full_mean_twos <- round(weighted.mean(summary_state_analysis$X16twos,
+summary_state_analysis$state_weight)*100,3) 
+
+q1full_plot <- c(q1full_mean_ones, q1full_mean_twos) 
+q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.")  
+q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels) 
+q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_labels, width = 50)
+q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 30)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 1, Only State Weighted") +
+  newtheme
+
+q1full_plot
+```
+\newpage
+
+## Question 1: Weighted by Overall Age Distribution Across the Country 
+
+Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India?
+
+\vspace{6mm}
+```{r}
+q1full_mean_ones_young <- round(weighted.mean(summary_alt1.3$X16ones_young,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q1full_mean_ones_old <- round(weighted.mean(summary_alt1.3$X16ones_old,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q1full_mean_ones<-q1full_mean_ones_young+q1full_mean_ones_old
+
+q1full_mean_twos_young <- round(weighted.mean(summary_alt1.3$X16twos_young,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q1full_mean_twos_old <- round(weighted.mean(summary_alt1.3$X16twos_old,
+summary_alt1.3$state_weight)*100,3) *  sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q1full_mean_twos<-q1full_mean_twos_young+q1full_mean_twos_old
+
+q1full_plot <- c(q1full_mean_ones, q1full_mean_twos)
+q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.") 
+q1full_plot_dta <- data.frame(q1full_plot, q1full_plot_labels)
+q1full_plot_dta$wrapped_labels = str_wrap(q1full_plot_dta$q1full_plot_labels, width = 50)
+q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, fill = q1full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 30)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 1, Overall Age Weighted") +
+  newtheme
+
+q1full_plot
+```
+\newpage
+
+## Question 2: Age Weighted within Each State
+
+With regard to our planning and preparation for the second wave, which of these statements would you agree with most?
+
+\vspace{6mm}
+```{r}
+q2full_mean_ones <- round(weighted.mean(summary_alt1.1$X17ones,
+summary_alt1.1$state_weight)*100,3) 
+q2full_mean_twos <- round(weighted.mean(summary_alt1.1$X17twos,
+summary_alt1.1$state_weight)*100,3) 
+q2full_mean_threes <- round(weighted.mean(summary_alt1.1$X17threes, summary_alt1.1$state_weight)*100,3)
+q2full_mean_fours <- round(weighted.mean(summary_alt1.1$X17fours, summary_alt1.1$state_weight)*100,3)
+q2full_plot <- c(q2full_mean_ones, q2full_mean_twos, q2full_mean_threes, q2full_mean_fours) 
+q2full_plot_labels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.") 
+q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels) 
+q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
+q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 2, Age Weighted Within Each State") +
+  newtheme
+
+q2full_plot
+```
+\newpage
+
+## Question 2: Only State Weighted
+
+With regard to our planning and preparation for the second wave, which of these statements would you agree with most?
+
+\vspace{6mm}
+```{r}
+q2full_mean_ones <- round(weighted.mean(summary_state_analysis$X17ones,
+summary_state_analysis$state_weight)*100,3) 
+q2full_mean_twos <- round(weighted.mean(summary_state_analysis$X17twos,
+summary_state_analysis$state_weight)*100,3) 
+q2full_mean_threes <- round(weighted.mean(summary_state_analysis$X17threes, summary_state_analysis$state_weight)*100,3)
+q2full_mean_fours <- round(weighted.mean(summary_state_analysis$X17fours, summary_state_analysis$state_weight)*100,3)
+q2full_plot <- c(q2full_mean_ones, q2full_mean_twos, q2full_mean_threes, q2full_mean_fours) 
+q2full_plot_labels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.") 
+q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels) 
+q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
+q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 2, Only State Weighted") +
+  newtheme
+
+q2full_plot
+```
+\newpage
+
+## Question 2: Weighted by Overall Age Distribution Across the Country 
+
+With regard to our planning and preparation for the second wave, which of these statements would you agree with most?
+
+\vspace{6mm}
+```{r}
+q2full_mean_ones_young <- round(weighted.mean(summary_alt1.3$X17ones_young,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q2full_mean_ones_old <- round(weighted.mean(summary_alt1.3$X17ones_old,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q2full_mean_ones<-q2full_mean_ones_young+q2full_mean_ones_old
+
+q2full_mean_twos_young <- round(weighted.mean(summary_alt1.3$X17twos_young,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q2full_mean_twos_old <- round(weighted.mean(summary_alt1.3$X17twos_old,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total) 
+q2full_mean_twos<-q2full_mean_twos_young+q2full_mean_twos_old
+
+q2full_mean_threes_young <- round(weighted.mean(summary_alt1.3$X17threes_young, summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q2full_mean_threes_old <- round(weighted.mean(summary_alt1.3$X17threes_old, summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q2full_mean_threes<-q2full_mean_threes_young+q2full_mean_threes_old
+
+q2full_mean_fours_young <- round(weighted.mean(summary_alt1.3$X17fours_young, summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q2full_mean_fours_old <- round(weighted.mean(summary_alt1.3$X17fours_old, summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q2full_mean_fours<-q2full_mean_fours_young+q2full_mean_fours_old
+
+q2full_plot <- c(q2full_mean_ones, q2full_mean_twos, q2full_mean_threes, q2full_mean_fours)
+q2full_plot_labels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.")
+q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels)
+q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
+q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 2, Overall Age Weighted") +
+  newtheme
+
+q2full_plot
+```
+\newpage
+
+## Question 3: Age Weighted within Each State
+
+In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
+
+
+\vspace{6mm}
+```{r}
+q3full_mean_ones <- round(weighted.mean(summary_alt1.1$X18ones,
+summary_alt1.1$state_weight)*100,3) 
+q3full_mean_twos <- round(weighted.mean(summary_alt1.1$X18twos,
+summary_alt1.1$state_weight)*100,3) 
+q3full_mean_threes <- round(weighted.mean(summary_alt1.1$X18threes, summary_alt1.1$state_weight)*100,3)
+q3full_mean_fours <- round(weighted.mean(summary_alt1.1$X18fours, summary_alt1.1$state_weight)*100,3)
+q3full_plot <- c(q3full_mean_ones, q3full_mean_twos, q3full_mean_threes, q3full_mean_fours) 
+q3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.", "Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection." , "Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.") 
+q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels) 
+q3full_plot_dta$wrapped_labels = str_wrap(q3full_plot_dta$q3full_plot_labels, width = 50)
+q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, fill = q3full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 3, Age Weighted Within Each State") +
+  newtheme
+
+q3full_plot
+```
+\newpage
+
+## Question 3: Only State Weighted
+
+In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
+
+\vspace{6mm}
+```{r}
+q3full_mean_ones <- round(weighted.mean(summary_state_analysis$X18ones,
+summary_state_analysis$state_weight)*100,3) 
+q3full_mean_twos <- round(weighted.mean(summary_state_analysis$X18twos,
+summary_state_analysis$state_weight)*100,3) 
+q3full_mean_threes <- round(weighted.mean(summary_state_analysis$X18threes, summary_state_analysis$state_weight)*100,3)
+q3full_mean_fours <- round(weighted.mean(summary_state_analysis$X18fours, summary_state_analysis$state_weight)*100,3)
+q3full_plot <- c(q3full_mean_ones, q3full_mean_twos, q3full_mean_threes, q3full_mean_fours) 
+q3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.", "Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection." , "Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.") 
+q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels) 
+q3full_plot_dta$wrapped_labels = str_wrap(q3full_plot_dta$q3full_plot_labels, width = 50)
+q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, fill = q3full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 3, Only State Weighted") +
+  newtheme
+
+q3full_plot
+```
+\newpage
+
+## Question 3: Weighted by Overall Age Distribution Across the Country 
+
+In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
+
+\vspace{6mm}
+```{r}
+q3full_mean_ones_young <- round(weighted.mean(summary_alt1.3$X18ones_young,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q3full_mean_ones_old <- round(weighted.mean(summary_alt1.3$X18ones_old,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q3full_mean_ones<-q3full_mean_ones_young+q3full_mean_ones_old
+
+q3full_mean_twos_young <- round(weighted.mean(summary_alt1.3$X18twos_young,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q3full_mean_twos_old <- round(weighted.mean(summary_alt1.3$X18twos_old,
+summary_alt1.3$state_weight)*100,3) *  sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q3full_mean_twos<-q3full_mean_twos_young+q3full_mean_twos_old
+
+q3full_mean_threes_young <- round(weighted.mean(summary_alt1.3$X18threes_young, summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q3full_mean_threes_old <- round(weighted.mean(summary_alt1.3$X18threes_old, summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q3full_mean_threes<-q3full_mean_threes_young+q3full_mean_threes_old
+
+q3full_mean_fours_young <- round(weighted.mean(summary_alt1.3$X18fours_young, summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q3full_mean_fours_old <- round(weighted.mean(summary_alt1.3$X18fours_old, summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q3full_mean_fours<-q3full_mean_fours_young+q3full_mean_fours_old
+
+q3full_plot <- c(q3full_mean_ones, q3full_mean_twos, q3full_mean_threes, q3full_mean_fours)
+q3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.", "Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection." , "Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.") 
+q3full_plot_dta <- data.frame(q3full_plot, q3full_plot_labels)
+q3full_plot_dta$wrapped_labels = str_wrap(q3full_plot_dta$q3full_plot_labels, width = 50)
+q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, fill = q3full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 3, Overall Age Weighted") +
+  newtheme
+
+q3full_plot
+```
+\newpage
+
+## Question 7: Age Weighted within Each State
+
+Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
+
+\vspace{6mm}
+```{r}
+q7full_mean_ones <- round(weighted.mean(summary_alt1.1$X130ones,
+summary_alt1.1$state_weight)*100,3) 
+q7full_mean_twos <- round(weighted.mean(summary_alt1.1$X130twos,
+summary_alt1.1$state_weight)*100,3) 
+
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
+q7full_plot_dta$wrapped_labels = str_wrap(q7full_plot_dta$q7full_plot_labels, width = 50)
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 30)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 7, Age Weighted Within Each State") +
+  newtheme
+
+q7full_plot
+```
+\newpage
+
+## Question 7: Only State Weighted
+
+Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
+
+\vspace{6mm}
+```{r}
+q7full_mean_ones <- round(weighted.mean(summary_state_analysis$X130ones,
+summary_state_analysis$state_weight)*100,3) 
+q7full_mean_twos <- round(weighted.mean(summary_state_analysis$X130twos,
+summary_state_analysis$state_weight)*100,3) 
+
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos) 
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels) 
+q7full_plot_dta$wrapped_labels = str_wrap(q7full_plot_dta$q7full_plot_labels, width = 50)
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 30)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 7, Only State Weighted") +
+  newtheme
+
+q7full_plot
+```
+\newpage
+
+## Question 7: Weighted by Overall Age Distribution Across the Country 
+
+Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
+
+\vspace{6mm}
+```{r}
+q7full_mean_ones_young <- round(weighted.mean(summary_alt1.3$X130ones_young,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q7full_mean_ones_old <- round(weighted.mean(summary_alt1.3$X130ones_old,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q7full_mean_ones<-q7full_mean_ones_young+q7full_mean_ones_old
+
+q7full_mean_twos_young <- round(weighted.mean(summary_alt1.3$X130twos_young,
+summary_alt1.3$state_weight)*100,3) * sum(ias_processed_dta$post2012)/sum(ias_processed_dta$total)
+q7full_mean_twos_old <- round(weighted.mean(summary_alt1.3$X130twos_old,
+summary_alt1.3$state_weight)*100,3) *  sum(ias_processed_dta$pre2012)/sum(ias_processed_dta$total)
+q7full_mean_twos<-q7full_mean_twos_young+q7full_mean_twos_old
+
+q7full_plot <- c(q7full_mean_ones, q7full_mean_twos)
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule.", "The system simply does not provide the resources and autonomy required to succeed.") 
+q7full_plot_dta <- data.frame(q7full_plot, q7full_plot_labels)
+q7full_plot_dta$wrapped_labels = str_wrap(q7full_plot_dta$q7full_plot_labels, width = 50)
+q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7full_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,100)) +
+  scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 30)) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", caption = "Question 7, Overall Age Weighted") +
+  newtheme
+
+q7full_plot
+```
+
+```{r}
+
+##The same comparisons excluding the problem states 
+# q2full_mean_ones <- round(weighted.mean(summary_alt2.1$X17ones,
+# summary_alt2.1$state_weight)*100,3) 
+# q2full_mean_twos <- round(weighted.mean(summary_alt2.1$X17twos,
+# summary_alt2.1$state_weight)*100,3) 
+# q2full_mean_threes <- round(weighted.mean(summary_alt2.1$X17threes, summary_alt2.1$state_weight)*100,3)
+# q2full_mean_fours <- round(weighted.mean(summary_alt2.1$X17fours, summary_alt2.1$state_weight)*100,3)
+# q2full_plot <- c(q2full_mean_ones, q2full_mean_twos, q2full_mean_threes, q2full_mean_fours) 
+# q2full_plot_labels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.") 
+# q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels) 
+# q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
+# q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
+#   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+#   geom_text(aes(label=scales::percent(q2full_plot/100)), vjust=-0.3, size=3.5) +
+#   scale_y_continuous(limits = c(0,100)) +
+#   scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
+#   scale_fill_brewer(palette="YlGnBu") +
+#   labs(x="",y="Percent", caption = "Question 2, Weighted") +
+#   newtheme
+# 
+# q2full_plot
+```
+
+```{r}
+# q2full_mean_ones <- round(weighted.mean(summary_alt2.2$X17ones,
+# summary_alt2.2$state_weight)*100,3) 
+# q2full_mean_twos <- round(weighted.mean(summary_alt2.2$X17twos,
+# summary_alt2.2$state_weight)*100,3) 
+# q2full_mean_threes <- round(weighted.mean(summary_alt2.2$X17threes, summary_alt2.2$state_weight)*100,3)
+# q2full_mean_fours <- round(weighted.mean(summary_alt2.2$X17fours, summary_alt2.2$state_weight)*100,3)
+# q2full_plot <- c(q2full_mean_ones, q2full_mean_twos, q2full_mean_threes, q2full_mean_fours) 
+# q2full_plot_labels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.") 
+# q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels) 
+# q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
+# q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
+#   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+#   geom_text(aes(label=scales::percent(q2full_plot/100)), vjust=-0.3, size=3.5) +
+#   scale_y_continuous(limits = c(0,100)) +
+#   scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
+#   scale_fill_brewer(palette="YlGnBu") +
+#   labs(x="",y="Percent", caption = "Question 2, Weighted") +
+#   newtheme
+# 
+# q2full_plot
+```
+
+```{r}
+# q2full_mean_ones_young <- round(weighted.mean(summary_alt2.3$X17ones_young,
+# summary_alt2.3$state_weight, summary_alt2.3$age_weight_young)*100,3)
+# q2full_mean_ones_old <- round(weighted.mean(summary_alt2.3$X17ones_old,
+# summary_alt2.3$state_weight, summary_alt2.3$age_weight_old)*100,3)
+# q2full_mean_ones<-q2full_mean_ones_young+q2full_mean_ones_old/2
+# 
+# q2full_mean_twos_young <- round(weighted.mean(summary_alt2.3$X17twos_young,
+# summary_alt2.3$state_weight, summary_alt2.3$age_weight_young)*100,3)
+# q2full_mean_twos_old <- round(weighted.mean(summary_alt2.3$X17twos_old,
+# summary_alt2.3$state_weight, summary_alt2.3$age_weight_old)*100,3)
+# q2full_mean_twos<-q2full_mean_twos_young+q2full_mean_twos_old/2
+# 
+# q2full_mean_threes_young <- round(weighted.mean(summary_alt2.3$X17threes_young, summary_alt2.3$state_weight, summary_alt2.3$age_weight_young)*100,3)
+# q2full_mean_threes_old <- round(weighted.mean(summary_alt2.3$X17threes_old, summary_alt2.3$state_weight, summary_alt2.3$age_weight_old)*100,3)
+# q2full_mean_threes<-q2full_mean_threes_young+q2full_mean_threes_old/2
+# 
+# q2full_mean_fours_young <- round(weighted.mean(summary_alt2.3$X17fours_young, summary_alt2.3$state_weight, summary_alt2.3$age_weight_young)*100,3)
+# q2full_mean_fours_old <- round(weighted.mean(summary_alt2.3$X17fours_old, summary_alt2.3$state_weight, summary_alt2.3$age_weight_old)*100,3)
+# q2full_mean_fours<-q2full_mean_fours_young+q2full_mean_fours_old/2
+# 
+# q2full_plot <- c(q2full_mean_ones, q2full_mean_twos, q2full_mean_threes, q2full_mean_fours)
+# q2full_plot_labels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.")
+# q2full_plot_dta <- data.frame(q2full_plot, q2full_plot_labels)
+# q2full_plot_dta$wrapped_labels = str_wrap(q2full_plot_dta$q2full_plot_labels, width = 50)
+# q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, fill = q2full_plot_labels)) +
+#   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) +
+#   geom_text(aes(label=scales::percent(q2full_plot/100)), vjust=-0.3, size=3.5) +
+#   scale_y_continuous(limits = c(0,100)) +
+#   scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
+#   scale_fill_brewer(palette="YlGnBu") +
+#   labs(x="",y="Percent", caption = "Question 2, Weighted") +
+#   newtheme
+# 
+# q2full_plot
+```
+
