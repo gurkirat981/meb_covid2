@@ -10,14 +10,16 @@ output:
 
 \Large 
 
-I. This document contains aggregate graphs for all survey questions weighted by share of IAS officers in each state.
+Notes
 
-II. Questions 13 which asked "Dealing with any pandemic of this scale is a collective responsibility and everyone has a part to play. However, in the final analysis, who do you think must shoulder a greater share of responsibility for any shortcomings?" has been
+1. This document contains aggregate graphs for all survey questions weighted by share of IAS officers in each state.
+
+2. Questions 13 which asked "Dealing with any pandemic of this scale is a collective responsibility and everyone has a part to play. However, in the final analysis, who do you think must shoulder a greater share of responsibility for any shortcomings?" has been
 excluded from the analysis because we received only partial responses.
 
-III. Questions 4,5 and 6 can be depicted at the time of design using a map of India with colour markers indicating the percentage of responses that each state received
+3. Questions 4,5 and 6 can be depicted at the time of design using a map of India with colour markers indicating the percentage of responses that each state received
 
-IV. Sample: Number of responses from serving officers = 452,  Number of responses from former officers = 96 
+4. Sample: Number of responses from serving officers = 452,  Number of responses from former officers = 96 
 
 \newpage
 \tableofcontents 
