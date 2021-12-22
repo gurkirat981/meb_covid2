@@ -8,7 +8,15 @@ output:
     df_print: paged
 ---
 
-\Large This document contains overall graphs for all survey questions weighted by share of IAS officers in each state
+\Large 
+I. This document contains aggregate graphs for all survey questions weighted by share of IAS officers in each state.
+
+II. Questions 13 which asked "Dealing with any pandemic of this scale is a collective responsibility and everyone has a part to play. However, in the final analysis, who do you think must shoulder a greater share of responsibility for any shortcomings?" has been
+excluded from the analysis because we received only partial responses.
+
+III. Questions 4,5 and 6 can be depicted at the time of design using a map of India with colour markers indicating the percentage of responses that each state received
+
+IV. Sample: Number of responses from serving officers = 452,  Number of responses from former officers = 96 
 
 \newpage
 \tableofcontents 
@@ -278,7 +286,7 @@ agmut_ias<-ias_processed_dta %>%
   mutate(State=sample(c(rep("Arunachal Pradesh", 60), rep("Goa", 33), rep("Mizoram", 46),rep("Andaman and Nicobar Islands", 22), rep("Chandigarh", 13), rep("DNH and DD", 9), rep("Delhi", 108),  rep("Lakshadweep Islands",4), rep("Puducherry", 20)), replace = FALSE))
 
 am_ias<-ias_processed_dta %>% 
-  subset(State=="Assam Meghalya") %>% #spelt this way since ias_rawdata spells it this way
+  subset(State=="Assam Meghalya") %>% 
   mutate(State=sample(c(rep("Assam",136), rep("Meghalaya", 58))))
 
 mt_ias<-ias_processed_dta %>% 
@@ -1034,8 +1042,8 @@ q15full_mean_ones <- round(weighted.mean(summary_state_analysis$X138ones, summar
 q15full_mean_twos <- round(weighted.mean(summary_state_analysis$X138twos, summary_state_analysis$state_weight)*100,2) 
 q15full_mean_threes <- round(weighted.mean(summary_state_analysis$X138threes, summary_state_analysis$state_weight)*100,2)
 q15full_mean_fours <- round(weighted.mean(summary_state_analysis$X138fours, summary_state_analysis$state_weight)*100,2)
-q15full_plot <- c(q15full_mean_ones, q15full_mean_twos, q15full_mean_threes, q15full_mean_fours) 
-q15full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree") 
+q15full_plot <- c(q15full_mean_fours, q15full_mean_twos,q15full_mean_ones, q15full_mean_threes) 
+q15full_plot_labels <- c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree") 
 q15full_plot_dta <- data.frame(q15full_plot, q15full_plot_labels) 
 q15full_plot <- ggplot(q15full_plot_dta, aes(x=q15full_plot_labels, y=q15full_plot, fill = q15full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
