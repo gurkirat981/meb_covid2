@@ -169,7 +169,6 @@ full_former<-processed_dta %>%
 
 ```{r}
 #Creating subsets
-#Shubhangi says: we can actually remove this entire chunk of code! 
 
 #SDG subsets
 #Dataset of aspirant states 
