@@ -9,6 +9,7 @@ output:
 ---
 
 \Large 
+
 I. This document contains aggregate graphs for all survey questions weighted by share of IAS officers in each state.
 
 II. Questions 13 which asked "Dealing with any pandemic of this scale is a collective responsibility and everyone has a part to play. However, in the final analysis, who do you think must shoulder a greater share of responsibility for any shortcomings?" has been
