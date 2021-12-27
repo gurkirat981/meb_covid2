@@ -19,7 +19,11 @@ excluded from the analysis because we received only partial responses.
 
 3. Questions 4,5 and 6 can be depicted at the time of design using a map of India with colour markers indicating the percentage of responses that each state received
 
-4. Sample: Number of responses from serving officers = 452,  Number of responses from former officers = 96 
+4. Sample: Number of responses from serving officers = 452,  Number of responses from former officers = 96
+
+5. Of the serving officers who responded to this survey, 147 (33%) had also filled last year's survey while 305 officers (67%) responded to our survey for the first time.
+
+6. Of the former officers who responded to this survey, 71 (74%) also participated in our survey last year while 25 (26%) filled our survey for the first time this year.
 
 \newpage
 \tableofcontents 
@@ -127,7 +131,8 @@ disaggtheme <- theme_bw() +
         axis.title=element_text(size=20), 
         plot.title=element_text(size=25, face="bold"), 
         legend.title = element_blank(),
-        legend.text = element_text(size=20)
+        legend.text = element_text(size=20, 
+    margin = margin(b = 10, unit = "pt"))
         )
 
 ```
