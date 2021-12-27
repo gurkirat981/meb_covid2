@@ -1411,6 +1411,90 @@ plot1_fullage
 ```
 \newpage
 
+## Question 1: Disaggregated by SDG
+
+Most countries in the world experienced a second wave of Covid-19 characterised by higher infection prevalence and rapid viral spread. Which of these statements would you agree with more, in the context of the second wave in India?
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Creating an additional table for SDG in summary_state_analysis
+summary_state_analysis <- summary_state_analysis %>% 
+mutate (sdg_tier = ias_processed_dta$sdg)
+
+#Calculating weighted means
+q1aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X16ones[summary_state_analysis$sdg_tier=="Aspirant"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2) 
+q1aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X16twos[summary_state_analysis$sdg_tier=="Aspirant"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q1perf_mean_ones <- round(weighted.mean(summary_state_analysis$X16ones[summary_state_analysis$sdg_tier=="Performer"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2) 
+q1perf_mean_twos <- round(weighted.mean(summary_state_analysis$X16twos[summary_state_analysis$sdg_tier=="Performer"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+q1frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X16ones[summary_state_analysis$sdg_tier=="Frontrunner"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2) 
+q1frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X16twos[summary_state_analysis$sdg_tier=="Frontrunner"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+
+#Forming vectors
+q1aspt_plot <- c(q1aspt_mean_ones, q1aspt_mean_twos) 
+q1perf_plot <- c(q1perf_mean_ones, q1perf_mean_twos)
+q1frnt_plot <- c(q1frnt_mean_ones, q1frnt_mean_twos)
+q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.") 
+
+#Constructing Data Frames
+q1aspt_plot_dta <- data.frame(q1aspt_plot, q1full_plot_labels) 
+q1perf_plot_dta <- data.frame(q1perf_plot, q1full_plot_labels) 
+q1frnt_plot_dta <- data.frame(q1frnt_plot, q1full_plot_labels) 
+
+#Wrapping labels
+q1aspt_plot_dta$wrapped_labels = str_wrap(q1aspt_plot_dta$q1full_plot_label, width = 10)
+q1perf_plot_dta$wrapped_labels = str_wrap(q1perf_plot_dta$q1full_plot_label, width = 10)
+q1frnt_plot_dta$wrapped_labels = str_wrap(q1frnt_plot_dta$q1full_plot_label, width = 10)
+
+#Invoking ggplot
+q1aspt_plot <- ggplot(q1aspt_plot_dta, aes(x=q1full_plot_labels, y=q1aspt_plot, fill = q1full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1aspt_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("",""))  +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Aspirant States") +
+  disaggtheme
+
+q1perf_plot <- ggplot(q1perf_plot_dta, aes(x=q1full_plot_labels, y=q1perf_plot, fill = q1full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1perf_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("",""))  +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Performer States") +
+  disaggtheme
+
+q1frnt_plot_temp <- ggplot(q1frnt_plot_dta, aes(x=q1full_plot_labels, y=q1frnt_plot, fill = q1full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = TRUE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1frnt_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Frontrunner States") +
+  disaggtheme
+
+legend1 <- cowplot::get_legend(q1frnt_plot_temp)
+
+q1frnt_plot <- q1frnt_plot_temp +theme(legend.position = "none")
+
+q1_fullsdg <- plot_grid(q1aspt_plot,q1perf_plot,q1frnt_plot, nrow=1)
+
+q1_fullsdg <- plot_grid(q1_fullsdg,legend1, nrow = 2)
+
+q1_fullsdg
+
+```
+\newpage
+
 ## Question 2: Aggregate Graph
 
 With regard to our planning and preparation for the second wave, which of these statements would you agree with most?
@@ -1508,6 +1592,90 @@ plot2_fullage
 ```
 \newpage
 
+## Question 2: Disaggregated by SDG
+
+With regard to our planning and preparation for the second wave, which of these statements would you agree with most?
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=20}
+
+#Calculating weighted means
+q2aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X17ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q2aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X17twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q2aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X17threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q2aspt_mean_fours <- round(weighted.mean(summary_state_analysis$X17fours[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q2frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X17ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q2frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X17twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q2frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X17threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q2frnt_mean_fours <- round(weighted.mean(summary_state_analysis$X17fours[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+q2perf_mean_ones <- round(weighted.mean(summary_state_analysis$X17ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q2perf_mean_twos <- round(weighted.mean(summary_state_analysis$X17twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q2perf_mean_threes <- round(weighted.mean(summary_state_analysis$X17threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q2perf_mean_fours <- round(weighted.mean(summary_state_analysis$X17fours[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+#Forming vectors 
+q2aspt_plot <- c(q2aspt_mean_ones, q2aspt_mean_twos, q2aspt_mean_threes,q2aspt_mean_fours)
+q2perf_plot <- c(q2perf_mean_ones, q2perf_mean_twos, q2perf_mean_threes,q2perf_mean_fours)
+q2frnt_plot <- c(q2frnt_mean_ones, q2frnt_mean_twos, q2frnt_mean_threes,q2frnt_mean_fours)
+
+q2full_plot_labels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.")
+
+#constructing data frames
+q2aspt_plot_dta <- data.frame(q2aspt_plot, q2full_plot_labels)
+q2perf_plot_dta <- data.frame(q2perf_plot, q2full_plot_labels)
+q2frnt_plot_dta <- data.frame(q2frnt_plot, q2full_plot_labels)
+
+#wrapping labels
+q2aspt_plot_dta$wrapped_labels = str_wrap(q2aspt_plot_dta$q2full_plot_labels, width = 50)
+q2frnt_plot_dta$wrapped_labels = str_wrap(q2frnt_plot_dta$q2full_plot_labels, width = 50)
+q2perf_plot_dta$wrapped_labels = str_wrap(q2perf_plot_dta$q2full_plot_labels, width = 50)
+
+#Invoking ggplot
+q2aspt_plot <- ggplot(q2aspt_plot_dta, aes(x=q2full_plot_labels, y=q2aspt_plot, fill = q2full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title ="Aspirant States") +
+  disaggtheme
+
+q2perf_plot <- ggplot(q2perf_plot_dta, aes(x=q2full_plot_labels, y=q2perf_plot, fill = q2full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Performer States") +
+  disaggtheme
+
+q2frnt_plot_temp <- ggplot(q2frnt_plot_dta, aes(x=q2full_plot_labels, y=q2frnt_plot, fill = q2full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2frnt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Frontrunner States") +
+  disaggtheme
+
+
+legend2 <- cowplot::get_legend(q2frnt_plot_temp)
+
+q2frnt_plot <- q2frnt_plot_temp +theme(legend.position = "none")
+
+q2_fullsdg <- plot_grid(q2aspt_plot,q2perf_plot,q2frnt_plot, nrow=1)
+
+q2_fullsdg <- plot_grid(q2_fullsdg,legend2, nrow = 2)
+
+q2_fullsdg
+```
+\newpage
+
 ## Question 3: Aggregate Graph
 
 In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
@@ -1601,6 +1769,92 @@ plot3_fullage <- plot_grid(q3_young_plot,q3_old_plot,q3_former_plot,
 
 plot3_fullage <- plot_grid(plot3_fullage, legend3, nrow = 2, rel_heights=c(2,1)) 
 plot3_fullage 
+```
+\newpage
+
+## Question 3: Dis-aggregated by SDG
+
+In our survey of IAS officers during the first wave of the pandemic, almost 70% of officers felt that there was a reasonable to substantial increase in health system preparedness post the nationwide lockdown. Which of these statements best reflects health system preparedness for the second wave?
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+summary_state_analysis <- summary_state_analysis %>% 
+mutate (sdg_tier = ias_processed_dta$sdg)
+
+#Calculating weighted means
+q3aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X18ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q3aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X18twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q3aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X18threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q3aspt_mean_fours <- round(weighted.mean(summary_state_analysis$X18fours[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q3frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X18ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q3frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X18twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q3frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X18threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q3frnt_mean_fours <- round(weighted.mean(summary_state_analysis$X18fours[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+q3perf_mean_ones <- round(weighted.mean(summary_state_analysis$X18ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q3perf_mean_twos <- round(weighted.mean(summary_state_analysis$X18twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q3perf_mean_threes <- round(weighted.mean(summary_state_analysis$X18threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q3perf_mean_fours <- round(weighted.mean(summary_state_analysis$X18fours[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+#Forming vectors 
+q3aspt_plot <- c(q3aspt_mean_ones, q3aspt_mean_twos, q3aspt_mean_threes, q3aspt_mean_fours)
+q3frnt_plot <- c(q3frnt_mean_ones, q3frnt_mean_twos, q3frnt_mean_threes, q3frnt_mean_fours)
+q3perf_plot <- c(q3perf_mean_ones, q3perf_mean_twos, q3perf_mean_threes, q3perf_mean_fours)
+
+q3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.","Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.","Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.") 
+
+#constructing data frames
+q3aspt_plot_dta <- data.frame(q3aspt_plot, q3full_plot_labels)
+q3frnt_plot_dta <- data.frame(q3frnt_plot, q3full_plot_labels)
+q3perf_plot_dta <- data.frame(q3perf_plot, q3full_plot_labels)
+
+#wrapping labels
+q3aspt_plot_dta$wrapped_labels = str_wrap(q3aspt_plot_dta$q3full_plot_labels, width = 50)
+q3frnt_plot_dta$wrapped_labels = str_wrap(q3frnt_plot_dta$q3full_plot_labels, width = 50)
+q3perf_plot_dta$wrapped_labels = str_wrap(q3perf_plot_dta$q3full_plot_labels, width = 50)
+
+#Invoking ggplot
+q3aspt_plot <- ggplot(q3aspt_plot_dta, aes(x=q3full_plot_labels, y=q3aspt_plot, fill = q3full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title ="Aspirant States") +
+  disaggtheme
+
+q3perf_plot <- ggplot(q3perf_plot_dta, aes(x=q3full_plot_labels, y=q3perf_plot, fill = q3full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Performer States") +
+  disaggtheme
+
+q3frnt_plot_temp <- ggplot(q3frnt_plot_dta, aes(x=q3full_plot_labels, y=q3frnt_plot, fill = q3full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=scales::percent(q3frnt_plot/100)), vjust=-0.3, size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Frontrunner States") +
+  disaggtheme
+
+
+legend3 <- cowplot::get_legend(q3frnt_plot_temp)
+
+q3frnt_plot <- q3frnt_plot_temp +theme(legend.position = "none")
+
+q3_fullsdg <- plot_grid(q3aspt_plot,q3perf_plot,q3frnt_plot, nrow=1)
+
+q3_fullsdg <- plot_grid(q3_fullsdg,legend3, nrow = 2)
+
+q3_fullsdg
 ```
 \newpage
 
@@ -1837,6 +2091,189 @@ q4former_plot <- ggplot(q4former_plot_dta, aes(x=q4former_plot_labels, y=q4forme
 
 plot4_fullage <- plot_grid(q4young_plot,q4old_plot,q4former_plot, nrow=3)
 plot4_fullage
+```
+\newpage
+
+## Question 4: Dis-aggregated by SDG
+
+Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=11,fig.width=18, warning=FALSE}
+summary_q4 <- summary_q4 %>% 
+mutate (sdg_tier = ias_processed_dta$sdg)
+
+#Calculating weighted means
+
+##Aspirants
+q4aspt_weighted_mean_anislands <- round(weighted.mean(summary_q4$q4_anislands[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_andhra <- round(weighted.mean(summary_q4$q4_andhra[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_arunachal <- round(weighted.mean(summary_q4$q4_arunachal[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_assam <- round(weighted.mean(summary_q4$q4_assam[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_bihar <- round(weighted.mean(summary_q4$q4_bihar[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_chandigarh <- round(weighted.mean(summary_q4$q4_chandigarh[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q4$q4_chhattisgarh[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_dnhdd <- round(weighted.mean(summary_q4$q4_dnhdd[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_goa <- round(weighted.mean(summary_q4$q4_goa[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_gujarat <- round(weighted.mean(summary_q4$q4_gujarat[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_haryana <- round(weighted.mean(summary_q4$q4_haryana[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_hp <- round(weighted.mean(summary_q4$q4_hp[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_jk <- round(weighted.mean(summary_q4$q4_jk[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_jharkhand <- round(weighted.mean(summary_q4$q4_jharkhand[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_karnataka <- round(weighted.mean(summary_q4$q4_karnataka[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_kerala <- round(weighted.mean(summary_q4$q4_kerala[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_ladakh <- round(weighted.mean(summary_q4$q4_ladakh[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_lakshadweep <- round(weighted.mean(summary_q4$q4_lakshadweep[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_mp <- round(weighted.mean(summary_q4$q4_mp[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_maharashtra <- round(weighted.mean(summary_q4$q4_maharashtra[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_manipur <- round(weighted.mean(summary_q4$q4_manipur[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_meghalaya <- round(weighted.mean(summary_q4$q4_meghalaya[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_mizoram <- round(weighted.mean(summary_q4$q4_mizoram[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_nagaland <- round(weighted.mean(summary_q4$q4_nagaland[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_delhi <- round(weighted.mean(summary_q4$q4_delhi[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_none <- round(weighted.mean(summary_q4$q4_none[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_odisha <- round(weighted.mean(summary_q4$q4_odisha[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_puducherry <- round(weighted.mean(summary_q4$q4_puducherry[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_punjab <- round(weighted.mean(summary_q4$q4_punjab[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_rajasthan <- round(weighted.mean(summary_q4$q4_rajasthan[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_sikkim <- round(weighted.mean(summary_q4$q4_sikkim[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_tn <- round(weighted.mean(summary_q4$q4_tn[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_telangana <- round(weighted.mean(summary_q4$q4_telangana[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_tripura <- round(weighted.mean(summary_q4$q4_tripura[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_up <- round(weighted.mean(summary_q4$q4_up[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q4$q4_uttarakhand[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+q4aspt_weighted_mean_wb <- round(weighted.mean(summary_q4$q4_wb[summary_q4$sdg_tier=="Aspirant"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Aspirant"])*100,2)
+
+##Performers
+q4perf_weighted_mean_anislands <- round(weighted.mean(summary_q4$q4_anislands[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_andhra <- round(weighted.mean(summary_q4$q4_andhra[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_arunachal <- round(weighted.mean(summary_q4$q4_arunachal[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_assam <- round(weighted.mean(summary_q4$q4_assam[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_bihar <- round(weighted.mean(summary_q4$q4_bihar[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_chandigarh <- round(weighted.mean(summary_q4$q4_chandigarh[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q4$q4_chhattisgarh[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_dnhdd <- round(weighted.mean(summary_q4$q4_dnhdd[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_goa <- round(weighted.mean(summary_q4$q4_goa[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_gujarat <- round(weighted.mean(summary_q4$q4_gujarat[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_haryana <- round(weighted.mean(summary_q4$q4_haryana[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_hp <- round(weighted.mean(summary_q4$q4_hp[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_jk <- round(weighted.mean(summary_q4$q4_jk[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_jharkhand <- round(weighted.mean(summary_q4$q4_jharkhand[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_karnataka <- round(weighted.mean(summary_q4$q4_karnataka[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_kerala <- round(weighted.mean(summary_q4$q4_kerala[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_ladakh <- round(weighted.mean(summary_q4$q4_ladakh[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_lakshadweep <- round(weighted.mean(summary_q4$q4_lakshadweep[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_mp <- round(weighted.mean(summary_q4$q4_mp[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_maharashtra <- round(weighted.mean(summary_q4$q4_maharashtra[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_manipur <- round(weighted.mean(summary_q4$q4_manipur[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_meghalaya <- round(weighted.mean(summary_q4$q4_meghalaya[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_mizoram <- round(weighted.mean(summary_q4$q4_mizoram[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_nagaland <- round(weighted.mean(summary_q4$q4_nagaland[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_delhi <- round(weighted.mean(summary_q4$q4_delhi[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_none <- round(weighted.mean(summary_q4$q4_none[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_odisha <- round(weighted.mean(summary_q4$q4_odisha[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_puducherry <- round(weighted.mean(summary_q4$q4_puducherry[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_punjab <- round(weighted.mean(summary_q4$q4_punjab[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_rajasthan <- round(weighted.mean(summary_q4$q4_rajasthan[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_sikkim <- round(weighted.mean(summary_q4$q4_sikkim[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_tn <- round(weighted.mean(summary_q4$q4_tn[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_telangana <- round(weighted.mean(summary_q4$q4_telangana[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_tripura <- round(weighted.mean(summary_q4$q4_tripura[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_up <- round(weighted.mean(summary_q4$q4_up[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_uttarakhand <- round(weighted.mean(summary_q4$q4_uttarakhand[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+q4perf_weighted_mean_wb <- round(weighted.mean(summary_q4$q4_wb[summary_q4$sdg_tier=="Performer"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Performer"])*100,2)
+
+##Frontrunner
+q4frnt_weighted_mean_anislands <- round(weighted.mean(summary_q4$q4_anislands[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_andhra <- round(weighted.mean(summary_q4$q4_andhra[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_arunachal <- round(weighted.mean(summary_q4$q4_arunachal[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_assam <- round(weighted.mean(summary_q4$q4_assam[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_bihar <- round(weighted.mean(summary_q4$q4_bihar[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_chandigarh <- round(weighted.mean(summary_q4$q4_chandigarh[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q4$q4_chhattisgarh[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_dnhdd <- round(weighted.mean(summary_q4$q4_dnhdd[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_goa <- round(weighted.mean(summary_q4$q4_goa[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_gujarat <- round(weighted.mean(summary_q4$q4_gujarat[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_haryana <- round(weighted.mean(summary_q4$q4_haryana[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_hp <- round(weighted.mean(summary_q4$q4_hp[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_jk <- round(weighted.mean(summary_q4$q4_jk[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_jharkhand <- round(weighted.mean(summary_q4$q4_jharkhand[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_karnataka <- round(weighted.mean(summary_q4$q4_karnataka[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_kerala <- round(weighted.mean(summary_q4$q4_kerala[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_ladakh <- round(weighted.mean(summary_q4$q4_ladakh[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_lakshadweep <- round(weighted.mean(summary_q4$q4_lakshadweep[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_mp <- round(weighted.mean(summary_q4$q4_mp[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_maharashtra <- round(weighted.mean(summary_q4$q4_maharashtra[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_manipur <- round(weighted.mean(summary_q4$q4_manipur[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_meghalaya <- round(weighted.mean(summary_q4$q4_meghalaya[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_mizoram <- round(weighted.mean(summary_q4$q4_mizoram[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_nagaland <- round(weighted.mean(summary_q4$q4_nagaland[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_delhi <- round(weighted.mean(summary_q4$q4_delhi[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_none <- round(weighted.mean(summary_q4$q4_none[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_odisha <- round(weighted.mean(summary_q4$q4_odisha[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_puducherry <- round(weighted.mean(summary_q4$q4_puducherry[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_punjab <- round(weighted.mean(summary_q4$q4_punjab[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_rajasthan <- round(weighted.mean(summary_q4$q4_rajasthan[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_sikkim <- round(weighted.mean(summary_q4$q4_sikkim[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_tn <- round(weighted.mean(summary_q4$q4_tn[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_telangana <- round(weighted.mean(summary_q4$q4_telangana[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_tripura <- round(weighted.mean(summary_q4$q4_tripura[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_up <- round(weighted.mean(summary_q4$q4_up[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q4$q4_uttarakhand[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+q4frnt_weighted_mean_wb <- round(weighted.mean(summary_q4$q4_wb[summary_q4$sdg_tier=="Frontrunner"], summary_q4$sdg_weight[summary_q4$sdg_tier=="Frontrunner"])*100,2)
+
+
+
+#forming separate vectors
+q4aspt_plot <- c(q4aspt_weighted_mean_anislands, q4aspt_weighted_mean_andhra, q4aspt_weighted_mean_arunachal, q4aspt_weighted_mean_assam, q4aspt_weighted_mean_bihar, q4aspt_weighted_mean_chandigarh, q4aspt_weighted_mean_chhattisgarh, q4aspt_weighted_mean_delhi, q4aspt_weighted_mean_dnhdd, q4aspt_weighted_mean_goa, q4aspt_weighted_mean_gujarat, q4aspt_weighted_mean_haryana, q4aspt_weighted_mean_hp, q4aspt_weighted_mean_jharkhand, q4aspt_weighted_mean_jk, q4aspt_weighted_mean_karnataka, q4aspt_weighted_mean_kerala, q4aspt_weighted_mean_ladakh, q4aspt_weighted_mean_lakshadweep, q4aspt_weighted_mean_maharashtra, q4aspt_weighted_mean_manipur, q4aspt_weighted_mean_meghalaya, q4aspt_weighted_mean_mizoram, q4aspt_weighted_mean_mp, q4aspt_weighted_mean_nagaland, q4aspt_weighted_mean_none, q4aspt_weighted_mean_odisha, q4aspt_weighted_mean_puducherry, q4aspt_weighted_mean_punjab, q4aspt_weighted_mean_rajasthan, q4aspt_weighted_mean_sikkim, q4aspt_weighted_mean_telangana, q4aspt_weighted_mean_tn, q4aspt_weighted_mean_tripura, q4aspt_weighted_mean_up, q4aspt_weighted_mean_uttarakhand, q4aspt_weighted_mean_wb)
+
+q4perf_plot <- c(q4perf_weighted_mean_anislands, q4perf_weighted_mean_andhra, q4perf_weighted_mean_arunachal, q4perf_weighted_mean_assam, q4perf_weighted_mean_bihar, q4perf_weighted_mean_chandigarh, q4perf_weighted_mean_chhattisgarh, q4perf_weighted_mean_delhi, q4perf_weighted_mean_dnhdd, q4perf_weighted_mean_goa, q4perf_weighted_mean_gujarat, q4perf_weighted_mean_haryana, q4perf_weighted_mean_hp, q4perf_weighted_mean_jharkhand, q4perf_weighted_mean_jk, q4perf_weighted_mean_karnataka, q4perf_weighted_mean_kerala, q4perf_weighted_mean_ladakh, q4perf_weighted_mean_lakshadweep, q4perf_weighted_mean_maharashtra, q4perf_weighted_mean_manipur, q4perf_weighted_mean_meghalaya, q4perf_weighted_mean_mizoram, q4perf_weighted_mean_mp, q4perf_weighted_mean_nagaland, q4perf_weighted_mean_none, q4perf_weighted_mean_odisha, q4perf_weighted_mean_puducherry, q4perf_weighted_mean_punjab, q4perf_weighted_mean_rajasthan, q4perf_weighted_mean_sikkim, q4perf_weighted_mean_telangana, q4perf_weighted_mean_tn, q4perf_weighted_mean_tripura, q4perf_weighted_mean_up, q4perf_weighted_mean_uttarakhand, q4perf_weighted_mean_wb)
+
+q4frnt_plot <- c(q4frnt_weighted_mean_anislands, q4frnt_weighted_mean_andhra, q4frnt_weighted_mean_arunachal, q4frnt_weighted_mean_assam, q4frnt_weighted_mean_bihar, q4frnt_weighted_mean_chandigarh, q4frnt_weighted_mean_chhattisgarh, q4frnt_weighted_mean_delhi, q4frnt_weighted_mean_dnhdd, q4frnt_weighted_mean_goa, q4frnt_weighted_mean_gujarat, q4frnt_weighted_mean_haryana, q4frnt_weighted_mean_hp, q4frnt_weighted_mean_jharkhand, q4frnt_weighted_mean_jk, q4frnt_weighted_mean_karnataka, q4frnt_weighted_mean_kerala, q4frnt_weighted_mean_ladakh, q4frnt_weighted_mean_lakshadweep, q4frnt_weighted_mean_maharashtra, q4frnt_weighted_mean_manipur, q4frnt_weighted_mean_meghalaya, q4frnt_weighted_mean_mizoram, q4frnt_weighted_mean_mp, q4frnt_weighted_mean_nagaland, q4frnt_weighted_mean_none, q4frnt_weighted_mean_odisha, q4frnt_weighted_mean_puducherry, q4frnt_weighted_mean_punjab, q4frnt_weighted_mean_rajasthan, q4frnt_weighted_mean_sikkim, q4frnt_weighted_mean_telangana, q4frnt_weighted_mean_tn, q4frnt_weighted_mean_tripura, q4frnt_weighted_mean_up, q4frnt_weighted_mean_uttarakhand, q4frnt_weighted_mean_wb)
+
+#creating common labels
+q4full_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
+
+
+#Invoking GGplot
+##aspirant states
+q4aspt_plot_dta <- data.frame (q4aspt_plot, q4full_plot_labels) 
+q4aspt_plot_dta$wrapped_labels = str_wrap(q4aspt_plot_dta$q4full_plot_labels, width = 10)
+q4aspt_plot <- ggplot(q4aspt_plot_dta, aes(x=q4full_plot_labels, y=q4aspt_plot, fill = q4full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q4aspt_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q4full_plot_labels) str_wrap(q4full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Aspirant States")+
+  newtheme
+
+##Performer States
+q4perf_plot_dta <- data.frame (q4perf_plot, q4full_plot_labels) 
+q4perf_plot_dta$wrapped_labels = str_wrap(q4perf_plot_dta$q4full_plot_labels, width = 10)
+q4perf_plot <- ggplot(q4perf_plot_dta, aes(x=q4full_plot_labels, y=q4perf_plot, fill = q4full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q4perf_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q4full_plot_labels) str_wrap(q4full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Performer States")+
+  newtheme
+
+##Frontrunner States
+q4frnt_plot_dta <- data.frame (q4frnt_plot, q4full_plot_labels) 
+q4frnt_plot_dta$wrapped_labels = str_wrap(q4frnt_plot_dta$q4full_plot_labels, width = 10)
+q4frnt_plot <- ggplot(q4frnt_plot_dta, aes(x=q4full_plot_labels, y=q4frnt_plot, fill = q4full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q4frnt_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q4full_plot_labels) str_wrap(q4full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Frontrunner States")+
+  newtheme
+
+#Stacking all plots vertically
+
+grid.newpage()
+grid.draw(rbind(ggplotGrob(q4aspt_plot), ggplotGrob(q4perf_plot), ggplotGrob(q4frnt_plot), size = "last"))
+
 ```
 \newpage
 
@@ -2077,6 +2514,189 @@ plot4_fullage
 ```
 \newpage
 
+## Question 5: Dis-aggregated by SDG
+
+Please select upto two States that you think have performed their pandemic management responsibilities most poorly.
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=11,fig.width=18, warning=FALSE}
+summary_q5 <- summary_q5 %>% 
+mutate (sdg_tier = ias_processed_dta$sdg)
+
+#Calculating weighted means
+
+##Aspirants
+q5aspt_weighted_mean_anislands <- round(weighted.mean(summary_q5$q5_anislands[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_andhra <- round(weighted.mean(summary_q5$q5_andhra[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_arunachal <- round(weighted.mean(summary_q5$q5_arunachal[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_assam <- round(weighted.mean(summary_q5$q5_assam[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_bihar <- round(weighted.mean(summary_q5$q5_bihar[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_chandigarh <- round(weighted.mean(summary_q5$q5_chandigarh[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q5$q5_chhattisgarh[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_dnhdd <- round(weighted.mean(summary_q5$q5_dnhdd[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_goa <- round(weighted.mean(summary_q5$q5_goa[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_gujarat <- round(weighted.mean(summary_q5$q5_gujarat[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_haryana <- round(weighted.mean(summary_q5$q5_haryana[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_hp <- round(weighted.mean(summary_q5$q5_hp[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_jk <- round(weighted.mean(summary_q5$q5_jk[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_jharkhand <- round(weighted.mean(summary_q5$q5_jharkhand[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_karnataka <- round(weighted.mean(summary_q5$q5_karnataka[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_kerala <- round(weighted.mean(summary_q5$q5_kerala[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_ladakh <- round(weighted.mean(summary_q5$q5_ladakh[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_lakshadweep <- round(weighted.mean(summary_q5$q5_lakshadweep[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_mp <- round(weighted.mean(summary_q5$q5_mp[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_maharashtra <- round(weighted.mean(summary_q5$q5_maharashtra[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_manipur <- round(weighted.mean(summary_q5$q5_manipur[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_meghalaya <- round(weighted.mean(summary_q5$q5_meghalaya[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_mizoram <- round(weighted.mean(summary_q5$q5_mizoram[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_nagaland <- round(weighted.mean(summary_q5$q5_nagaland[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_delhi <- round(weighted.mean(summary_q5$q5_delhi[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_none <- round(weighted.mean(summary_q5$q5_none[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_odisha <- round(weighted.mean(summary_q5$q5_odisha[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_puducherry <- round(weighted.mean(summary_q5$q5_puducherry[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_punjab <- round(weighted.mean(summary_q5$q5_punjab[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_rajasthan <- round(weighted.mean(summary_q5$q5_rajasthan[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_sikkim <- round(weighted.mean(summary_q5$q5_sikkim[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_tn <- round(weighted.mean(summary_q5$q5_tn[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_telangana <- round(weighted.mean(summary_q5$q5_telangana[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_tripura <- round(weighted.mean(summary_q5$q5_tripura[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_up <- round(weighted.mean(summary_q5$q5_up[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q5$q5_uttarakhand[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+q5aspt_weighted_mean_wb <- round(weighted.mean(summary_q5$q5_wb[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
+
+##Performers
+q5perf_weighted_mean_anislands <- round(weighted.mean(summary_q5$q5_anislands[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_andhra <- round(weighted.mean(summary_q5$q5_andhra[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_arunachal <- round(weighted.mean(summary_q5$q5_arunachal[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_assam <- round(weighted.mean(summary_q5$q5_assam[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_bihar <- round(weighted.mean(summary_q5$q5_bihar[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_chandigarh <- round(weighted.mean(summary_q5$q5_chandigarh[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q5$q5_chhattisgarh[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_dnhdd <- round(weighted.mean(summary_q5$q5_dnhdd[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_goa <- round(weighted.mean(summary_q5$q5_goa[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_gujarat <- round(weighted.mean(summary_q5$q5_gujarat[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_haryana <- round(weighted.mean(summary_q5$q5_haryana[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_hp <- round(weighted.mean(summary_q5$q5_hp[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_jk <- round(weighted.mean(summary_q5$q5_jk[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_jharkhand <- round(weighted.mean(summary_q5$q5_jharkhand[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_karnataka <- round(weighted.mean(summary_q5$q5_karnataka[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_kerala <- round(weighted.mean(summary_q5$q5_kerala[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_ladakh <- round(weighted.mean(summary_q5$q5_ladakh[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_lakshadweep <- round(weighted.mean(summary_q5$q5_lakshadweep[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_mp <- round(weighted.mean(summary_q5$q5_mp[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_maharashtra <- round(weighted.mean(summary_q5$q5_maharashtra[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_manipur <- round(weighted.mean(summary_q5$q5_manipur[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_meghalaya <- round(weighted.mean(summary_q5$q5_meghalaya[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_mizoram <- round(weighted.mean(summary_q5$q5_mizoram[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_nagaland <- round(weighted.mean(summary_q5$q5_nagaland[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_delhi <- round(weighted.mean(summary_q5$q5_delhi[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_none <- round(weighted.mean(summary_q5$q5_none[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_odisha <- round(weighted.mean(summary_q5$q5_odisha[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_puducherry <- round(weighted.mean(summary_q5$q5_puducherry[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_punjab <- round(weighted.mean(summary_q5$q5_punjab[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_rajasthan <- round(weighted.mean(summary_q5$q5_rajasthan[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_sikkim <- round(weighted.mean(summary_q5$q5_sikkim[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_tn <- round(weighted.mean(summary_q5$q5_tn[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_telangana <- round(weighted.mean(summary_q5$q5_telangana[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_tripura <- round(weighted.mean(summary_q5$q5_tripura[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_up <- round(weighted.mean(summary_q5$q5_up[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_uttarakhand <- round(weighted.mean(summary_q5$q5_uttarakhand[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+q5perf_weighted_mean_wb <- round(weighted.mean(summary_q5$q5_wb[summary_q5$sdg_tier=="Performer"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Performer"])*100,2)
+
+##Frontrunner
+q5frnt_weighted_mean_anislands <- round(weighted.mean(summary_q5$q5_anislands[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_andhra <- round(weighted.mean(summary_q5$q5_andhra[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_arunachal <- round(weighted.mean(summary_q5$q5_arunachal[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_assam <- round(weighted.mean(summary_q5$q5_assam[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_bihar <- round(weighted.mean(summary_q5$q5_bihar[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_chandigarh <- round(weighted.mean(summary_q5$q5_chandigarh[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q5$q5_chhattisgarh[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_dnhdd <- round(weighted.mean(summary_q5$q5_dnhdd[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_goa <- round(weighted.mean(summary_q5$q5_goa[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_gujarat <- round(weighted.mean(summary_q5$q5_gujarat[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_haryana <- round(weighted.mean(summary_q5$q5_haryana[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_hp <- round(weighted.mean(summary_q5$q5_hp[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_jk <- round(weighted.mean(summary_q5$q5_jk[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_jharkhand <- round(weighted.mean(summary_q5$q5_jharkhand[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_karnataka <- round(weighted.mean(summary_q5$q5_karnataka[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_kerala <- round(weighted.mean(summary_q5$q5_kerala[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_ladakh <- round(weighted.mean(summary_q5$q5_ladakh[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_lakshadweep <- round(weighted.mean(summary_q5$q5_lakshadweep[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_mp <- round(weighted.mean(summary_q5$q5_mp[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_maharashtra <- round(weighted.mean(summary_q5$q5_maharashtra[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_manipur <- round(weighted.mean(summary_q5$q5_manipur[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_meghalaya <- round(weighted.mean(summary_q5$q5_meghalaya[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_mizoram <- round(weighted.mean(summary_q5$q5_mizoram[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_nagaland <- round(weighted.mean(summary_q5$q5_nagaland[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_delhi <- round(weighted.mean(summary_q5$q5_delhi[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_none <- round(weighted.mean(summary_q5$q5_none[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_odisha <- round(weighted.mean(summary_q5$q5_odisha[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_puducherry <- round(weighted.mean(summary_q5$q5_puducherry[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_punjab <- round(weighted.mean(summary_q5$q5_punjab[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_rajasthan <- round(weighted.mean(summary_q5$q5_rajasthan[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_sikkim <- round(weighted.mean(summary_q5$q5_sikkim[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_tn <- round(weighted.mean(summary_q5$q5_tn[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_telangana <- round(weighted.mean(summary_q5$q5_telangana[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_tripura <- round(weighted.mean(summary_q5$q5_tripura[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_up <- round(weighted.mean(summary_q5$q5_up[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q5$q5_uttarakhand[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+q5frnt_weighted_mean_wb <- round(weighted.mean(summary_q5$q5_wb[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
+
+
+
+#forming separate vectors
+q5aspt_plot <- c(q5aspt_weighted_mean_anislands, q5aspt_weighted_mean_andhra, q5aspt_weighted_mean_arunachal, q5aspt_weighted_mean_assam, q5aspt_weighted_mean_bihar, q5aspt_weighted_mean_chandigarh, q5aspt_weighted_mean_chhattisgarh, q5aspt_weighted_mean_delhi, q5aspt_weighted_mean_dnhdd, q5aspt_weighted_mean_goa, q5aspt_weighted_mean_gujarat, q5aspt_weighted_mean_haryana, q5aspt_weighted_mean_hp, q5aspt_weighted_mean_jharkhand, q5aspt_weighted_mean_jk, q5aspt_weighted_mean_karnataka, q5aspt_weighted_mean_kerala, q5aspt_weighted_mean_ladakh, q5aspt_weighted_mean_lakshadweep, q5aspt_weighted_mean_maharashtra, q5aspt_weighted_mean_manipur, q5aspt_weighted_mean_meghalaya, q5aspt_weighted_mean_mizoram, q5aspt_weighted_mean_mp, q5aspt_weighted_mean_nagaland, q5aspt_weighted_mean_none, q5aspt_weighted_mean_odisha, q5aspt_weighted_mean_puducherry, q5aspt_weighted_mean_punjab, q5aspt_weighted_mean_rajasthan, q5aspt_weighted_mean_sikkim, q5aspt_weighted_mean_telangana, q5aspt_weighted_mean_tn, q5aspt_weighted_mean_tripura, q5aspt_weighted_mean_up, q5aspt_weighted_mean_uttarakhand, q5aspt_weighted_mean_wb)
+
+q5perf_plot <- c(q5perf_weighted_mean_anislands, q5perf_weighted_mean_andhra, q5perf_weighted_mean_arunachal, q5perf_weighted_mean_assam, q5perf_weighted_mean_bihar, q5perf_weighted_mean_chandigarh, q5perf_weighted_mean_chhattisgarh, q5perf_weighted_mean_delhi, q5perf_weighted_mean_dnhdd, q5perf_weighted_mean_goa, q5perf_weighted_mean_gujarat, q5perf_weighted_mean_haryana, q5perf_weighted_mean_hp, q5perf_weighted_mean_jharkhand, q5perf_weighted_mean_jk, q5perf_weighted_mean_karnataka, q5perf_weighted_mean_kerala, q5perf_weighted_mean_ladakh, q5perf_weighted_mean_lakshadweep, q5perf_weighted_mean_maharashtra, q5perf_weighted_mean_manipur, q5perf_weighted_mean_meghalaya, q5perf_weighted_mean_mizoram, q5perf_weighted_mean_mp, q5perf_weighted_mean_nagaland, q5perf_weighted_mean_none, q5perf_weighted_mean_odisha, q5perf_weighted_mean_puducherry, q5perf_weighted_mean_punjab, q5perf_weighted_mean_rajasthan, q5perf_weighted_mean_sikkim, q5perf_weighted_mean_telangana, q5perf_weighted_mean_tn, q5perf_weighted_mean_tripura, q5perf_weighted_mean_up, q5perf_weighted_mean_uttarakhand, q5perf_weighted_mean_wb)
+
+q5frnt_plot <- c(q5frnt_weighted_mean_anislands, q5frnt_weighted_mean_andhra, q5frnt_weighted_mean_arunachal, q5frnt_weighted_mean_assam, q5frnt_weighted_mean_bihar, q5frnt_weighted_mean_chandigarh, q5frnt_weighted_mean_chhattisgarh, q5frnt_weighted_mean_delhi, q5frnt_weighted_mean_dnhdd, q5frnt_weighted_mean_goa, q5frnt_weighted_mean_gujarat, q5frnt_weighted_mean_haryana, q5frnt_weighted_mean_hp, q5frnt_weighted_mean_jharkhand, q5frnt_weighted_mean_jk, q5frnt_weighted_mean_karnataka, q5frnt_weighted_mean_kerala, q5frnt_weighted_mean_ladakh, q5frnt_weighted_mean_lakshadweep, q5frnt_weighted_mean_maharashtra, q5frnt_weighted_mean_manipur, q5frnt_weighted_mean_meghalaya, q5frnt_weighted_mean_mizoram, q5frnt_weighted_mean_mp, q5frnt_weighted_mean_nagaland, q5frnt_weighted_mean_none, q5frnt_weighted_mean_odisha, q5frnt_weighted_mean_puducherry, q5frnt_weighted_mean_punjab, q5frnt_weighted_mean_rajasthan, q5frnt_weighted_mean_sikkim, q5frnt_weighted_mean_telangana, q5frnt_weighted_mean_tn, q5frnt_weighted_mean_tripura, q5frnt_weighted_mean_up, q5frnt_weighted_mean_uttarakhand, q5frnt_weighted_mean_wb)
+
+#creating common labels
+q5full_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
+
+
+#Invoking GGplot
+##aspirant states
+q5aspt_plot_dta <- data.frame (q5aspt_plot, q5full_plot_labels) 
+q5aspt_plot_dta$wrapped_labels = str_wrap(q5aspt_plot_dta$q5full_plot_labels, width = 10)
+q5aspt_plot <- ggplot(q5aspt_plot_dta, aes(x=q5full_plot_labels, y=q5aspt_plot, fill = q5full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q5aspt_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q5full_plot_labels) str_wrap(q5full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Aspirant States")+
+  newtheme
+
+##Performer States
+q5perf_plot_dta <- data.frame (q5perf_plot, q5full_plot_labels) 
+q5perf_plot_dta$wrapped_labels = str_wrap(q5perf_plot_dta$q5full_plot_labels, width = 10)
+q5perf_plot <- ggplot(q5perf_plot_dta, aes(x=q5full_plot_labels, y=q5perf_plot, fill = q5full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q5perf_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q5full_plot_labels) str_wrap(q5full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Performer States")+
+  newtheme
+
+##Frontrunner States
+q5frnt_plot_dta <- data.frame (q5frnt_plot, q5full_plot_labels) 
+q5frnt_plot_dta$wrapped_labels = str_wrap(q5frnt_plot_dta$q5full_plot_labels, width = 10)
+q5frnt_plot <- ggplot(q5frnt_plot_dta, aes(x=q5full_plot_labels, y=q5frnt_plot, fill = q5full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q5frnt_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q5full_plot_labels) str_wrap(q5full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Frontrunner States")+
+  newtheme
+
+#Stacking all plots vertically
+
+grid.newpage()
+grid.draw(rbind(ggplotGrob(q5aspt_plot), ggplotGrob(q5perf_plot), ggplotGrob(q5frnt_plot), size = "last"))
+
+```
+\newpage
+
 ## Question 6: Aggregate Graph
 
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
@@ -2138,7 +2758,7 @@ q6full_plot <- ggplot(q6full_plot_dta, aes(x=q6full_plot_labels, y=q6full_plot, 
 
 q6full_plot      
 ```
-## Question 6: Dis-ggregated by Age
+## Question 6: Dis-aggregated by Age
 
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
 
@@ -2310,6 +2930,188 @@ plot4_fullage
 ```
 \newpage
 
+## Question 6: Dis-aggregated by SDG
+
+Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=11,fig.width=18, warning=FALSE}
+summary_q6 <- summary_q6 %>% 
+mutate (sdg_tier = ias_processed_dta$sdg)
+
+#Calculating weighted means
+
+##Aspirants
+q6aspt_weighted_mean_anislands <- round(weighted.mean(summary_q6$q6_anislands[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_andhra <- round(weighted.mean(summary_q6$q6_andhra[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_arunachal <- round(weighted.mean(summary_q6$q6_arunachal[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_assam <- round(weighted.mean(summary_q6$q6_assam[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_bihar <- round(weighted.mean(summary_q6$q6_bihar[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_chandigarh <- round(weighted.mean(summary_q6$q6_chandigarh[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q6$q6_chhattisgarh[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_dnhdd <- round(weighted.mean(summary_q6$q6_dnhdd[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_goa <- round(weighted.mean(summary_q6$q6_goa[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_gujarat <- round(weighted.mean(summary_q6$q6_gujarat[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_haryana <-round(weighted.mean(summary_q6$q6_haryana[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_hp <- round(weighted.mean(summary_q6$q6_hp[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_jk <- round(weighted.mean(summary_q6$q6_jk[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_jharkhand <- round(weighted.mean(summary_q6$q6_jharkhand[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_karnataka <- round(weighted.mean(summary_q6$q6_karnataka[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_kerala <- round(weighted.mean(summary_q6$q6_kerala[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_ladakh <- round(weighted.mean(summary_q6$q6_ladakh[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_lakshadweep <- round(weighted.mean(summary_q6$q6_lakshadweep[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_mp <- round(weighted.mean(summary_q6$q6_mp[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_maharashtra <- round(weighted.mean(summary_q6$q6_maharashtra[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_manipur <- round(weighted.mean(summary_q6$q6_manipur[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_meghalaya <- round(weighted.mean(summary_q6$q6_meghalaya[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_mizoram <- round(weighted.mean(summary_q6$q6_mizoram[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_nagaland <- round(weighted.mean(summary_q6$q6_nagaland[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_delhi <- round(weighted.mean(summary_q6$q6_delhi[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_none <- round(weighted.mean(summary_q6$q6_none[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_odisha <- round(weighted.mean(summary_q6$q6_odisha[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_puducherry <- round(weighted.mean(summary_q6$q6_puducherry[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_punjab <- round(weighted.mean(summary_q6$q6_punjab[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_rajasthan <- round(weighted.mean(summary_q6$q6_rajasthan[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_sikkim <- round(weighted.mean(summary_q6$q6_sikkim[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_tn <- round(weighted.mean(summary_q6$q6_tn[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_telangana <- round(weighted.mean(summary_q6$q6_telangana[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_tripura <- round(weighted.mean(summary_q6$q6_tripura[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_up <- round(weighted.mean(summary_q6$q6_up[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6$q6_uttarakhand[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+q6aspt_weighted_mean_wb <- round(weighted.mean(summary_q6$q6_wb[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
+
+##Performers
+q6perf_weighted_mean_anislands <- round(weighted.mean(summary_q6$q6_anislands[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_andhra <- round(weighted.mean(summary_q6$q6_andhra[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_arunachal <- round(weighted.mean(summary_q6$q6_arunachal[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_assam <- round(weighted.mean(summary_q6$q6_assam[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_bihar <- round(weighted.mean(summary_q6$q6_bihar[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_chandigarh <- round(weighted.mean(summary_q6$q6_chandigarh[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q6$q6_chhattisgarh[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_dnhdd <- round(weighted.mean(summary_q6$q6_dnhdd[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_goa <- round(weighted.mean(summary_q6$q6_goa[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_gujarat <- round(weighted.mean(summary_q6$q6_gujarat[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_haryana <- round(weighted.mean(summary_q6$q6_haryana[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_hp <- round(weighted.mean(summary_q6$q6_hp[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_jk <- round(weighted.mean(summary_q6$q6_jk[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_jharkhand <- round(weighted.mean(summary_q6$q6_jharkhand[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_karnataka <- round(weighted.mean(summary_q6$q6_karnataka[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_kerala <- round(weighted.mean(summary_q6$q6_kerala[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_ladakh <- round(weighted.mean(summary_q6$q6_ladakh[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_lakshadweep <- round(weighted.mean(summary_q6$q6_lakshadweep[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_mp <- round(weighted.mean(summary_q6$q6_mp[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_maharashtra <- round(weighted.mean(summary_q6$q6_maharashtra[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_manipur <- round(weighted.mean(summary_q6$q6_manipur[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_meghalaya <- round(weighted.mean(summary_q6$q6_meghalaya[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_mizoram <- round(weighted.mean(summary_q6$q6_mizoram[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_nagaland <- round(weighted.mean(summary_q6$q6_nagaland[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_delhi <- round(weighted.mean(summary_q6$q6_delhi[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_none <- round(weighted.mean(summary_q6$q6_none[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_odisha <- round(weighted.mean(summary_q6$q6_odisha[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_puducherry <- round(weighted.mean(summary_q6$q6_puducherry[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_punjab <- round(weighted.mean(summary_q6$q6_punjab[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_rajasthan <- round(weighted.mean(summary_q6$q6_rajasthan[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_sikkim <- round(weighted.mean(summary_q6$q6_sikkim[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_tn <- round(weighted.mean(summary_q6$q6_tn[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_telangana <- round(weighted.mean(summary_q6$q6_telangana[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_tripura <- round(weighted.mean(summary_q6$q6_tripura[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_up <- round(weighted.mean(summary_q6$q6_up[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6$q6_uttarakhand[summary_q5$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_wb <- round(weighted.mean(summary_q6$q6_wb[summary_q6$sdg_tier=="Performer"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Performer"])*100,2)
+
+##Frontrunner
+q6frnt_weighted_mean_anislands <- round(weighted.mean(summary_q6$q6_anislands[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_andhra <- round(weighted.mean(summary_q6$q6_andhra[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_arunachal <- round(weighted.mean(summary_q6$q6_arunachal[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_assam <- round(weighted.mean(summary_q6$q6_assam[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_bihar <- round(weighted.mean(summary_q6$q6_bihar[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_chandigarh <- round(weighted.mean(summary_q6$q6_chandigarh[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q6$q6_chhattisgarh[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_dnhdd <- round(weighted.mean(summary_q6$q6_dnhdd[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_goa <- round(weighted.mean(summary_q6$q6_goa[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_gujarat <- round(weighted.mean(summary_q6$q6_gujarat[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_haryana <- round(weighted.mean(summary_q6$q6_haryana[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_hp <- round(weighted.mean(summary_q6$q6_hp[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_jk <- round(weighted.mean(summary_q6$q6_jk[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_jharkhand <- round(weighted.mean(summary_q6$q6_jharkhand[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_karnataka <- round(weighted.mean(summary_q6$q6_karnataka[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_kerala <- round(weighted.mean(summary_q6$q6_kerala[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_ladakh <- round(weighted.mean(summary_q6$q6_ladakh[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_lakshadweep <- round(weighted.mean(summary_q6$q6_lakshadweep[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_mp <- round(weighted.mean(summary_q6$q6_mp[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_maharashtra <- round(weighted.mean(summary_q6$q6_maharashtra[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_manipur <- round(weighted.mean(summary_q6$q6_manipur[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_meghalaya <- round(weighted.mean(summary_q6$q6_meghalaya[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_mizoram <- round(weighted.mean(summary_q6$q6_mizoram[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_nagaland <- round(weighted.mean(summary_q6$q6_nagaland[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_delhi <- round(weighted.mean(summary_q6$q6_delhi[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_none <- round(weighted.mean(summary_q6$q6_none[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_odisha <- round(weighted.mean(summary_q6$q6_odisha[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_puducherry <- round(weighted.mean(summary_q6$q6_puducherry[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_punjab <- round(weighted.mean(summary_q6$q6_punjab[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_rajasthan <- round(weighted.mean(summary_q6$q6_rajasthan[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_sikkim <- round(weighted.mean(summary_q6$q6_sikkim[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_tn <- round(weighted.mean(summary_q6$q6_tn[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_telangana <- round(weighted.mean(summary_q6$q6_telangana[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_tripura <- round(weighted.mean(summary_q6$q6_tripura[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_up <- round(weighted.mean(summary_q6$q6_up[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6$q6_uttarakhand[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+q6frnt_weighted_mean_wb <- round(weighted.mean(summary_q6$q6_wb[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
+
+
+
+#forming separate vectors
+q6aspt_plot <- c(q6aspt_weighted_mean_anislands, q6aspt_weighted_mean_andhra, q6aspt_weighted_mean_arunachal, q6aspt_weighted_mean_assam, q6aspt_weighted_mean_bihar, q6aspt_weighted_mean_chandigarh, q6aspt_weighted_mean_chhattisgarh, q6aspt_weighted_mean_delhi, q6aspt_weighted_mean_dnhdd, q6aspt_weighted_mean_goa, q6aspt_weighted_mean_gujarat, q6aspt_weighted_mean_haryana, q6aspt_weighted_mean_hp, q6aspt_weighted_mean_jharkhand, q6aspt_weighted_mean_jk, q6aspt_weighted_mean_karnataka, q6aspt_weighted_mean_kerala, q6aspt_weighted_mean_ladakh, q6aspt_weighted_mean_lakshadweep, q6aspt_weighted_mean_maharashtra, q6aspt_weighted_mean_manipur, q6aspt_weighted_mean_meghalaya, q6aspt_weighted_mean_mizoram, q6aspt_weighted_mean_mp, q6aspt_weighted_mean_nagaland, q6aspt_weighted_mean_none, q6aspt_weighted_mean_odisha, q6aspt_weighted_mean_puducherry, q6aspt_weighted_mean_punjab, q6aspt_weighted_mean_rajasthan, q6aspt_weighted_mean_sikkim, q6aspt_weighted_mean_telangana, q6aspt_weighted_mean_tn, q6aspt_weighted_mean_tripura, q6aspt_weighted_mean_up, q6aspt_weighted_mean_uttarakhand, q6aspt_weighted_mean_wb)
+
+q6perf_plot <- c(q6perf_weighted_mean_anislands, q6perf_weighted_mean_andhra, q6perf_weighted_mean_arunachal, q6perf_weighted_mean_assam, q6perf_weighted_mean_bihar, q6perf_weighted_mean_chandigarh, q6perf_weighted_mean_chhattisgarh, q6perf_weighted_mean_delhi, q6perf_weighted_mean_dnhdd, q6perf_weighted_mean_goa, q6perf_weighted_mean_gujarat, q6perf_weighted_mean_haryana, q6perf_weighted_mean_hp, q6perf_weighted_mean_jharkhand, q6perf_weighted_mean_jk, q6perf_weighted_mean_karnataka, q6perf_weighted_mean_kerala, q6perf_weighted_mean_ladakh, q6perf_weighted_mean_lakshadweep, q6perf_weighted_mean_maharashtra, q6perf_weighted_mean_manipur, q6perf_weighted_mean_meghalaya, q6perf_weighted_mean_mizoram, q6perf_weighted_mean_mp, q6perf_weighted_mean_nagaland, q6perf_weighted_mean_none, q6perf_weighted_mean_odisha, q6perf_weighted_mean_puducherry, q6perf_weighted_mean_punjab, q6perf_weighted_mean_rajasthan, q6perf_weighted_mean_sikkim, q6perf_weighted_mean_telangana, q6perf_weighted_mean_tn, q6perf_weighted_mean_tripura, q6perf_weighted_mean_up, q6perf_weighted_mean_uttarakhand, q6perf_weighted_mean_wb)
+
+q6frnt_plot <- c(q6frnt_weighted_mean_anislands, q6frnt_weighted_mean_andhra, q6frnt_weighted_mean_arunachal, q6frnt_weighted_mean_assam, q6frnt_weighted_mean_bihar, q6frnt_weighted_mean_chandigarh, q6frnt_weighted_mean_chhattisgarh, q6frnt_weighted_mean_delhi, q6frnt_weighted_mean_dnhdd, q6frnt_weighted_mean_goa, q6frnt_weighted_mean_gujarat, q6frnt_weighted_mean_haryana, q6frnt_weighted_mean_hp, q6frnt_weighted_mean_jharkhand, q6frnt_weighted_mean_jk, q6frnt_weighted_mean_karnataka, q6frnt_weighted_mean_kerala, q6frnt_weighted_mean_ladakh, q6frnt_weighted_mean_lakshadweep, q6frnt_weighted_mean_maharashtra, q6frnt_weighted_mean_manipur, q6frnt_weighted_mean_meghalaya, q6frnt_weighted_mean_mizoram, q6frnt_weighted_mean_mp, q6frnt_weighted_mean_nagaland, q6frnt_weighted_mean_none, q6frnt_weighted_mean_odisha, q6frnt_weighted_mean_puducherry, q6frnt_weighted_mean_punjab, q6frnt_weighted_mean_rajasthan, q6frnt_weighted_mean_sikkim, q6frnt_weighted_mean_telangana, q6frnt_weighted_mean_tn, q6frnt_weighted_mean_tripura, q6frnt_weighted_mean_up, q6frnt_weighted_mean_uttarakhand, q6frnt_weighted_mean_wb)
+
+#creating common labels
+q6full_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
+
+
+#Invoking GGplot
+##aspirant states
+q6aspt_plot_dta <- data.frame (q6aspt_plot, q6full_plot_labels) 
+q6aspt_plot_dta$wrapped_labels = str_wrap(q6aspt_plot_dta$q6full_plot_labels, width = 10)
+q6aspt_plot <- ggplot(q6aspt_plot_dta, aes(x=q6full_plot_labels, y=q6aspt_plot, fill = q6full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q6aspt_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q6full_plot_labels) str_wrap(q6full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Aspirant States")+
+  newtheme
+
+##Performer States
+q6perf_plot_dta <- data.frame (q6perf_plot, q6full_plot_labels) 
+q6perf_plot_dta$wrapped_labels = str_wrap(q6perf_plot_dta$q6full_plot_labels, width = 10)
+q6perf_plot <- ggplot(q6perf_plot_dta, aes(x=q6full_plot_labels, y=q6perf_plot, fill = q6full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q6perf_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q6full_plot_labels) str_wrap(q6full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Performer States")+
+  newtheme
+
+##Frontrunner States
+q6frnt_plot_dta <- data.frame (q6frnt_plot, q6full_plot_labels) 
+q6frnt_plot_dta$wrapped_labels = str_wrap(q6frnt_plot_dta$q6full_plot_labels, width = 10)
+q6frnt_plot <- ggplot(q6frnt_plot_dta, aes(x=q6full_plot_labels, y=q6frnt_plot, fill = q6full_plot_labels)) +
+  geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q6frnt_plot),"%"), vjust=-0.3), size=3.5) +
+  scale_y_continuous(limits = c(0,40)) +
+  scale_x_discrete(labels = function(q6full_plot_labels) str_wrap(q6full_plot_labels, width = 30)) +
+  labs(x="",y="Percent", title = "Frontrunner States")+
+  newtheme
+
+#Stacking all plots vertically
+
+grid.newpage()
+grid.draw(rbind(ggplotGrob(q6aspt_plot), ggplotGrob(q6perf_plot), ggplotGrob(q6frnt_plot), size = "last"))
+```
+\newpage
+
 ## Question 7: Aggregate Graph
 
 Some examples of successful management of the challenges posed by the pandemic show that civil servants can perform even under very difficult circumstances. Why is this situation not the norm? Choose the option that you consider more important. 
@@ -2395,6 +3197,86 @@ plot7_fullage <- plot_grid(q7_young_plot,q7_old_plot,q7_former_plot,
 
 plot7_fullage <- plot_grid(plot7_fullage, legend7, nrow = 2, rel_heights=c(2,1)) 
 plot7_fullage
+```
+\newpage
+
+## Question 7: Dis-aggregated by SDG
+
+Some examples of successful management of the challenges posed by the pandemic show that civil servants can perform even under very difficult circumstances. Why is this situation not the norm? Choose the option that you consider more important. 
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Calculating weighted means
+q7aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X130ones[summary_state_analysis$sdg_tier=="Aspirant"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2) 
+q7aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X130twos[summary_state_analysis$sdg_tier=="Aspirant"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q7perf_mean_ones <- round(weighted.mean(summary_state_analysis$X130ones[summary_state_analysis$sdg_tier=="Performer"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2) 
+q7perf_mean_twos <- round(weighted.mean(summary_state_analysis$X130twos[summary_state_analysis$sdg_tier=="Performer"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+q7frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X130ones[summary_state_analysis$sdg_tier=="Frontrunner"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2) 
+q7frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X130twos[summary_state_analysis$sdg_tier=="Frontrunner"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+
+#Forming vectors
+q7aspt_plot <- c(q7aspt_mean_ones, q7aspt_mean_twos) 
+q7perf_plot <- c(q7perf_mean_ones, q7perf_mean_twos)
+q7frnt_plot <- c(q7frnt_mean_ones, q7frnt_mean_twos)
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.") 
+
+#Constructing Data Frames
+q7aspt_plot_dta <- data.frame(q7aspt_plot, q7full_plot_labels) 
+q7perf_plot_dta <- data.frame(q7perf_plot, q7full_plot_labels) 
+q7frnt_plot_dta <- data.frame(q7frnt_plot, q7full_plot_labels) 
+
+#Wrapping labels
+q7aspt_plot_dta$wrapped_labels = str_wrap(q7aspt_plot_dta$q7full_plot_label, width = 10)
+q7perf_plot_dta$wrapped_labels = str_wrap(q7perf_plot_dta$q7full_plot_label, width = 10)
+q7frnt_plot_dta$wrapped_labels = str_wrap(q7frnt_plot_dta$q7full_plot_label, width = 10)
+
+#Invoking ggplot
+q7aspt_plot <- ggplot(q7aspt_plot_dta, aes(x=q7full_plot_labels, y=q7aspt_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7aspt_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Aspirant States") +
+  disaggtheme
+
+q7perf_plot <- ggplot(q7perf_plot_dta, aes(x=q7full_plot_labels, y=q7perf_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7perf_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Performer States") +
+  disaggtheme
+
+q7frnt_plot_temp <- ggplot(q7frnt_plot_dta, aes(x=q7full_plot_labels, y=q7frnt_plot, fill = q7full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = TRUE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7frnt_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Frontrunner States") +
+  disaggtheme
+
+legend7 <- cowplot::get_legend(q7frnt_plot_temp)
+
+q7frnt_plot <- q7frnt_plot_temp +theme(legend.position = "none")
+
+q7_fullsdg <- plot_grid(q7aspt_plot,q7perf_plot,q7frnt_plot, nrow=1)
+
+q7_fullsdg <- plot_grid(q7_fullsdg,legend7, nrow = 2)
+
+q7_fullsdg
+
 ```
 \newpage
 
@@ -2493,6 +3375,89 @@ plot8_fullage
 ```
 \newpage
 
+## Question 8: Dis-aggregated by SDG
+
+The government has been criticised for permitting large gatherings (during election campaigning and religious/cultural events like the kumbh mela) that may have accelerated the surge. Which of the following statements would you agree with most?
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Calculating weighted means
+q8aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X131ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q8aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X131twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q8aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X131threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q8aspt_mean_fours <- round(weighted.mean(summary_state_analysis$X131fours[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q8frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X131ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q8frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X131twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q8frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X131threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q8frnt_mean_fours <- round(weighted.mean(summary_state_analysis$X131fours[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+q8perf_mean_ones <- round(weighted.mean(summary_state_analysis$X131ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q8perf_mean_twos <- round(weighted.mean(summary_state_analysis$X131twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q8perf_mean_threes <- round(weighted.mean(summary_state_analysis$X131threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q8perf_mean_fours <- round(weighted.mean(summary_state_analysis$X131fours[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+#Forming vectors 
+q8aspt_plot <- c(q8aspt_mean_ones, q8aspt_mean_twos, q8aspt_mean_threes, q8aspt_mean_fours)
+q8frnt_plot <- c(q8frnt_mean_ones, q8frnt_mean_twos, q8frnt_mean_threes, q8frnt_mean_fours)
+q8perf_plot <- c(q8perf_mean_ones, q8perf_mean_twos, q8perf_mean_threes, q8perf_mean_fours)
+
+q8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.") 
+
+#constructing data frames
+q8aspt_plot_dta <- data.frame(q8aspt_plot, q8full_plot_labels)
+q8frnt_plot_dta <- data.frame(q8frnt_plot, q8full_plot_labels)
+q8perf_plot_dta <- data.frame(q8perf_plot, q8full_plot_labels)
+
+#wrapping labels
+q8aspt_plot_dta$wrapped_labels = str_wrap(q8aspt_plot_dta$q8full_plot_labels, width = 50)
+q8frnt_plot_dta$wrapped_labels = str_wrap(q8frnt_plot_dta$q8full_plot_labels, width = 50)
+q8perf_plot_dta$wrapped_labels = str_wrap(q8perf_plot_dta$q8full_plot_labels, width = 50)
+
+#Invoking ggplot
+q8aspt_plot <- ggplot(q8aspt_plot_dta, aes(x=q8full_plot_labels, y=q8aspt_plot, fill = q8full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q8aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title ="Aspirant States") +
+  disaggtheme
+
+q8perf_plot <- ggplot(q8perf_plot_dta, aes(x=q8full_plot_labels, y=q8perf_plot, fill = q8full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q8perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Performer States") +
+  disaggtheme
+
+q8frnt_plot_temp <- ggplot(q8frnt_plot_dta, aes(x=q8full_plot_labels, y=q8frnt_plot, fill = q8full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=scales::percent(q8frnt_plot/100)), vjust=-0.3, size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Frontrunner States") +
+  disaggtheme
+
+
+legend8 <- cowplot::get_legend(q8frnt_plot_temp)
+
+q8frnt_plot <- q8frnt_plot_temp +theme(legend.position = "none")
+
+q8_fullsdg <- plot_grid(q8aspt_plot,q8perf_plot,q8frnt_plot, nrow=1)
+
+q8_fullsdg <- plot_grid(q8_fullsdg,legend8, nrow = 2)
+
+q8_fullsdg
+```
+\newpage
+
 ## Question 9: Aggregate Graph 
 
 The unprecedented nature of this pandemic has meant that policy has had to constantly evolve and change to confront the challenges. Explanations for changes have rarely been given to the public. In this context, which statement would you agree with more?
@@ -2579,6 +3544,86 @@ plot9_fullage <- plot_grid(q9_young_plot,q9_old_plot,q9_former_plot,
   
 plot9_fullage <- plot_grid(plot9_fullage, legend9, nrow = 2, rel_heights=c(2,1)) 
 plot9_fullage
+```
+\newpage
+
+## Question 9: Dis-Aggregated by SDG
+
+The unprecedented nature of this pandemic has meant that policy has had to constantly evolve and change to confront the challenges. Explanations for changes have rarely been given to the public. In this context, which statement would you agree with more?
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Calculating weighted means
+q9aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X132ones[summary_state_analysis$sdg_tier=="Aspirant"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2) 
+q9aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X132twos[summary_state_analysis$sdg_tier=="Aspirant"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q9perf_mean_ones <- round(weighted.mean(summary_state_analysis$X132ones[summary_state_analysis$sdg_tier=="Performer"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2) 
+q9perf_mean_twos <- round(weighted.mean(summary_state_analysis$X132twos[summary_state_analysis$sdg_tier=="Performer"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+q9frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X132ones[summary_state_analysis$sdg_tier=="Frontrunner"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2) 
+q9frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X132twos[summary_state_analysis$sdg_tier=="Frontrunner"],
+summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+
+#Forming vectors
+q9aspt_plot <- c(q9aspt_mean_ones, q9aspt_mean_twos) 
+q9perf_plot <- c(q9perf_mean_ones, q9perf_mean_twos)
+q9frnt_plot <- c(q9frnt_mean_ones, q9frnt_mean_twos)
+q9full_plot_labels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation from the public.")
+
+#Constructing Data Frames
+q9aspt_plot_dta <- data.frame(q9aspt_plot, q9full_plot_labels) 
+q9perf_plot_dta <- data.frame(q9perf_plot, q9full_plot_labels) 
+q9frnt_plot_dta <- data.frame(q9frnt_plot, q9full_plot_labels) 
+
+#Wrapping labels
+q9aspt_plot_dta$wrapped_labels = str_wrap(q9aspt_plot_dta$q9full_plot_label, width = 10)
+q9perf_plot_dta$wrapped_labels = str_wrap(q9perf_plot_dta$q9full_plot_label, width = 10)
+q9frnt_plot_dta$wrapped_labels = str_wrap(q9frnt_plot_dta$q9full_plot_label, width = 10)
+
+#Invoking ggplot
+q9aspt_plot <- ggplot(q9aspt_plot_dta, aes(x=q9full_plot_labels, y=q9aspt_plot, fill = q9full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q9aspt_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Aspirant States") +
+  disaggtheme
+
+q9perf_plot <- ggplot(q9perf_plot_dta, aes(x=q9full_plot_labels, y=q9perf_plot, fill = q9full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q9perf_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Performer States") +
+  disaggtheme
+
+q9frnt_plot_temp <- ggplot(q9frnt_plot_dta, aes(x=q9full_plot_labels, y=q9frnt_plot, fill = q9full_plot_labels)) +
+  geom_bar(stat="identity", width= 0.5, show.legend = TRUE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q9frnt_plot),"%"), vjust=-0.3), size=7) +
+  scale_y_continuous(limits = c(0,100)) +  
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(x="",y="Percent", title = "Frontrunner States") +
+  disaggtheme
+
+legend9 <- cowplot::get_legend(q9frnt_plot_temp)
+
+q9frnt_plot <- q9frnt_plot_temp +theme(legend.position = "none")
+
+q9_fullsdg <- plot_grid(q9aspt_plot,q9perf_plot,q9frnt_plot, nrow=1)
+
+q9_fullsdg <- plot_grid(q9_fullsdg,legend9, nrow = 2)
+
+q9_fullsdg
+
 ```
 \newpage
 
@@ -2670,6 +3715,87 @@ plot10_fullage <- plot_grid(q10_young_plot,q10_old_plot,q10_former_plot,
   
 plot10_fullage <- plot_grid(plot10_fullage, legend10, nrow = 2, rel_heights=c(2,1)) 
 plot10_fullage
+```
+\newpage
+
+## Question 10: Dis-aggregated by SDG
+
+India’s vaccine procurement policy has undergone multiple changes in a short span of time. What, in your opinion, best explains these frequent changes?
+
+\vspace{6mm}
+
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Calculating weighted means
+q10aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X133ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q10aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X133twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q10aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X133threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q10frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X133ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q10frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X133twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q10frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X133threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+q10perf_mean_ones <- round(weighted.mean(summary_state_analysis$X133ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q10perf_mean_twos <- round(weighted.mean(summary_state_analysis$X133twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q10perf_mean_threes <- round(weighted.mean(summary_state_analysis$X133threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+#Forming vectors 
+q10aspt_plot <- c(q10aspt_mean_ones, q10aspt_mean_twos, q10aspt_mean_threes)
+q10frnt_plot <- c(q10frnt_mean_ones, q10frnt_mean_twos, q10frnt_mean_threes)
+q10perf_plot <- c(q10perf_mean_ones, q10perf_mean_twos, q10perf_mean_threes)
+
+q10full_plot_labels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature of our country.")
+
+#constructing data frames
+q10aspt_plot_dta <- data.frame(q10aspt_plot, q10full_plot_labels)
+q10frnt_plot_dta <- data.frame(q10frnt_plot, q10full_plot_labels)
+q10perf_plot_dta <- data.frame(q10perf_plot, q10full_plot_labels)
+
+#wrapping labels
+q10aspt_plot_dta$wrapped_labels = str_wrap(q10aspt_plot_dta$q10full_plot_labels, width = 50)
+q10frnt_plot_dta$wrapped_labels = str_wrap(q10frnt_plot_dta$q10full_plot_labels, width = 50)
+q10perf_plot_dta$wrapped_labels = str_wrap(q10perf_plot_dta$q10full_plot_labels, width = 50)
+
+#Invoking ggplot
+q10aspt_plot <- ggplot(q10aspt_plot_dta, aes(x=q10full_plot_labels, y=q10aspt_plot, fill = q10full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q10aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title ="Aspirant States") +
+  disaggtheme
+
+q10perf_plot <- ggplot(q10perf_plot_dta, aes(x=q10full_plot_labels, y=q10perf_plot, fill = q10full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q10perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Performer States") +
+  disaggtheme
+
+q10frnt_plot_temp <- ggplot(q10frnt_plot_dta, aes(x=q10full_plot_labels, y=q10frnt_plot, fill = q10full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=scales::percent(q10frnt_plot/100)), vjust=-0.3, size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Frontrunner States") +
+  disaggtheme
+
+
+legend10<- cowplot::get_legend(q10frnt_plot_temp)
+
+q10frnt_plot <- q10frnt_plot_temp +theme(legend.position = "none")
+
+q10_fullsdg <- plot_grid(q10aspt_plot,q10perf_plot,q10frnt_plot, nrow=1)
+
+q10_fullsdg <- plot_grid(q10_fullsdg,legend10, nrow = 2)
+
+q10_fullsdg
 ```
 \newpage
 
@@ -2769,6 +3895,89 @@ plot11_fullage
 ```
 \newpage
 
+## Question 11: Dis-ggregated by SDG
+
+Successful vaccination policy across most of the world has prioritised high risk segments (such as the aged, those with comorbidities, and frontline workers) followed by a rapid coverage of a minimum threshold number in the general population. Which statement in your opinion best characterises India’s implementation of such a vaccination policy?
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Calculating weighted means
+q11aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X134ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q11aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X134twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q11aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X134threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q11aspt_mean_fours <- round(weighted.mean(summary_state_analysis$X134fours[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q11frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X134ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q11frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X134twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q11frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X134threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q11frnt_mean_fours <- round(weighted.mean(summary_state_analysis$X134fours[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+q11perf_mean_ones <- round(weighted.mean(summary_state_analysis$X134ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q11perf_mean_twos <- round(weighted.mean(summary_state_analysis$X134twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q11perf_mean_threes <- round(weighted.mean(summary_state_analysis$X134threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q11perf_mean_fours <- round(weighted.mean(summary_state_analysis$X134fours[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+#Forming vectors 
+q11aspt_plot <- c(q11aspt_mean_ones, q11aspt_mean_twos, q11aspt_mean_threes, q11aspt_mean_fours)
+q11frnt_plot <- c(q11frnt_mean_ones, q11frnt_mean_twos, q11frnt_mean_threes, q11frnt_mean_fours)
+q11perf_plot <- c(q11perf_mean_ones, q11perf_mean_twos, q11perf_mean_threes, q11perf_mean_fours)
+
+q11full_plot_labels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.") 
+
+#constructing data frames
+q11aspt_plot_dta <- data.frame(q11aspt_plot, q11full_plot_labels)
+q11frnt_plot_dta <- data.frame(q11frnt_plot, q11full_plot_labels)
+q11perf_plot_dta <- data.frame(q11perf_plot, q11full_plot_labels)
+
+#wrapping labels
+q11aspt_plot_dta$wrapped_labels = str_wrap(q11aspt_plot_dta$q11full_plot_labels, width = 50)
+q11frnt_plot_dta$wrapped_labels = str_wrap(q11frnt_plot_dta$q11full_plot_labels, width = 50)
+q11perf_plot_dta$wrapped_labels = str_wrap(q11perf_plot_dta$q11full_plot_labels, width = 50)
+
+#Invoking ggplot
+q11aspt_plot <- ggplot(q11aspt_plot_dta, aes(x=q11full_plot_labels, y=q11aspt_plot, fill = q11full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q11aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Aspirant States") +
+  disaggtheme
+
+q11perf_plot <- ggplot(q11perf_plot_dta, aes(x=q11full_plot_labels, y=q11perf_plot, fill = q11full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q11perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Performer States") +
+  disaggtheme
+
+q11frnt_plot_temp <- ggplot(q11frnt_plot_dta, aes(x=q11full_plot_labels, y=q11frnt_plot, fill = q11full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=scales::percent(q11frnt_plot/100)), vjust=-0.3, size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Frontrunner States") +
+  disaggtheme
+
+
+legend11 <- cowplot::get_legend(q11frnt_plot_temp)
+
+q11frnt_plot <- q11frnt_plot_temp +theme(legend.position = "none")
+
+q11_fullsdg <- plot_grid(q11aspt_plot,q11perf_plot,q11frnt_plot, nrow=1)
+
+q11_fullsdg <- plot_grid(q11_fullsdg,legend11, nrow = 2)
+
+q11_fullsdg
+```
+\newpage
+
 ## Question 12: Aggregate Graph 
 
 Choose the option that best describes the overriding feeling among IAS officers during the peak of the second wave when the scale and human consequences of the Covid-19 pandemic across many parts of the country were palpable to all.
@@ -2862,6 +4071,89 @@ plot12_fullage
 ```
 \newpage
 
+## Question 12: Dis-aggregated by SDG
+
+Choose the option that best describes the overriding feeling among IAS officers during the peak of the second wave when the scale and human consequences of the Covid-19 pandemic across many parts of the country were palpable to all.
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Calculating weighted means
+q12aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X135ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q12aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X135twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q12aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X135threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q12aspt_mean_fours <- round(weighted.mean(summary_state_analysis$X135fours[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q12frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X135ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q12frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X135twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q12frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X135threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q12frnt_mean_fours <- round(weighted.mean(summary_state_analysis$X135fours[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+q12perf_mean_ones <- round(weighted.mean(summary_state_analysis$X135ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q12perf_mean_twos <- round(weighted.mean(summary_state_analysis$X135twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q12perf_mean_threes <- round(weighted.mean(summary_state_analysis$X135threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q12perf_mean_fours <- round(weighted.mean(summary_state_analysis$X135fours[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+#Forming vectors 
+q12aspt_plot <- c(q12aspt_mean_ones, q12aspt_mean_twos, q12aspt_mean_threes, q12aspt_mean_fours)
+q12frnt_plot <- c(q12frnt_mean_ones, q12frnt_mean_twos, q12frnt_mean_threes, q12frnt_mean_fours)
+q12perf_plot <- c(q12perf_mean_ones, q12perf_mean_twos, q12perf_mean_threes, q12perf_mean_fours)
+
+q12full_plot_labels <- c("We could at least use our networks to render some assistance at an individual level.", "We should have done so much more to improve the system when we had the time.", "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", "We were proud that our colleagues were able to deliver so much despite such adverse circumstances.")
+
+#constructing data frames
+q12aspt_plot_dta <- data.frame(q12aspt_plot, q12full_plot_labels)
+q12frnt_plot_dta <- data.frame(q12frnt_plot, q12full_plot_labels)
+q12perf_plot_dta <- data.frame(q12perf_plot, q12full_plot_labels)
+
+#wrapping labels
+q12aspt_plot_dta$wrapped_labels = str_wrap(q12aspt_plot_dta$q12full_plot_labels, width = 50)
+q12frnt_plot_dta$wrapped_labels = str_wrap(q12frnt_plot_dta$q12full_plot_labels, width = 50)
+q12perf_plot_dta$wrapped_labels = str_wrap(q12perf_plot_dta$q12full_plot_labels, width = 50)
+
+#Invoking ggplot
+q12aspt_plot <- ggplot(q12aspt_plot_dta, aes(x=q12full_plot_labels, y=q12aspt_plot, fill = q12full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q12aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title ="Aspirant States") +
+  disaggtheme
+
+q12perf_plot <- ggplot(q12perf_plot_dta, aes(x=q12full_plot_labels, y=q12perf_plot, fill = q12full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q12perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Performer States") +
+  disaggtheme
+
+q12frnt_plot_temp <- ggplot(q12frnt_plot_dta, aes(x=q12full_plot_labels, y=q12frnt_plot, fill = q12full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=scales::percent(q12frnt_plot/100)), vjust=-0.3, size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  labs(title = "Frontrunner States") +
+  disaggtheme
+
+
+legend12 <- cowplot::get_legend(q12frnt_plot_temp)
+
+q12frnt_plot <- q12frnt_plot_temp +theme(legend.position = "none")
+
+q12_fullsdg <- plot_grid(q12aspt_plot,q12perf_plot,q12frnt_plot, nrow=1)
+
+q12_fullsdg <- plot_grid(q12_fullsdg,legend12, nrow = 2)
+
+q12_fullsdg
+```
+\newpage
+
 ## Question 14: Aggregate Graph
 
 The government support for India’s huge vaccine production capacity appears to have been limited compared to many other countries. Pick the option that you think is the most important reason.  
@@ -2952,6 +4244,86 @@ plot14_fullage <- plot_grid(q14_young_plot,q14_old_plot,q14_former_plot,
   
 plot14_fullage <- plot_grid(plot14_fullage, legend14, nrow = 2, rel_heights=c(2,1)) 
 plot14_fullage
+```
+\newpage
+
+## Question 14: Dis-aggregated by SDG
+
+The government support for India’s huge vaccine production capacity appears to have been limited compared to many other countries. Pick the option that you think is the most important reason.  
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Calculating weighted means
+q14aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X137ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q14aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X137twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q14aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X137threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q14aspt_mean_fours <- round(weighted.mean(summary_state_analysis$X137fours[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q14frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X137ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q14frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X137twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q14frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X137threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q14frnt_mean_fours <- round(weighted.mean(summary_state_analysis$X137fours[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+q14perf_mean_ones <- round(weighted.mean(summary_state_analysis$X137ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q14perf_mean_twos <- round(weighted.mean(summary_state_analysis$X137twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q14perf_mean_threes <- round(weighted.mean(summary_state_analysis$X137threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q14perf_mean_fours <- round(weighted.mean(summary_state_analysis$X137fours[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+#Forming vectors 
+q14aspt_plot <- c(q14aspt_mean_ones, q14aspt_mean_twos, q14aspt_mean_threes, q14aspt_mean_fours)
+q14frnt_plot <- c(q14frnt_mean_ones, q14frnt_mean_twos, q14frnt_mean_threes, q14frnt_mean_fours)
+q14perf_plot <- c(q14perf_mean_ones, q14perf_mean_twos, q14perf_mean_threes, q14perf_mean_fours)
+
+q14full_plot_labels <- c("The government's fiscal situation did not permit such measures.", "The pandemic's limited initial impact led to a view that mass vaccination would not be urgently required in India.", "The private sector in India does not inspire confidence.", "The private sector makes profits and should therefore assume the risk involved.") 
+
+#constructing data frames
+q14aspt_plot_dta <- data.frame(q14aspt_plot, q14full_plot_labels)
+q14frnt_plot_dta <- data.frame(q14frnt_plot, q14full_plot_labels)
+q14perf_plot_dta <- data.frame(q14perf_plot, q14full_plot_labels)
+
+#wrapping labels
+q14aspt_plot_dta$wrapped_labels = str_wrap(q14aspt_plot_dta$q14full_plot_labels, width = 50)
+q14frnt_plot_dta$wrapped_labels = str_wrap(q14frnt_plot_dta$q14full_plot_labels, width = 50)
+q14perf_plot_dta$wrapped_labels = str_wrap(q14perf_plot_dta$q14full_plot_labels, width = 50)
+
+#Invoking ggplot
+q14aspt_plot <- ggplot(q14aspt_plot_dta, aes(x=q14full_plot_labels, y=q14aspt_plot, fill = q14full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q14aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent", title = "Aspirant States")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  disaggtheme
+
+q14perf_plot <- ggplot(q14perf_plot_dta, aes(x=q14full_plot_labels, y=q14perf_plot, fill = q14full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q14perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent", title = "Performer States") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  disaggtheme
+
+q14frnt_plot_temp <- ggplot(q14frnt_plot_dta, aes(x=q14full_plot_labels, y=q14frnt_plot, fill = q14full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=scales::percent(q14frnt_plot/100)), vjust=-0.3, size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent", title = "Frontrunner States") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  disaggtheme
+
+
+legend14 <- cowplot::get_legend(q14frnt_plot_temp)
+
+q14frnt_plot <- q14frnt_plot_temp + theme(legend.position = "none")
+
+q14_fullsdg <- plot_grid(q14aspt_plot,q14perf_plot,q14frnt_plot, nrow=1)
+
+q14_fullsdg <- plot_grid(q14_fullsdg,legend14, nrow = 2)
+
+q14_fullsdg
 ```
 \newpage
 
@@ -3057,6 +4429,95 @@ plot15_fullage
 ```
 \newpage
 
+## Question 15: Dis-aggregated by SDG
+
+To what extent would you agree with the following statement? "NGOs and civil society rendered critical assistance to pandemic management in 2020. While they played an important role in the second wave (particularly for oxygen, hospital beds and food relief), increased regulation of their fundraising and activities has come in the way of their playing an even bigger role."
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10,fig.width=18}
+#Calculating weighted means
+q15aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X138ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q15aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X138twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q15aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X138threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q15aspt_mean_fours <- round(weighted.mean(summary_state_analysis$X138fours[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q15perf_mean_ones <- round(weighted.mean(summary_state_analysis$X138ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q15perf_mean_twos <- round(weighted.mean(summary_state_analysis$X138twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q15perf_mean_threes <- round(weighted.mean(summary_state_analysis$X138threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q15perf_mean_fours <- round(weighted.mean(summary_state_analysis$X138fours[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+q15frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X138ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q15frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X138twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q15frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X138threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q15frnt_mean_fours <- round(weighted.mean(summary_state_analysis$X138fours[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+
+#Forming vectors 
+q15aspt_plot <- c(q15aspt_mean_ones, q15aspt_mean_twos, q15aspt_mean_threes, q15aspt_mean_fours)
+q15perf_plot <- c(q15perf_mean_ones, q15perf_mean_twos, q15perf_mean_threes, q15perf_mean_fours)
+q15frnt_plot <- c(q15frnt_mean_ones, q15frnt_mean_twos, q15frnt_mean_threes, q15frnt_mean_fours)
+
+
+q15full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree")
+
+#constructing data frames
+q15aspt_plot_dta <- data.frame(q15aspt_plot, q15full_plot_labels)
+q15perf_plot_dta <- data.frame(q15perf_plot, q15full_plot_labels)
+q15frnt_plot_dta <- data.frame(q15frnt_plot, q15full_plot_labels)
+
+
+#Levelling labels
+q15aspt_plot_dta$q15full_plot_labels <- factor(q15aspt_plot_dta$q15full_plot_labels,
+                                               levels = c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree"))
+
+q15perf_plot_dta$q15full_plot_labels <- factor(q15perf_plot_dta$q15full_plot_labels,
+                                               levels = c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree"))
+
+q15frnt_plot_dta$q15full_plot_labels <- factor(q15frnt_plot_dta$q15full_plot_labels,
+                                               levels = c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree"))
+
+#Invoking ggplot
+q15aspt_plot <- ggplot(q15aspt_plot_dta, aes(x=q15full_plot_labels, y=q15aspt_plot, fill = q15full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q15aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent", title = "Aspirant States")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  disaggtheme
+
+q15perf_plot <- ggplot(q15perf_plot_dta, aes(x=q15full_plot_labels, y=q15perf_plot, fill = q15full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q15perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent", title = "Performer States") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  disaggtheme
+
+q15frnt_plot_temp <- ggplot(q15frnt_plot_dta, aes(x=q15full_plot_labels, y=q15frnt_plot, fill = q15full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=scales::percent(q15frnt_plot/100)), vjust=-0.3, size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent", title = "Frontrunner States") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  disaggtheme
+
+
+legend15 <- cowplot::get_legend (q15frnt_plot_temp)
+
+q15frnt_plot <- q15frnt_plot_temp + theme(legend.position = "none")
+
+q15_fullsdg <- plot_grid(q15aspt_plot,q15perf_plot,q15frnt_plot, nrow=1)
+
+q15_fullsdg <- plot_grid(q15_fullsdg,legend15, nrow = 2)
+
+q15_fullsdg
+```
+
+\newpage
+
 ## Question 16: Aggregate Graph
 
 Which of the following statements best describes the media’s coverage of the pandemic?
@@ -3144,4 +4605,82 @@ plot16_fullage <- plot_grid(q16_young_plot,q16_old_plot,q16_former_plot,
   
 plot16_fullage <- plot_grid(plot16_fullage, legend16, nrow = 2) 
 plot16_fullage
+```
+\newpage
+
+## Question 16: Dis-aggregated by SDG
+
+Which of the following statements best describes the media’s coverage of the pandemic?
+
+\vspace{6mm}
+```{r, echo = FALSE, fig.height=10, fig.width=18}
+#Calculating weighted means
+q16aspt_mean_ones <- round(weighted.mean(summary_state_analysis$X139ones[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q16aspt_mean_twos <- round(weighted.mean(summary_state_analysis$X139twos[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+q16aspt_mean_threes <- round(weighted.mean(summary_state_analysis$X139threes[summary_state_analysis$sdg_tier=="Aspirant"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Aspirant"])*100,2)
+
+q16frnt_mean_ones <- round(weighted.mean(summary_state_analysis$X139ones[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q16frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X139twos[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+q16frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X139threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
+
+q16perf_mean_ones <- round(weighted.mean(summary_state_analysis$X139ones[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q16perf_mean_twos <- round(weighted.mean(summary_state_analysis$X139twos[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+q16perf_mean_threes <- round(weighted.mean(summary_state_analysis$X139threes[summary_state_analysis$sdg_tier=="Performer"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Performer"])*100,2)
+
+#Forming vectors 
+q16aspt_plot <- c(q16aspt_mean_ones, q16aspt_mean_twos, q16aspt_mean_threes)
+q16frnt_plot <- c(q16frnt_mean_ones, q16frnt_mean_twos, q16frnt_mean_threes)
+q16perf_plot <- c(q16perf_mean_ones, q16perf_mean_twos, q16perf_mean_threes)
+
+q16full_plot_labels <- c("By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", "The media has failed to capture the full scale and intensity of the disaster.", "The media has made an effort to communicate a realistic picture and rightly drawn attention to the inadequate government response at various places.") 
+
+#constructing data frames
+q16aspt_plot_dta <- data.frame(q16aspt_plot, q16full_plot_labels)
+q16frnt_plot_dta <- data.frame(q16frnt_plot, q16full_plot_labels)
+q16perf_plot_dta <- data.frame(q16perf_plot, q16full_plot_labels)
+
+#wrapping labels
+q16aspt_plot_dta$wrapped_labels = str_wrap(q16aspt_plot_dta$q16full_plot_labels, width = 50)
+q16frnt_plot_dta$wrapped_labels = str_wrap(q16frnt_plot_dta$q16full_plot_labels, width = 50)
+q16perf_plot_dta$wrapped_labels = str_wrap(q16perf_plot_dta$q16full_plot_labels, width = 50)
+
+
+#Invoking ggplot
+q16aspt_plot <- ggplot(q16aspt_plot_dta, aes(x=q16full_plot_labels, y=q16aspt_plot, fill = q16full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q16aspt_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100))  +
+  labs(x="",y="Percent", title ="Aspirant States")  +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  disaggtheme
+
+q16perf_plot <- ggplot(q16perf_plot_dta, aes(x=q16full_plot_labels, y=q16perf_plot, fill = q16full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q16perf_plot),"%"), vjust=-0.3), size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent", title = "Performer States") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu")  +
+  disaggtheme
+
+q16frnt_plot_temp <- ggplot(q16frnt_plot_dta, aes(x=q16full_plot_labels, y=q16frnt_plot, fill = q16full_plot_labels)) +
+  geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
+  geom_text(aes(label=scales::percent(q16frnt_plot/100)), vjust=-0.3, size=6) +
+  scale_y_continuous(limits = c(0,100)) +
+  labs(x="",y="Percent", title = "Frontrunner States") +
+  scale_x_discrete(labels= c("","","","","")) +
+  scale_fill_brewer(palette="YlGnBu") +
+  disaggtheme
+
+
+legend16<- cowplot::get_legend(q16frnt_plot_temp)
+
+q16frnt_plot <- q16frnt_plot_temp +theme(legend.position = "none", legend.spacing = unit(2.0,'inches'))
+
+q16_fullsdg <- plot_grid(q16aspt_plot,q16perf_plot,q16frnt_plot, nrow=1)
+
+q16_fullsdg <- plot_grid(q16_fullsdg,legend16, nrow = 2)
+
+q16_fullsdg
 ```
