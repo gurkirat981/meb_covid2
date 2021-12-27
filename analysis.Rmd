@@ -3082,7 +3082,7 @@ q16full_plot <- ggplot(q16full_plot_dta, aes(x=q16full_plot_labels, y=q16full_pl
 
 q16full_plot
 ```
-\newpage
+
 
 ## Question 16: Dis-ggregated by Age
 
