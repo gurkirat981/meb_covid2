@@ -112,7 +112,6 @@ serving<-serving %>%
 
 ```
 
-
 ```{r, include=FALSE}
 #Define new theme (to be used for our ggplots later) 
 newtheme <- theme_bw() +
@@ -2560,7 +2559,7 @@ q9_old_plot <- ggplot(q9_old_plotdta, aes(x = q9_old_plotlabels, y = q9_old_plot
   disaggtheme
 
 q9_former_plot<-c(summary_state_former$X132ones*100, summary_state_former$X132twos*100)
-q9_former_plotlabels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation from the public.")
+q9_former_plotlabels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among \n  the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation \n from the public.")
 q9_former_plotdta <- data.frame(q9_former_plot, q9_former_plotlabels) 
 q9_former_plotdta$wrapped_labels = str_wrap(q9_former_plotdta$q9_former_plotlabels, width = 10)
 
@@ -2651,7 +2650,7 @@ q10_old_plot <- ggplot(q10_old_plotdta, aes(x = q10_old_plotlabels, y = q10_old_
   disaggtheme
 
 q10_former_plot<-c(summary_state_former$X133ones*100, summary_state_former$X133twos*100, summary_state_former$X133threes*100)
-q10_former_plotlabels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature of our country.")
+q10_former_plotlabels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political \n imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature \n of our country.")
 q10_former_plotdta <- data.frame(q10_former_plot, q10_former_plotlabels) 
 q10_former_plotdta$wrapped_labels = str_wrap(q10_former_plotdta$q10_former_plotlabels, width = 10)
 
