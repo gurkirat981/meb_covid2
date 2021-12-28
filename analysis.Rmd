@@ -116,7 +116,7 @@ serving<-serving %>%
 ```
 
 ```{r, include=FALSE}
-#Define new theme (to be used for our ggplots later) 
+#Definining new themes to be used for our ggplots later 
 newtheme <- theme_bw() +
   theme(panel.border = element_rect(color = "darkgrey", size = 2), 
         panel.grid.major = element_blank()
@@ -130,7 +130,7 @@ disaggtheme <- theme_bw() +
         axis.title=element_text(size=20), 
         plot.title=element_text(size=25, face="bold"), 
         legend.title = element_blank(),
-        legend.text = element_text(size=20, 
+        legend.text = element_text(size=27, 
     margin = margin(b = 10, unit = "pt"))
         )
 ```
@@ -282,7 +282,7 @@ summary_state<-full_serving %>%
   ungroup()
 ```
 
-```{r}
+```{r, include=FALSE}
 #For young officers: creating a dataset with the averages for each answer choice for all questions grouped by the state 
 summary_state_young<-fullage_young %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
@@ -299,10 +299,17 @@ summary_state_young<-fullage_young %>%
             X137ones=sum(X137==1)/length(state), X137twos=sum(X137==2)/length(state), X137threes=sum(X137==3)/length(state), X137fours=sum(X137==4)/length(state),
             X138ones=sum(X138==1)/length(state), X138twos=sum(X138==2)/length(state), X138threes=sum(X138==3)/length(state), X138fours=sum(X138==4)/length(state),
             X139ones=sum(X139==1)/length(state), X139twos=sum(X139==2)/length(state), X139threes=sum(X139==3)/length(state)) %>% 
-  ungroup()
+  ungroup() %>% 
+  add_row(state="Andaman and Nicobar Islands") %>% 
+  add_row(state="Chandigarh") %>% 
+  add_row(state="Lakshadweep Islands") %>%
+  add_row(state="Puducherry") %>% 
+  add_row(state="Mizoram") %>% 
+  arrange(state) 
+#There are no young officers from A and N Islands, Chandigarh, Lakshadweep Islands, Puducherry and Mizoram. The summary produced for young officers, thus, does not have rows for the following states. To match the number of rows with other datasets, we have added these states with NAs. This is done for all summaries for young and old officers. (cbind)>>>>>>
 ```
 
-```{r}
+```{r, include=FALSE}
 #For old officers: creating a dataset with the averages for each answer choice for all questions grouped by the state 
 summary_state_old<-fullage_old %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
@@ -319,10 +326,13 @@ summary_state_old<-fullage_old %>%
             X137ones=sum(X137==1)/length(state), X137twos=sum(X137==2)/length(state), X137threes=sum(X137==3)/length(state), X137fours=sum(X137==4)/length(state),
             X138ones=sum(X138==1)/length(state), X138twos=sum(X138==2)/length(state), X138threes=sum(X138==3)/length(state), X138fours=sum(X138==4)/length(state),
             X139ones=sum(X139==1)/length(state), X139twos=sum(X139==2)/length(state), X139threes=sum(X139==3)/length(state)) %>% 
-  ungroup()
+  ungroup() %>% 
+  add_row(state="Nagaland") %>% 
+  arrange(state) 
+#There are no young officers from A and N Islands, Chandigarh, Lakshadweep Islands, Puducherry and Mizoram. The summary produced for young officers, thus, does not have rows for the following states. To match the number of rows with other datasets, we have added these states with NAs. This is done for all summaries for young and old officers.
 ```
 
-```{r}
+```{r, include=FALSE}
 #For former officers: creating a dataset with the averages for each answer choice for all questions grouped by the state 
 summary_state_former<-full_former %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state)) %>% 
@@ -347,7 +357,7 @@ summary_state_former<-full_former %>%
 ias_raw_dta<-read.csv("ias-profile.csv")
 ```
 
-```{r}
+```{r, include=FALSE}
 #Creating a dataset where each row is a different state and each column is the allocation year. Additional columns indicating total number of officers, number of officers pre and post 2012, and their respective proportions are given. 
 ias_processed_dta<-ias_raw_dta %>% 
   filter(Retired=="TRUE") %>%  
@@ -426,8 +436,8 @@ ias_processed_dta<-nocombined_ias %>%
   #bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% 
   mutate(sdg = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
                        ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer"))) %>% 
-  mutate(state_young_weight = pre2012/ sum(pre2012)) %>% 
-  mutate(state_old_weight = post2012/ sum(post2012)) 
+  mutate(state_old_weight = pre2012/ sum(pre2012)) %>% 
+  mutate(state_young_weight= post2012/ sum(post2012)) 
 
 ias_processed_dta <- ias_processed_dta %>% 
   mutate(sdg_weight = ifelse(sdg == "Aspirant", total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Aspirant"]), 
@@ -440,18 +450,14 @@ summary_state_analysis<-summary_state %>%
   mutate(state_weight=ias_processed_dta$state_weight) %>% 
   mutate(sdg_weight=ias_processed_dta$sdg_weight) 
 
-ias_young<-ias_processed_dta %>% 
-  filter(!State=="Andaman and Nicobar Islands" & !State=="Chandigarh" & !State=="Lakshadweep Islands"& !State=="Mizoram" & !State=="Puducherry")
 summary_state_analysis_young<-summary_state_young %>% 
-  mutate(state_young_weight=ias_young$state_young_weight) 
+  mutate(state_young_weight = ias_processed_dta$post2012/ sum(ias_processed_dta$post2012))
 
-ias_old<-ias_processed_dta %>% 
-  filter(!State=="Nagaland")
-summary_state_analysis_old<-summary_state_old %>% 
-  mutate(state_old_weight=ias_old$state_old_weight)  
+summary_state_analysis_old<-summary_state_old  %>% 
+  mutate(state_old_weight = ias_processed_dta$pre2012/ sum(ias_processed_dta$pre2012))
 ```
 
-```{r}
+```{r, include=FALSE}
 #Calculating averages for question 4 (previously "Merged 1")
 q4_state_answers1 <- full_serving %>% 
   dplyr::select (state, Merged1.1) %>% 
@@ -512,7 +518,7 @@ summary_q4 <- summary_q4 %>%
   mutate(sdg_weight=ias_processed_dta$sdg_weight)
 ```
 
-```{r}
+```{r, include=FALSE}
 #For young officers only: calculating averages for question 4 
 q4_state_answers1_young <- fullage_young %>% 
   dplyr::select (state, Merged1.1) %>% 
@@ -523,7 +529,7 @@ state_answers_q4_young <- fullage_young %>%
   dplyr::select (state, Merged1.2) %>% 
   mutate (Merged = Merged1.2) %>% 
   dplyr:: select (-Merged1.2) %>% 
-  add_row(q4_state_answers1_young) 
+  add_row(q4_state_answers1_young)
 
 summary_q4_young <- state_answers_q4_young %>% 
   group_by(state) %>% 
@@ -573,14 +579,15 @@ summary_q4_young <- state_answers_q4_young %>%
   add_row(state="Puducherry") %>% 
   add_row(state="Mizoram") %>% 
   arrange(state) 
- 
+#We do not have any young officers from A and N Islands, Chandigarh, Lakshadweep Islands, Puducherry and Mizoram. Hence, the summary created for this question does not have rows for these states. To make it uniform with other graphs, we add these rows with NA values. 
+
 summary_q4_young <- summary_q4_young %>% 
   mutate(state_young_weight=ias_processed_dta$state_young_weight)
 
-summary_q4_young[is.na(summary_q4_young)] <- 0
+#summary_q4_young[is.na(summary_q4_young)] <- 0
 ```
 
-```{r}
+```{r, include=FALSE}
 #For old officers only: calculating averages for question 4 
 q4_state_answers1_old <- fullage_old %>% 
   dplyr::select (state, Merged1.1) %>% 
@@ -641,10 +648,10 @@ summary_q4_old <- state_answers_q4_old %>%
 summary_q4_old <- summary_q4_old %>% 
   mutate(state_old_weight=ias_processed_dta$state_old_weight)
 
-summary_q4_old[is.na(summary_q4_old)] <- 0
+#summary_q4_old[is.na(summary_q4_old)] <- 0
 ```
 
-```{r}
+```{r, include=FALSE}
 #For former officers only: calculating averages for question 4 
 q4_state_answers1_former <- full_former %>% 
   dplyr::select (Merged1.1) %>% 
@@ -673,7 +680,7 @@ summary_q4_former <- state_answers_q4_former %>%
   arrange(Merged)
 ```
 
-```{r}
+```{r, include=FALSE}
 #Calculating averages for question 5 (previously "Merged 2")
 q5_1 <- full_serving %>% 
 dplyr::select (state, Merged2.1) %>% 
@@ -734,7 +741,7 @@ summary_q5 <- summary_q5 %>%
   mutate(sdg_weight=ias_processed_dta$sdg_weight) 
 ```
 
-```{r}
+```{r, include=FALSE}
 #For young officers only: calculating averages for question 5
 q5_state_answers1_young <- fullage_young %>% 
   dplyr::select (state, Merged1.1) %>% 
@@ -799,10 +806,10 @@ summary_q5_young <- state_answers_q5_young %>%
 summary_q5_young <- summary_q5_young %>% 
   mutate(state_young_weight=ias_processed_dta$state_young_weight)
 
-summary_q5_young[is.na(summary_q5_young)] <- 0
+#summary_q5_young[is.na(summary_q5_young)] <- 0
 ```
 
-```{r}
+```{r, include=FALSE}
 #For old officers only: calculating averages for question 5
 q5_state_answers1_old <- fullage_old %>% 
   dplyr::select (state, Merged1.1) %>% 
@@ -863,10 +870,10 @@ summary_q5_old <- state_answers_q5_old %>%
 summary_q5_old <- summary_q5_old %>% 
   mutate(state_old_weight=ias_processed_dta$state_old_weight)
 
-summary_q5_old[is.na(summary_q5_old)] <- 0
+#summary_q5_old[is.na(summary_q5_old)] <- 0
 ```
 
-```{r}
+```{r, include=FALSE}
 #For former officers only: calculating averages for question 5 
 q5_state_answers1_former <- full_former %>% 
   dplyr::select (Merged1.1) %>% 
@@ -895,7 +902,7 @@ summary_q5_former <- state_answers_q5_former %>%
   arrange(Merged)
 ```
 
-```{r}
+```{r, include=FALSE}
 #Calculating averages for question 6 (previously "Merged 3")
 q6 <- full_serving %>% 
 dplyr::select (state, Merged3) %>% 
@@ -950,7 +957,7 @@ summary_q6 <- summary_q6 %>%
   mutate(sdg_weight=ias_processed_dta$sdg_weight) 
 ```
 
-```{r}
+```{r, include=FALSE}
 #For young officers only: calculating averages for question 6
 q6_state_answers1_young <- fullage_young %>% 
   dplyr::select (state, Merged1.1) %>% 
@@ -1015,10 +1022,10 @@ summary_q6_young <- state_answers_q6_young %>%
 summary_q6_young <- summary_q6_young %>% 
   mutate(state_young_weight=ias_processed_dta$state_young_weight)
 
-summary_q6_young[is.na(summary_q6_young)] <- 0
+#summary_q6_young[is.na(summary_q6_young)] <- 0
 ```
 
-```{r}
+```{r, include=FALSE}
 #For old officers only: calculating averages for question 6
 q6_state_answers1_old <- fullage_old %>% 
   dplyr::select (state, Merged1.1) %>% 
@@ -1079,10 +1086,10 @@ summary_q6_old <- state_answers_q6_old %>%
 summary_q6_old <- summary_q6_old %>% 
   mutate(state_old_weight=ias_processed_dta$state_old_weight)
 
-summary_q6_old[is.na(summary_q6_old)] <- 0
+#summary_q6_old[is.na(summary_q6_old)] <- 0
 ```
 
-```{r}
+```{r, include=FALSE}
 #For former officers only: calculating averages for question 6 
 q6_state_answers1_former <- full_former %>% 
   dplyr::select (Merged1.1) %>% 
@@ -1133,7 +1140,7 @@ q1full_plot <- ggplot(q1full_plot_dta, aes(x=q1full_plot_labels, y=q1full_plot, 
   scale_y_continuous(limits = c(0,100)) +  
   scale_x_discrete(labels = function(q1full_plot_labels) str_wrap(q1full_plot_labels, width = 40)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption= "Question 1, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
 
 q1full_plot
@@ -1147,33 +1154,32 @@ Most countries in the world experienced a second wave of Covid-19 characterised 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=10,fig.width=18}
 #Age 
-q1young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X16ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q1young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X16twos, summary_state_analysis_young$state_young_weight)*100,2) 
-q1_young_plot<-c(q1young_mean_ones, q1young_mean_twos)
-q1_young_plotlabels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.")
-q1_young_plotdta <- data.frame(q1_young_plot, q1_young_plotlabels) 
-q1_young_plotdta$wrapped_labels = str_wrap(q1_young_plotdta$q1_young_plotlabels, width = 10)
+q1_plotlabels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the \n health system.")
 
-q1_young_plot <- ggplot(q1_young_plotdta, aes(x = q1_young_plotlabels, y = q1_young_plot, fill = q1_young_plotlabels )) +  
+q1young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X16ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q1young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X16twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q1_young_plot<-c(q1young_mean_ones, q1young_mean_twos)
+q1_young_plotdta <- data.frame(q1_young_plot, q1_plotlabels) 
+q1_young_plotdta$wrapped_labels = str_wrap(q1_young_plotdta$q1_plotlabels, width = 10)
+
+q1_young_plot <- ggplot(q1_young_plotdta, aes(x = q1_plotlabels, y = q1_young_plot, fill = q1_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q1_young_plot),"%"), vjust=-0.3), size=7)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1_young_plot),"%"), vjust=-0.3), size=7.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
   labs(x="",y="Percent", title = "2012 and After") +
         disaggtheme
 
-
-q1old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X16ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q1old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X16twos, summary_state_analysis_old$state_old_weight)*100,2) 
+q1old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X16ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q1old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X16twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
 q1_old_plot<-c(q1old_mean_ones, q1old_mean_twos)
-q1_old_plotlabels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.")
-q1_old_plotdta <- data.frame(q1_old_plot, q1_old_plotlabels) 
-q1_old_plotdta$wrapped_labels = str_wrap(q1_old_plotdta$q1_old_plotlabels, width = 10)
+q1_old_plotdta <- data.frame(q1_old_plot, q1_plotlabels) 
+q1_old_plotdta$wrapped_labels = str_wrap(q1_old_plotdta$q1_plotlabels, width = 10)
 
-q1_old_plot <- ggplot(q1_old_plotdta, aes(x = q1_old_plotlabels, y = q1_old_plot, fill = q1_old_plotlabels )) +  
+q1_old_plot <- ggplot(q1_old_plotdta, aes(x = q1_plotlabels, y = q1_old_plot, fill = q1_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q1_old_plot),"%"), vjust=-0.3), size=7)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1_old_plot),"%"), vjust=-0.3), size=7.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1181,13 +1187,10 @@ q1_old_plot <- ggplot(q1_old_plotdta, aes(x = q1_old_plotlabels, y = q1_old_plot
   disaggtheme
 
 q1_former_plot<-c(summary_state_former$X16ones*100, summary_state_former$X16twos*100)
-q1_former_plotlabels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.")
-q1_former_plotdta <- data.frame(q1_former_plot) #, q1_former_plotlabels) 
-# q1_former_plotdta$wrapped_labels = str_wrap(q1_former_plotdta$q1_former_plotlabels, width = 10)
-
-q1_former_plot <- ggplot(q1_former_plotdta, aes(x = q1_former_plotlabels, y = q1_former_plot, fill = q1_former_plotlabels )) +  
+q1_former_plotdta <- data.frame(q1_former_plot) 
+q1_former_plot <- ggplot(q1_former_plotdta, aes(x = q1_plotlabels, y = q1_former_plot, fill = q1_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q1_former_plot),"%"), vjust=-0.3), size=7)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1_former_plot),"%"), vjust=-0.3), size=7.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1198,8 +1201,7 @@ legend1 <- cowplot::get_legend(q1_former_plot)
 q1_former_plot <- q1_former_plot +theme(legend.position = "none")
 plot1_fullage <- plot_grid(q1_young_plot,q1_old_plot,q1_former_plot,
                            nrow = 1)
-
-plot1_fullage <- plot_grid(plot1_fullage, legend1, nrow = 2, rel_heights=c(5,1)) 
+plot1_fullage <- plot_grid(plot1_fullage, legend1, nrow = 2, rel_heights=c(5,2)) 
 plot1_fullage 
 ```
 \newpage
@@ -1230,12 +1232,11 @@ summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"
 q1frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X16twos[summary_state_analysis$sdg_tier=="Frontrunner"],
 summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
 
-
 #Forming vectors
 q1aspt_plot <- c(q1aspt_mean_ones, q1aspt_mean_twos) 
 q1perf_plot <- c(q1perf_mean_ones, q1perf_mean_twos)
 q1frnt_plot <- c(q1frnt_mean_ones, q1frnt_mean_twos)
-q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the health system.") 
+q1full_plot_labels <- c("The second Covid-19 surge was expected and should have seen much more advance planning.", "The second Covid-19 surge was unprecedented in its scale and therefore, overwhelmed the \n health system.") 
 
 #Constructing Data Frames
 q1aspt_plot_dta <- data.frame(q1aspt_plot, q1full_plot_labels) 
@@ -1250,7 +1251,7 @@ q1frnt_plot_dta$wrapped_labels = str_wrap(q1frnt_plot_dta$q1full_plot_label, wid
 #Invoking ggplot
 q1aspt_plot <- ggplot(q1aspt_plot_dta, aes(x=q1full_plot_labels, y=q1aspt_plot, fill = q1full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q1aspt_plot),"%"), vjust=-0.3), size=7) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1aspt_plot),"%"), vjust=-0.3), size=7.5) +
   scale_y_continuous(limits = c(0,100)) +  
   scale_x_discrete(labels= c("",""))  +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1259,7 +1260,7 @@ q1aspt_plot <- ggplot(q1aspt_plot_dta, aes(x=q1full_plot_labels, y=q1aspt_plot, 
 
 q1perf_plot <- ggplot(q1perf_plot_dta, aes(x=q1full_plot_labels, y=q1perf_plot, fill = q1full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q1perf_plot),"%"), vjust=-0.3), size=7) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1perf_plot),"%"), vjust=-0.3), size=7.5) +
   scale_y_continuous(limits = c(0,100)) +  
   scale_x_discrete(labels= c("",""))  +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1268,7 +1269,7 @@ q1perf_plot <- ggplot(q1perf_plot_dta, aes(x=q1full_plot_labels, y=q1perf_plot, 
 
 q1frnt_plot_temp <- ggplot(q1frnt_plot_dta, aes(x=q1full_plot_labels, y=q1frnt_plot, fill = q1full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = TRUE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q1frnt_plot),"%"), vjust=-0.3), size=7) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q1frnt_plot),"%"), vjust=-0.3), size=7.5) +
   scale_y_continuous(limits = c(0,100)) +  
   scale_x_discrete(labels= c("","")) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1276,15 +1277,10 @@ q1frnt_plot_temp <- ggplot(q1frnt_plot_dta, aes(x=q1full_plot_labels, y=q1frnt_p
   disaggtheme
 
 legend1 <- cowplot::get_legend(q1frnt_plot_temp)
-
 q1frnt_plot <- q1frnt_plot_temp +theme(legend.position = "none")
-
 q1_fullsdg <- plot_grid(q1aspt_plot,q1perf_plot,q1frnt_plot, nrow=1)
-
-q1_fullsdg <- plot_grid(q1_fullsdg,legend1, nrow = 2, rel_heights=c(5,1))
-
+q1_fullsdg <- plot_grid(q1_fullsdg,legend1, nrow = 2, rel_heights=c(5,2))
 q1_fullsdg
-
 ```
 \newpage
 
@@ -1311,9 +1307,8 @@ q2full_plot <- ggplot(q2full_plot_dta, aes(x=q2full_plot_labels, y=q2full_plot, 
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q2full_plot_labels) str_wrap(q2full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 2, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q2full_plot
 ```
 \newpage
@@ -1325,36 +1320,36 @@ With regard to our planning and preparation for the second wave, which of these 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=10,fig.width=18}
 #Age
-q2young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X17ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q2young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X17twos, summary_state_analysis_young$state_young_weight)*100,2)
-q2young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X17threes, summary_state_analysis_young$state_young_weight)*100,2)
-q2young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X17fours, summary_state_analysis_young$state_young_weight)*100,2)
-q2_young_plot<-c(q2young_mean_ones, q2young_mean_twos, q2young_mean_threes, q2young_mean_fours)
-q2_young_plotlabels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.")
-q2_young_plotdta <- data.frame(q2_young_plot, q2_young_plotlabels) 
-q2_young_plotdta$wrapped_labels = str_wrap(q2_young_plotdta$q2_young_plotlabels, width = 10)
+q2_plotlabels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.")
 
-q2_young_plot <- ggplot(q2_young_plotdta, aes(x = q2_young_plotlabels, y = q2_young_plot, fill = q2_young_plotlabels )) +  
+q2young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X17ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q2young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X17twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q2young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X17threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q2young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X17fours, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q2_young_plot<-c(q2young_mean_ones, q2young_mean_twos, q2young_mean_threes, q2young_mean_fours)
+q2_young_plotdta <- data.frame(q2_young_plot, q2_plotlabels) 
+q2_young_plotdta$wrapped_labels = str_wrap(q2_young_plotdta$q2_plotlabels, width = 10)
+
+q2_young_plot <- ggplot(q2_young_plotdta, aes(x = q2_plotlabels, y = q2_young_plot, fill = q2_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q2_young_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2_young_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q2old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X17ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q2old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X17twos, summary_state_analysis_old$state_old_weight)*100,2)
-q2old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X17threes, summary_state_analysis_old$state_old_weight)*100,2)
-q2old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X17fours, summary_state_analysis_old$state_old_weight)*100,2)
+q2old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X17ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q2old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X17twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q2old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X17threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q2old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X17fours, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q2_old_plot<-c(q2old_mean_ones, q2old_mean_twos, q2old_mean_threes, q2old_mean_fours)
-q2_old_plotlabels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.")
-q2_old_plotdta <- data.frame(q2_old_plot, q2_old_plotlabels) 
-q2_old_plotdta$wrapped_labels = str_wrap(q2_old_plotdta$q2_old_plotlabels, width = 10)
+q2_old_plotdta <- data.frame(q2_old_plot, q2_plotlabels) 
+q2_old_plotdta$wrapped_labels = str_wrap(q2_old_plotdta$q2_plotlabels, width = 10)
 
-q2_old_plot <- ggplot(q2_old_plotdta, aes(x = q2_old_plotlabels, y = q2_old_plot, fill = q2_old_plotlabels )) +  
+q2_old_plot <- ggplot(q2_old_plotdta, aes(x = q2_plotlabels, y = q2_old_plot, fill = q2_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q2_old_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2_old_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1362,13 +1357,12 @@ q2_old_plot <- ggplot(q2_old_plotdta, aes(x = q2_old_plotlabels, y = q2_old_plot
   disaggtheme
 
 q2_former_plot<-c(summary_state_former$X17ones*100, summary_state_former$X17twos*100, summary_state_former$X17threes*100, summary_state_former$X17fours*100)
-q2_former_plotlabels <- c("Even proposals for advance planning received little purchase in the last one year.", "Planning got lost mid-way due to signals that we have managed the pandemic well." , "Systematic advance planning has never been part of our ethos.", "We took adequate measures to plan our response in advance.")
-q2_former_plotdta <- data.frame(q2_former_plot, q2_former_plotlabels) 
-q2_former_plotdta$wrapped_labels = str_wrap(q2_former_plotdta$q2_former_plotlabels, width = 10)
+q2_former_plotdta <- data.frame(q2_former_plot, q2_plotlabels) 
+q2_former_plotdta$wrapped_labels = str_wrap(q2_former_plotdta$q2_plotlabels, width = 10)
 
-q2_former_plot <- ggplot(q2_former_plotdta, aes(x = q2_former_plotlabels, y = q2_former_plot, fill = q2_former_plotlabels )) +  
+q2_former_plot <- ggplot(q2_former_plotdta, aes(x = q2_plotlabels, y = q2_former_plot, fill = q2_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q2_former_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2_former_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1379,8 +1373,7 @@ legend2 <- cowplot::get_legend(q2_former_plot)
 q2_former_plot <- q2_former_plot +theme(legend.position = "none")
 plot2_fullage <- plot_grid(q2_young_plot,q2_old_plot,q2_former_plot,
                            nrow = 1)
-
-plot2_fullage <- plot_grid(plot2_fullage, legend2, nrow = 2, rel_heights=c(5,1)) 
+plot2_fullage <- plot_grid(plot2_fullage, legend2, nrow = 2, rel_heights=c(5,2)) 
 plot2_fullage 
 ```
 \newpage
@@ -1428,7 +1421,7 @@ q2perf_plot_dta$wrapped_labels = str_wrap(q2perf_plot_dta$q2full_plot_labels, wi
 #Invoking ggplot
 q2aspt_plot <- ggplot(q2aspt_plot_dta, aes(x=q2full_plot_labels, y=q2aspt_plot, fill = q2full_plot_labels)) +
   geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q2aspt_plot),"%"), vjust=-0.3), size=6) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2aspt_plot),"%"), vjust=-0.3), size=6.5) +
   scale_y_continuous(limits = c(0,100))  +
   labs(x="",y="Percent")  +
   scale_x_discrete(labels= c("","","","","")) +
@@ -1438,7 +1431,7 @@ q2aspt_plot <- ggplot(q2aspt_plot_dta, aes(x=q2full_plot_labels, y=q2aspt_plot, 
 
 q2perf_plot <- ggplot(q2perf_plot_dta, aes(x=q2full_plot_labels, y=q2perf_plot, fill = q2full_plot_labels)) +
   geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q2perf_plot),"%"), vjust=-0.3), size=6) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2perf_plot),"%"), vjust=-0.3), size=6.5) +
   scale_y_continuous(limits = c(0,100)) +
   labs(x="",y="Percent") +
   scale_x_discrete(labels= c("","","","","")) +
@@ -1448,7 +1441,7 @@ q2perf_plot <- ggplot(q2perf_plot_dta, aes(x=q2full_plot_labels, y=q2perf_plot, 
 
 q2frnt_plot_temp <- ggplot(q2frnt_plot_dta, aes(x=q2full_plot_labels, y=q2frnt_plot, fill = q2full_plot_labels)) +
   geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q2frnt_plot),"%"), vjust=-0.3), size=6) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q2frnt_plot),"%"), vjust=-0.3), size=6.5) +
   scale_y_continuous(limits = c(0,100)) +
   labs(x="",y="Percent") +
   scale_x_discrete(labels= c("","","","","")) +
@@ -1456,15 +1449,10 @@ q2frnt_plot_temp <- ggplot(q2frnt_plot_dta, aes(x=q2full_plot_labels, y=q2frnt_p
   labs(title = "Frontrunner States") +
   disaggtheme
 
-
 legend2 <- cowplot::get_legend(q2frnt_plot_temp)
-
 q2frnt_plot <- q2frnt_plot_temp +theme(legend.position = "none")
-
 q2_fullsdg <- plot_grid(q2aspt_plot,q2perf_plot,q2frnt_plot, nrow=1)
-
-q2_fullsdg <- plot_grid(q2_fullsdg,legend2, nrow = 2, rel_heights=c(5,1))
-
+q2_fullsdg <- plot_grid(q2_fullsdg,legend2, nrow = 2, rel_heights=c(5,2))
 q2_fullsdg
 ```
 \newpage
@@ -1491,9 +1479,8 @@ q3full_plot <- ggplot(q3full_plot_dta, aes(x=q3full_plot_labels, y=q3full_plot, 
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q3full_plot_labels) str_wrap(q3full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 3, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q3full_plot
 ```
 \newpage
@@ -1505,36 +1492,36 @@ In our survey of IAS officers during the first wave of the pandemic, almost 70% 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=10,fig.width=18}
 #Age
-q3young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X18ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q3young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X18twos, summary_state_analysis_young$state_young_weight)*100,2)
-q3young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X18threes, summary_state_analysis_young$state_young_weight)*100,2)
-q3young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X18fours, summary_state_analysis_young$state_young_weight)*100,2)
-q3_young_plot<-c(q3young_mean_ones,q3young_mean_twos,q3young_mean_threes,q3young_mean_fours)
-q3_young_plotlabels <- cq3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.","Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.","Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.")
-q3_young_plotdta <- data.frame(q3_young_plot, q3_young_plotlabels) 
-q3_young_plotdta$wrapped_labels = str_wrap(q3_young_plotdta$q3_young_plotlabels, width = 10)
+q3_plotlabels <- cq3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.","Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.","Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.")
 
-q3_young_plot <- ggplot(q3_young_plotdta, aes(x = q3_young_plotlabels, y = q3_young_plot, fill = q3_young_plotlabels )) +  
+q3young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X18ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q3young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X18twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q3young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X18threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q3young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X18fours, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q3_young_plot<-c(q3young_mean_ones,q3young_mean_twos,q3young_mean_threes,q3young_mean_fours)
+q3_young_plotdta <- data.frame(q3_young_plot, q3_plotlabels) 
+q3_young_plotdta$wrapped_labels = str_wrap(q3_young_plotdta$q3_plotlabels, width = 10)
+
+q3_young_plot <- ggplot(q3_young_plotdta, aes(x = q3_plotlabels, y = q3_young_plot, fill = q3_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q3_young_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3_young_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q3old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X18ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q3old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X18twos, summary_state_analysis_old$state_old_weight)*100,2)
-q3old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X18threes, summary_state_analysis_old$state_old_weight)*100,2)
-q3old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X18fours, summary_state_analysis_old$state_old_weight)*100,2)
+q3old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X18ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q3old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X18twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q3old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X18threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q3old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X18fours, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q3_old_plot<-c(q3old_mean_ones,q3old_mean_twos,q3old_mean_threes,q3old_mean_fours)
-q3_old_plotlabels <- cq3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.","Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.","Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.")
-q3_old_plotdta <- data.frame(q3_old_plot, q3_old_plotlabels) 
-q3_old_plotdta$wrapped_labels = str_wrap(q3_old_plotdta$q3_old_plotlabels, width = 10)
+q3_old_plotdta <- data.frame(q3_old_plot, q3_plotlabels) 
+q3_old_plotdta$wrapped_labels = str_wrap(q3_old_plotdta$q3_plotlabels, width = 10)
 
-q3_old_plot <- ggplot(q3_old_plotdta, aes(x = q3_old_plotlabels, y = q3_old_plot, fill = q3_old_plotlabels )) +  
+q3_old_plot <- ggplot(q3_old_plotdta, aes(x = q3_plotlabels, y = q3_old_plot, fill = q3_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q3_old_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3_old_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1542,13 +1529,12 @@ q3_old_plot <- ggplot(q3_old_plotdta, aes(x = q3_old_plotlabels, y = q3_old_plot
   disaggtheme
 
 q3_former_plot<-c(summary_state_former$X18ones*100, summary_state_former$X18twos*100, summary_state_former$X18threes*100, summary_state_former$X18fours*100)
-q3_former_plotlabels <- cq3full_plot_labels <- c("Building health system preparedness was not adequately prioritised.","Health system preparedness increased but was overwhelmed by the unprecedented scale of the infection.","Health system preparedness increased substantially and performed adequately.", "Health system preparedness was built but expanded facilities dismantled too soon.")
-q3_former_plotdta <- data.frame(q3_former_plot, q3_former_plotlabels) 
-q3_former_plotdta$wrapped_labels = str_wrap(q3_former_plotdta$q3_former_plotlabels, width = 10)
+q3_former_plotdta <- data.frame(q3_former_plot, q3_plotlabels) 
+q3_former_plotdta$wrapped_labels = str_wrap(q3_former_plotdta$q3_plotlabels, width = 10)
 
-q3_former_plot <- ggplot(q3_former_plotdta, aes(x = q3_former_plotlabels, y = q3_former_plot, fill = q3_former_plotlabels )) +  
+q3_former_plot <- ggplot(q3_former_plotdta, aes(x = q3_plotlabels, y = q3_former_plot, fill = q3_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q3_former_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3_former_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -1559,8 +1545,7 @@ legend3 <- cowplot::get_legend(q3_former_plot)
 q3_former_plot <- q3_former_plot +theme(legend.position = "none")
 plot3_fullage <- plot_grid(q3_young_plot,q3_old_plot,q3_former_plot,
                            nrow = 1)
-
-plot3_fullage <- plot_grid(plot3_fullage, legend3, nrow = 2, rel_heights=c(5,1)) 
+plot3_fullage <- plot_grid(plot3_fullage, legend3, nrow = 2, rel_heights=c(5,2)) 
 plot3_fullage 
 ```
 \newpage
@@ -1610,7 +1595,7 @@ q3perf_plot_dta$wrapped_labels = str_wrap(q3perf_plot_dta$q3full_plot_labels, wi
 #Invoking ggplot
 q3aspt_plot <- ggplot(q3aspt_plot_dta, aes(x=q3full_plot_labels, y=q3aspt_plot, fill = q3full_plot_labels)) +
   geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q3aspt_plot),"%"), vjust=-0.3), size=6) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3aspt_plot),"%"), vjust=-0.3), size=6.5) +
   scale_y_continuous(limits = c(0,100))  +
   labs(x="",y="Percent")  +
   scale_x_discrete(labels= c("","","","","")) +
@@ -1620,7 +1605,7 @@ q3aspt_plot <- ggplot(q3aspt_plot_dta, aes(x=q3full_plot_labels, y=q3aspt_plot, 
 
 q3perf_plot <- ggplot(q3perf_plot_dta, aes(x=q3full_plot_labels, y=q3perf_plot, fill = q3full_plot_labels)) +
   geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q3perf_plot),"%"), vjust=-0.3), size=6) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q3perf_plot),"%"), vjust=-0.3), size=6.5) +
   scale_y_continuous(limits = c(0,100)) +
   labs(x="",y="Percent") +
   scale_x_discrete(labels= c("","","","","")) +
@@ -1638,15 +1623,10 @@ q3frnt_plot_temp <- ggplot(q3frnt_plot_dta, aes(x=q3full_plot_labels, y=q3frnt_p
   labs(title = "Frontrunner States") +
   disaggtheme
 
-
 legend3 <- cowplot::get_legend(q3frnt_plot_temp)
-
 q3frnt_plot <- q3frnt_plot_temp +theme(legend.position = "none")
-
 q3_fullsdg <- plot_grid(q3aspt_plot,q3perf_plot,q3frnt_plot, nrow=1)
-
-q3_fullsdg <- plot_grid(q3_fullsdg,legend3, nrow = 2, rel_heights=c(5,1))
-
+q3_fullsdg <- plot_grid(q3_fullsdg,legend3, nrow = 2, rel_heights=c(5,2))
 q3_fullsdg
 ```
 \newpage
@@ -1722,43 +1702,43 @@ Please select upto two States that you think have best fulfilled their pandemic 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
 #Age
-q4young_mean_anislands <- round(weighted.mean(summary_q4_young$q4_anislands, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_andhra <- round(weighted.mean(summary_q4_young$q4_andhra, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_arunachal <- round(weighted.mean(summary_q4_young$q4_arunachal, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_assam <- round(weighted.mean(summary_q4_young$q4_assam, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_bihar <- round(weighted.mean(summary_q4_young$q4_bihar, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_chandigarh <- round(weighted.mean(summary_q4_young$q4_chandigarh, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_chhattisgarh <- round(weighted.mean(summary_q4_young$q4_chhattisgarh, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_dnhdd <- round(weighted.mean(summary_q4_young$q4_dnhdd, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_goa <- round(weighted.mean(summary_q4_young$q4_goa, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_gujarat <- round(weighted.mean(summary_q4_young$q4_gujarat, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_haryana <- round(weighted.mean(summary_q4_young$q4_haryana, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_hp <- round(weighted.mean(summary_q4_young$q4_hp, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_jk <- round(weighted.mean(summary_q4_young$q4_jk, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_jharkhand <- round(weighted.mean(summary_q4_young$q4_jharkhand, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_karnataka <- round(weighted.mean(summary_q4_young$q4_karnataka, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_kerala <- round(weighted.mean(summary_q4_young$q4_kerala, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_ladakh <- round(weighted.mean(summary_q4_young$q4_ladakh, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_lakshadweep <- round(weighted.mean(summary_q4_young$q4_lakshadweep, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_mp <- round(weighted.mean(summary_q4_young$q4_mp, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_maharashtra <- round(weighted.mean(summary_q4_young$q4_maharashtra, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_manipur <- round(weighted.mean(summary_q4_young$q4_manipur, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_meghalaya <- round(weighted.mean(summary_q4_young$q4_meghalaya, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_mizoram <- round(weighted.mean(summary_q4_young$q4_mizoram, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_nagaland <- round(weighted.mean(summary_q4_young$q4_nagaland, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_delhi <- round(weighted.mean(summary_q4_young$q4_delhi, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_none <- round(weighted.mean(summary_q4_young$q4_none, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_odisha <- round(weighted.mean(summary_q4_young$q4_odisha, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_puducherry <- round(weighted.mean(summary_q4_young$q4_puducherry, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_punjab <- round(weighted.mean(summary_q4_young$q4_punjab, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_rajasthan <- round(weighted.mean(summary_q4_young$q4_rajasthan, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_sikkim <- round(weighted.mean(summary_q4_young$q4_sikkim, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_tn <- round(weighted.mean(summary_q4_young$q4_tn, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_telangana <- round(weighted.mean(summary_q4_young$q4_telangana, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_tripura <- round(weighted.mean(summary_q4_young$q4_tripura, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_up <- round(weighted.mean(summary_q4_young$q4_up, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_uttarakhand <- round(weighted.mean(summary_q4_young$q4_uttarakhand, summary_q4_young$state_young_weight)*100,2)
-q4young_mean_wb <- round(weighted.mean(summary_q4_young$q4_wb, summary_q4_young$state_young_weight)*100,2)
+q4young_mean_anislands <- round(weighted.mean(summary_q4_young$q4_anislands, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_andhra <- round(weighted.mean(summary_q4_young$q4_andhra, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_arunachal <- round(weighted.mean(summary_q4_young$q4_arunachal, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_assam <- round(weighted.mean(summary_q4_young$q4_assam, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_bihar <- round(weighted.mean(summary_q4_young$q4_bihar, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_chandigarh <- round(weighted.mean(summary_q4_young$q4_chandigarh, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_chhattisgarh <- round(weighted.mean(summary_q4_young$q4_chhattisgarh, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_dnhdd <- round(weighted.mean(summary_q4_young$q4_dnhdd, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_goa <- round(weighted.mean(summary_q4_young$q4_goa, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_gujarat <- round(weighted.mean(summary_q4_young$q4_gujarat, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_haryana <- round(weighted.mean(summary_q4_young$q4_haryana, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_hp <- round(weighted.mean(summary_q4_young$q4_hp, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_jk <- round(weighted.mean(summary_q4_young$q4_jk, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_jharkhand <- round(weighted.mean(summary_q4_young$q4_jharkhand, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_karnataka <- round(weighted.mean(summary_q4_young$q4_karnataka, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_kerala <- round(weighted.mean(summary_q4_young$q4_kerala, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_ladakh <- round(weighted.mean(summary_q4_young$q4_ladakh, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_lakshadweep <- round(weighted.mean(summary_q4_young$q4_lakshadweep, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_mp <- round(weighted.mean(summary_q4_young$q4_mp, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_maharashtra <- round(weighted.mean(summary_q4_young$q4_maharashtra, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_manipur <- round(weighted.mean(summary_q4_young$q4_manipur, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_meghalaya <- round(weighted.mean(summary_q4_young$q4_meghalaya, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_mizoram <- round(weighted.mean(summary_q4_young$q4_mizoram, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_nagaland <- round(weighted.mean(summary_q4_young$q4_nagaland, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_delhi <- round(weighted.mean(summary_q4_young$q4_delhi, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_none <- round(weighted.mean(summary_q4_young$q4_none, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_odisha <- round(weighted.mean(summary_q4_young$q4_odisha, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_puducherry <- round(weighted.mean(summary_q4_young$q4_puducherry, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_punjab <- round(weighted.mean(summary_q4_young$q4_punjab, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_rajasthan <- round(weighted.mean(summary_q4_young$q4_rajasthan, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_sikkim <- round(weighted.mean(summary_q4_young$q4_sikkim, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_tn <- round(weighted.mean(summary_q4_young$q4_tn, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_telangana <- round(weighted.mean(summary_q4_young$q4_telangana, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_tripura <- round(weighted.mean(summary_q4_young$q4_tripura, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_up <- round(weighted.mean(summary_q4_young$q4_up, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_uttarakhand <- round(weighted.mean(summary_q4_young$q4_uttarakhand, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
+q4young_mean_wb <- round(weighted.mean(summary_q4_young$q4_wb, summary_q4_young$state_young_weight,na.rm=TRUE)*100,2)
 
 q4young_plot <- c(q4young_mean_anislands, q4young_mean_andhra, q4young_mean_arunachal, q4young_mean_assam, q4young_mean_bihar, q4young_mean_chandigarh, q4young_mean_chhattisgarh, q4young_mean_delhi, q4young_mean_dnhdd, q4young_mean_goa, q4young_mean_gujarat, q4young_mean_haryana, q4young_mean_hp, q4young_mean_jharkhand, q4young_mean_jk, q4young_mean_karnataka, q4young_mean_kerala, q4young_mean_ladakh, q4young_mean_lakshadweep, q4young_mean_maharashtra, q4young_mean_manipur, q4young_mean_meghalaya, q4young_mean_mizoram, q4young_mean_mp, q4young_mean_nagaland, q4young_mean_none, q4young_mean_odisha, q4young_mean_puducherry, q4young_mean_punjab, q4young_mean_rajasthan, q4young_mean_sikkim, q4young_mean_telangana, q4young_mean_tn, q4young_mean_tripura, q4young_mean_up, q4young_mean_uttarakhand, q4young_mean_wb)
 
@@ -1774,43 +1754,43 @@ q4young_plot <- ggplot(q4young_plot_dta, aes(x=q4young_plot_labels, y=q4young_pl
   labs(x="",y="Percent", title = "2012 and After")+
   newtheme
 
-q4old_mean_anislands <- round(weighted.mean(summary_q4_old$q4_anislands, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_andhra <- round(weighted.mean(summary_q4_old$q4_andhra, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_arunachal <- round(weighted.mean(summary_q4_old$q4_arunachal, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_assam <- round(weighted.mean(summary_q4_old$q4_assam, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_bihar <- round(weighted.mean(summary_q4_old$q4_bihar, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_chandigarh <- round(weighted.mean(summary_q4_old$q4_chandigarh, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_chhattisgarh <- round(weighted.mean(summary_q4_old$q4_chhattisgarh, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_dnhdd <- round(weighted.mean(summary_q4_old$q4_dnhdd, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_goa <- round(weighted.mean(summary_q4_old$q4_goa, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_gujarat <- round(weighted.mean(summary_q4_old$q4_gujarat, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_haryana <- round(weighted.mean(summary_q4_old$q4_haryana, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_hp <- round(weighted.mean(summary_q4_old$q4_hp, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_jk <- round(weighted.mean(summary_q4_old$q4_jk, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_jharkhand <- round(weighted.mean(summary_q4_old$q4_jharkhand, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_karnataka <- round(weighted.mean(summary_q4_old$q4_karnataka, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_kerala <- round(weighted.mean(summary_q4_old$q4_kerala, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_ladakh <- round(weighted.mean(summary_q4_old$q4_ladakh, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_lakshadweep <- round(weighted.mean(summary_q4_old$q4_lakshadweep, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_mp <- round(weighted.mean(summary_q4_old$q4_mp, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_maharashtra <- round(weighted.mean(summary_q4_old$q4_maharashtra, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_manipur <- round(weighted.mean(summary_q4_old$q4_manipur, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_meghalaya <- round(weighted.mean(summary_q4_old$q4_meghalaya, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_mizoram <- round(weighted.mean(summary_q4_old$q4_mizoram, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_nagaland <- round(weighted.mean(summary_q4_old$q4_nagaland, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_delhi <- round(weighted.mean(summary_q4_old$q4_delhi, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_none <- round(weighted.mean(summary_q4_old$q4_none, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_odisha <- round(weighted.mean(summary_q4_old$q4_odisha, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_puducherry <- round(weighted.mean(summary_q4_old$q4_puducherry, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_punjab <- round(weighted.mean(summary_q4_old$q4_punjab, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_rajasthan <- round(weighted.mean(summary_q4_old$q4_rajasthan, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_sikkim <- round(weighted.mean(summary_q4_old$q4_sikkim, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_tn <- round(weighted.mean(summary_q4_old$q4_tn, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_telangana <- round(weighted.mean(summary_q4_old$q4_telangana, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_tripura <- round(weighted.mean(summary_q4_old$q4_tripura, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_up <- round(weighted.mean(summary_q4_old$q4_up, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_uttarakhand <- round(weighted.mean(summary_q4_old$q4_uttarakhand, summary_q4_old$state_old_weight)*100,2)
-q4old_mean_wb <- round(weighted.mean(summary_q4_old$q4_wb, summary_q4_old$state_old_weight)*100,2)
+q4old_mean_anislands <- round(weighted.mean(summary_q4_old$q4_anislands, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_andhra <- round(weighted.mean(summary_q4_old$q4_andhra, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_arunachal <- round(weighted.mean(summary_q4_old$q4_arunachal, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_assam <- round(weighted.mean(summary_q4_old$q4_assam, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_bihar <- round(weighted.mean(summary_q4_old$q4_bihar, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_chandigarh <- round(weighted.mean(summary_q4_old$q4_chandigarh, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_chhattisgarh <- round(weighted.mean(summary_q4_old$q4_chhattisgarh, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_dnhdd <- round(weighted.mean(summary_q4_old$q4_dnhdd, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_goa <- round(weighted.mean(summary_q4_old$q4_goa, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_gujarat <- round(weighted.mean(summary_q4_old$q4_gujarat, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_haryana <- round(weighted.mean(summary_q4_old$q4_haryana, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_hp <- round(weighted.mean(summary_q4_old$q4_hp, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_jk <- round(weighted.mean(summary_q4_old$q4_jk, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_jharkhand <- round(weighted.mean(summary_q4_old$q4_jharkhand, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_karnataka <- round(weighted.mean(summary_q4_old$q4_karnataka, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_kerala <- round(weighted.mean(summary_q4_old$q4_kerala, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_ladakh <- round(weighted.mean(summary_q4_old$q4_ladakh, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_lakshadweep <- round(weighted.mean(summary_q4_old$q4_lakshadweep, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_mp <- round(weighted.mean(summary_q4_old$q4_mp, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_maharashtra <- round(weighted.mean(summary_q4_old$q4_maharashtra, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_manipur <- round(weighted.mean(summary_q4_old$q4_manipur, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_meghalaya <- round(weighted.mean(summary_q4_old$q4_meghalaya, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_mizoram <- round(weighted.mean(summary_q4_old$q4_mizoram, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_nagaland <- round(weighted.mean(summary_q4_old$q4_nagaland, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_delhi <- round(weighted.mean(summary_q4_old$q4_delhi, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_none <- round(weighted.mean(summary_q4_old$q4_none, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_odisha <- round(weighted.mean(summary_q4_old$q4_odisha, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_puducherry <- round(weighted.mean(summary_q4_old$q4_puducherry, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_punjab <- round(weighted.mean(summary_q4_old$q4_punjab, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_rajasthan <- round(weighted.mean(summary_q4_old$q4_rajasthan, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_sikkim <- round(weighted.mean(summary_q4_old$q4_sikkim, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_tn <- round(weighted.mean(summary_q4_old$q4_tn, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_telangana <- round(weighted.mean(summary_q4_old$q4_telangana, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_tripura <- round(weighted.mean(summary_q4_old$q4_tripura, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_up <- round(weighted.mean(summary_q4_old$q4_up, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_uttarakhand <- round(weighted.mean(summary_q4_old$q4_uttarakhand, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
+q4old_mean_wb <- round(weighted.mean(summary_q4_old$q4_wb, summary_q4_old$state_old_weight, na.rm = TRUE)*100,2)
 
 q4old_plot <- c(q4old_mean_anislands, q4old_mean_andhra, q4old_mean_arunachal, q4old_mean_assam, q4old_mean_bihar, q4old_mean_chandigarh, q4old_mean_chhattisgarh, q4old_mean_delhi, q4old_mean_dnhdd, q4old_mean_goa, q4old_mean_gujarat, q4old_mean_haryana, q4old_mean_hp, q4old_mean_jharkhand, q4old_mean_jk, q4old_mean_karnataka, q4old_mean_kerala, q4old_mean_ladakh, q4old_mean_lakshadweep, q4old_mean_maharashtra, q4old_mean_manipur, q4old_mean_meghalaya, q4old_mean_mizoram, q4old_mean_mp, q4old_mean_nagaland, q4old_mean_none, q4old_mean_odisha, q4old_mean_puducherry, q4old_mean_punjab, q4old_mean_rajasthan, q4old_mean_sikkim, q4old_mean_telangana, q4old_mean_tn, q4old_mean_tripura, q4old_mean_up, q4old_mean_uttarakhand, q4old_mean_wb)
 
@@ -1886,8 +1866,9 @@ plot4_fullage
 ## Question 4: Disaggregated by SDG
 
 Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
+
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=11,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
 summary_q4 <- summary_q4 %>% 
 mutate (sdg_tier = ias_processed_dta$sdg)
 
@@ -2058,10 +2039,8 @@ q4frnt_plot <- ggplot(q4frnt_plot_dta, aes(x=q4full_plot_labels, y=q4frnt_plot, 
   newtheme
 
 #Stacking all plots vertically
-
 grid.newpage()
 grid.draw(rbind(ggplotGrob(q4aspt_plot), ggplotGrob(q4perf_plot), ggplotGrob(q4frnt_plot), size = "last"))
-
 ```
 \newpage
 
@@ -2125,8 +2104,6 @@ q5full_plot <- ggplot(q5full_plot_dta, aes(x=q5full_plot_labels, y=q5full_plot, 
   newtheme
 
 q5full_plot      
-
-
 ```
 \newpage
 
@@ -2135,45 +2112,45 @@ q5full_plot
 Please select upto two States that you think have performed their pandemic management responsibilities most poorly.
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
 #Age
-q5young_mean_anislands <- round(weighted.mean(summary_q5_young$q5_anislands, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_andhra <- round(weighted.mean(summary_q5_young$q5_andhra, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_arunachal <- round(weighted.mean(summary_q5_young$q5_arunachal, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_assam <- round(weighted.mean(summary_q5_young$q5_assam, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_bihar <- round(weighted.mean(summary_q5_young$q5_bihar, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_chandigarh <- round(weighted.mean(summary_q5_young$q5_chandigarh, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_chhattisgarh <- round(weighted.mean(summary_q5_young$q5_chhattisgarh, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_dnhdd <- round(weighted.mean(summary_q5_young$q5_dnhdd, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_goa <- round(weighted.mean(summary_q5_young$q5_goa, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_gujarat <- round(weighted.mean(summary_q5_young$q5_gujarat, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_haryana <- round(weighted.mean(summary_q5_young$q5_haryana, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_hp <- round(weighted.mean(summary_q5_young$q5_hp, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_jk <- round(weighted.mean(summary_q5_young$q5_jk, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_jharkhand <- round(weighted.mean(summary_q5_young$q5_jharkhand, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_karnataka <- round(weighted.mean(summary_q5_young$q5_karnataka, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_kerala <- round(weighted.mean(summary_q5_young$q5_kerala, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_ladakh <- round(weighted.mean(summary_q5_young$q5_ladakh, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_lakshadweep <- round(weighted.mean(summary_q5_young$q5_lakshadweep, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_mp <- round(weighted.mean(summary_q5_young$q5_mp, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_maharashtra <- round(weighted.mean(summary_q5_young$q5_maharashtra, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_manipur <- round(weighted.mean(summary_q5_young$q5_manipur, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_meghalaya <- round(weighted.mean(summary_q5_young$q5_meghalaya, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_mizoram <- round(weighted.mean(summary_q5_young$q5_mizoram, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_nagaland <- round(weighted.mean(summary_q5_young$q5_nagaland, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_delhi <- round(weighted.mean(summary_q5_young$q5_delhi, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_none <- round(weighted.mean(summary_q5_young$q5_none, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_odisha <- round(weighted.mean(summary_q5_young$q5_odisha, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_puducherry <- round(weighted.mean(summary_q5_young$q5_puducherry, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_punjab <- round(weighted.mean(summary_q5_young$q5_punjab, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_rajasthan <- round(weighted.mean(summary_q5_young$q5_rajasthan, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_sikkim <- round(weighted.mean(summary_q5_young$q5_sikkim, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_tn <- round(weighted.mean(summary_q5_young$q5_tn, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_telangana <- round(weighted.mean(summary_q5_young$q5_telangana, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_tripura <- round(weighted.mean(summary_q5_young$q5_tripura, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_up <- round(weighted.mean(summary_q5_young$q5_up, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_uttarakhand <- round(weighted.mean(summary_q5_young$q5_uttarakhand, summary_q5_young$state_young_weight)*100,2)
-q5young_mean_wb <- round(weighted.mean(summary_q5_young$q5_wb, summary_q5_young$state_young_weight)*100,2)
+q5young_mean_anislands <- round(weighted.mean(summary_q5_young$q5_anislands, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_andhra <- round(weighted.mean(summary_q5_young$q5_andhra, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_arunachal <- round(weighted.mean(summary_q5_young$q5_arunachal, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_assam <- round(weighted.mean(summary_q5_young$q5_assam, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_bihar <- round(weighted.mean(summary_q5_young$q5_bihar, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_chandigarh <- round(weighted.mean(summary_q5_young$q5_chandigarh, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_chhattisgarh <- round(weighted.mean(summary_q5_young$q5_chhattisgarh, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_dnhdd <- round(weighted.mean(summary_q5_young$q5_dnhdd, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_goa <- round(weighted.mean(summary_q5_young$q5_goa, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_gujarat <- round(weighted.mean(summary_q5_young$q5_gujarat, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_haryana <- round(weighted.mean(summary_q5_young$q5_haryana, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_hp <- round(weighted.mean(summary_q5_young$q5_hp, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_jk <- round(weighted.mean(summary_q5_young$q5_jk, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_jharkhand <- round(weighted.mean(summary_q5_young$q5_jharkhand, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_karnataka <- round(weighted.mean(summary_q5_young$q5_karnataka, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_kerala <- round(weighted.mean(summary_q5_young$q5_kerala, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_ladakh <- round(weighted.mean(summary_q5_young$q5_ladakh, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_lakshadweep <- round(weighted.mean(summary_q5_young$q5_lakshadweep, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_mp <- round(weighted.mean(summary_q5_young$q5_mp, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_maharashtra <- round(weighted.mean(summary_q5_young$q5_maharashtra, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_manipur <- round(weighted.mean(summary_q5_young$q5_manipur, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_meghalaya <- round(weighted.mean(summary_q5_young$q5_meghalaya, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_mizoram <- round(weighted.mean(summary_q5_young$q5_mizoram, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_nagaland <- round(weighted.mean(summary_q5_young$q5_nagaland, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_delhi <- round(weighted.mean(summary_q5_young$q5_delhi, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_none <- round(weighted.mean(summary_q5_young$q5_none, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_odisha <- round(weighted.mean(summary_q5_young$q5_odisha, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_puducherry <- round(weighted.mean(summary_q5_young$q5_puducherry, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_punjab <- round(weighted.mean(summary_q5_young$q5_punjab, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_rajasthan <- round(weighted.mean(summary_q5_young$q5_rajasthan, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_sikkim <- round(weighted.mean(summary_q5_young$q5_sikkim, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_tn <- round(weighted.mean(summary_q5_young$q5_tn, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_telangana <- round(weighted.mean(summary_q5_young$q5_telangana, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_tripura <- round(weighted.mean(summary_q5_young$q5_tripura, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_up <- round(weighted.mean(summary_q5_young$q5_up, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_uttarakhand <- round(weighted.mean(summary_q5_young$q5_uttarakhand, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
+q5young_mean_wb <- round(weighted.mean(summary_q5_young$q5_wb, summary_q5_young$state_young_weight, na.rm = TRUE)*100,2)
 
 q5young_plot <- c(q5young_mean_anislands, q5young_mean_andhra, q5young_mean_arunachal, q5young_mean_assam, q5young_mean_bihar, q5young_mean_chandigarh, q5young_mean_chhattisgarh, q5young_mean_delhi, q5young_mean_dnhdd, q5young_mean_goa, q5young_mean_gujarat, q5young_mean_haryana, q5young_mean_hp, q5young_mean_jharkhand, q5young_mean_jk, q5young_mean_karnataka, q5young_mean_kerala, q5young_mean_ladakh, q5young_mean_lakshadweep, q5young_mean_maharashtra, q5young_mean_manipur, q5young_mean_meghalaya, q5young_mean_mizoram, q5young_mean_mp, q5young_mean_nagaland, q5young_mean_none, q5young_mean_odisha, q5young_mean_puducherry, q5young_mean_punjab, q5young_mean_rajasthan, q5young_mean_sikkim, q5young_mean_telangana, q5young_mean_tn, q5young_mean_tripura, q5young_mean_up, q5young_mean_uttarakhand, q5young_mean_wb)
 
@@ -2189,43 +2166,43 @@ q5young_plot <- ggplot(q5young_plot_dta, aes(x=q5young_plot_labels, y=q5young_pl
   labs(x="",y="Percent", title = "2012 and After")+
   newtheme
 
-q5old_mean_anislands <- round(weighted.mean(summary_q5_old$q5_anislands, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_andhra <- round(weighted.mean(summary_q5_old$q5_andhra, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_arunachal <- round(weighted.mean(summary_q5_old$q5_arunachal, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_assam <- round(weighted.mean(summary_q5_old$q5_assam, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_bihar <- round(weighted.mean(summary_q5_old$q5_bihar, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_chandigarh <- round(weighted.mean(summary_q5_old$q5_chandigarh, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_chhattisgarh <- round(weighted.mean(summary_q5_old$q5_chhattisgarh, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_dnhdd <- round(weighted.mean(summary_q5_old$q5_dnhdd, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_goa <- round(weighted.mean(summary_q5_old$q5_goa, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_gujarat <- round(weighted.mean(summary_q5_old$q5_gujarat, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_haryana <- round(weighted.mean(summary_q5_old$q5_haryana, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_hp <- round(weighted.mean(summary_q5_old$q5_hp, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_jk <- round(weighted.mean(summary_q5_old$q5_jk, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_jharkhand <- round(weighted.mean(summary_q5_old$q5_jharkhand, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_karnataka <- round(weighted.mean(summary_q5_old$q5_karnataka, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_kerala <- round(weighted.mean(summary_q5_old$q5_kerala, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_ladakh <- round(weighted.mean(summary_q5_old$q5_ladakh, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_lakshadweep <- round(weighted.mean(summary_q5_old$q5_lakshadweep, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_mp <- round(weighted.mean(summary_q5_old$q5_mp, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_maharashtra <- round(weighted.mean(summary_q5_old$q5_maharashtra, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_manipur <- round(weighted.mean(summary_q5_old$q5_manipur, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_meghalaya <- round(weighted.mean(summary_q5_old$q5_meghalaya, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_mizoram <- round(weighted.mean(summary_q5_old$q5_mizoram, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_nagaland <- round(weighted.mean(summary_q5_old$q5_nagaland, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_delhi <- round(weighted.mean(summary_q5_old$q5_delhi, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_none <- round(weighted.mean(summary_q5_old$q5_none, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_odisha <- round(weighted.mean(summary_q5_old$q5_odisha, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_puducherry <- round(weighted.mean(summary_q5_old$q5_puducherry, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_punjab <- round(weighted.mean(summary_q5_old$q5_punjab, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_rajasthan <- round(weighted.mean(summary_q5_old$q5_rajasthan, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_sikkim <- round(weighted.mean(summary_q5_old$q5_sikkim, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_tn <- round(weighted.mean(summary_q5_old$q5_tn, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_telangana <- round(weighted.mean(summary_q5_old$q5_telangana, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_tripura <- round(weighted.mean(summary_q5_old$q5_tripura, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_up <- round(weighted.mean(summary_q5_old$q5_up, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_uttarakhand <- round(weighted.mean(summary_q5_old$q5_uttarakhand, summary_q5_old$state_old_weight)*100,2)
-q5old_mean_wb <- round(weighted.mean(summary_q5_old$q5_wb, summary_q5_old$state_old_weight)*100,2)
+q5old_mean_anislands <- round(weighted.mean(summary_q5_old$q5_anislands, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_andhra <- round(weighted.mean(summary_q5_old$q5_andhra, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_arunachal <- round(weighted.mean(summary_q5_old$q5_arunachal, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_assam <- round(weighted.mean(summary_q5_old$q5_assam, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_bihar <- round(weighted.mean(summary_q5_old$q5_bihar, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_chandigarh <- round(weighted.mean(summary_q5_old$q5_chandigarh, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_chhattisgarh <- round(weighted.mean(summary_q5_old$q5_chhattisgarh, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_dnhdd <- round(weighted.mean(summary_q5_old$q5_dnhdd, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_goa <- round(weighted.mean(summary_q5_old$q5_goa, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_gujarat <- round(weighted.mean(summary_q5_old$q5_gujarat, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_haryana <- round(weighted.mean(summary_q5_old$q5_haryana, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_hp <- round(weighted.mean(summary_q5_old$q5_hp, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_jk <- round(weighted.mean(summary_q5_old$q5_jk, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_jharkhand <- round(weighted.mean(summary_q5_old$q5_jharkhand, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_karnataka <- round(weighted.mean(summary_q5_old$q5_karnataka, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_kerala <- round(weighted.mean(summary_q5_old$q5_kerala, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_ladakh <- round(weighted.mean(summary_q5_old$q5_ladakh, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_lakshadweep <- round(weighted.mean(summary_q5_old$q5_lakshadweep, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_mp <- round(weighted.mean(summary_q5_old$q5_mp, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_maharashtra <- round(weighted.mean(summary_q5_old$q5_maharashtra, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_manipur <- round(weighted.mean(summary_q5_old$q5_manipur, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_meghalaya <- round(weighted.mean(summary_q5_old$q5_meghalaya, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_mizoram <- round(weighted.mean(summary_q5_old$q5_mizoram, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_nagaland <- round(weighted.mean(summary_q5_old$q5_nagaland, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_delhi <- round(weighted.mean(summary_q5_old$q5_delhi, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_none <- round(weighted.mean(summary_q5_old$q5_none, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_odisha <- round(weighted.mean(summary_q5_old$q5_odisha, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_puducherry <- round(weighted.mean(summary_q5_old$q5_puducherry, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_punjab <- round(weighted.mean(summary_q5_old$q5_punjab, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_rajasthan <- round(weighted.mean(summary_q5_old$q5_rajasthan, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_sikkim <- round(weighted.mean(summary_q5_old$q5_sikkim, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_tn <- round(weighted.mean(summary_q5_old$q5_tn, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_telangana <- round(weighted.mean(summary_q5_old$q5_telangana, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_tripura <- round(weighted.mean(summary_q5_old$q5_tripura, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_up <- round(weighted.mean(summary_q5_old$q5_up, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_uttarakhand <- round(weighted.mean(summary_q5_old$q5_uttarakhand, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
+q5old_mean_wb <- round(weighted.mean(summary_q5_old$q5_wb, summary_q5_old$state_old_weight, na.rm = TRUE)*100,2)
 
 q5old_plot <- c(q5old_mean_anislands, q5old_mean_andhra, q5old_mean_arunachal, q5old_mean_assam, q5old_mean_bihar, q5old_mean_chandigarh, q5old_mean_chhattisgarh, q5old_mean_delhi, q5old_mean_dnhdd, q5old_mean_goa, q5old_mean_gujarat, q5old_mean_haryana, q5old_mean_hp, q5old_mean_jharkhand, q5old_mean_jk, q5old_mean_karnataka, q5old_mean_kerala, q5old_mean_ladakh, q5old_mean_lakshadweep, q5old_mean_maharashtra, q5old_mean_manipur, q5old_mean_meghalaya, q5old_mean_mizoram, q5old_mean_mp, q5old_mean_nagaland, q5old_mean_none, q5old_mean_odisha, q5old_mean_puducherry, q5old_mean_punjab, q5old_mean_rajasthan, q5old_mean_sikkim, q5old_mean_telangana, q5old_mean_tn, q5old_mean_tripura, q5old_mean_up, q5old_mean_uttarakhand, q5old_mean_wb)
 
@@ -2293,8 +2270,8 @@ q5former_plot <- ggplot(q5former_plot_dta, aes(x=q5former_plot_labels, y=q5forme
   labs(x="",y="Percent", title = "Former Officers")+
   newtheme
 
-plot4_fullage <- plot_grid(q5young_plot,q5old_plot,q5former_plot, nrow=3)
-plot4_fullage
+plot5_fullage <- plot_grid(q5young_plot,q5old_plot,q5former_plot, nrow=3)
+plot5_fullage
 ```
 \newpage
 
@@ -2303,12 +2280,11 @@ plot4_fullage
 Please select upto two States that you think have performed their pandemic management responsibilities most poorly.
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=11,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
 summary_q5 <- summary_q5 %>% 
 mutate (sdg_tier = ias_processed_dta$sdg)
 
 #Calculating weighted means
-
 ##Aspirants
 q5aspt_weighted_mean_anislands <- round(weighted.mean(summary_q5$q5_anislands[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
 q5aspt_weighted_mean_andhra <- round(weighted.mean(summary_q5$q5_andhra[summary_q5$sdg_tier=="Aspirant"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Aspirant"])*100,2)
@@ -2426,8 +2402,6 @@ q5frnt_weighted_mean_up <- round(weighted.mean(summary_q5$q5_up[summary_q5$sdg_t
 q5frnt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q5$q5_uttarakhand[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
 q5frnt_weighted_mean_wb <- round(weighted.mean(summary_q5$q5_wb[summary_q5$sdg_tier=="Frontrunner"], summary_q5$sdg_weight[summary_q5$sdg_tier=="Frontrunner"])*100,2)
 
-
-
 #forming separate vectors
 q5aspt_plot <- c(q5aspt_weighted_mean_anislands, q5aspt_weighted_mean_andhra, q5aspt_weighted_mean_arunachal, q5aspt_weighted_mean_assam, q5aspt_weighted_mean_bihar, q5aspt_weighted_mean_chandigarh, q5aspt_weighted_mean_chhattisgarh, q5aspt_weighted_mean_delhi, q5aspt_weighted_mean_dnhdd, q5aspt_weighted_mean_goa, q5aspt_weighted_mean_gujarat, q5aspt_weighted_mean_haryana, q5aspt_weighted_mean_hp, q5aspt_weighted_mean_jharkhand, q5aspt_weighted_mean_jk, q5aspt_weighted_mean_karnataka, q5aspt_weighted_mean_kerala, q5aspt_weighted_mean_ladakh, q5aspt_weighted_mean_lakshadweep, q5aspt_weighted_mean_maharashtra, q5aspt_weighted_mean_manipur, q5aspt_weighted_mean_meghalaya, q5aspt_weighted_mean_mizoram, q5aspt_weighted_mean_mp, q5aspt_weighted_mean_nagaland, q5aspt_weighted_mean_none, q5aspt_weighted_mean_odisha, q5aspt_weighted_mean_puducherry, q5aspt_weighted_mean_punjab, q5aspt_weighted_mean_rajasthan, q5aspt_weighted_mean_sikkim, q5aspt_weighted_mean_telangana, q5aspt_weighted_mean_tn, q5aspt_weighted_mean_tripura, q5aspt_weighted_mean_up, q5aspt_weighted_mean_uttarakhand, q5aspt_weighted_mean_wb)
 
@@ -2437,7 +2411,6 @@ q5frnt_plot <- c(q5frnt_weighted_mean_anislands, q5frnt_weighted_mean_andhra, q5
 
 #creating common labels
 q5full_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
-
 
 #Invoking GGplot
 ##aspirant states
@@ -2474,13 +2447,9 @@ q5frnt_plot <- ggplot(q5frnt_plot_dta, aes(x=q5full_plot_labels, y=q5frnt_plot, 
   newtheme
 
 #Stacking all plots vertically
-
 grid.newpage()
 grid.draw(rbind(ggplotGrob(q5aspt_plot), ggplotGrob(q5perf_plot), ggplotGrob(q5frnt_plot), size = "last"))
-
 ```
-\newpage
-
 \newpage
 
 ## Question 6: Aggregate Graph
@@ -2541,7 +2510,6 @@ q6full_plot <- ggplot(q6full_plot_dta, aes(x=q6full_plot_labels, y=q6full_plot, 
   scale_x_discrete(labels = function(q6full_plot_labels) str_wrap(q6full_plot_labels, width = 30)) +
   labs(x="",y="Percent")+
   newtheme
-
 q6full_plot      
 ```
 \newpage
@@ -2551,45 +2519,45 @@ q6full_plot
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
 #Age
-q6young_mean_anislands <- round(weighted.mean(summary_q6_young$q6_anislands, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_andhra <- round(weighted.mean(summary_q6_young$q6_andhra, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_arunachal <- round(weighted.mean(summary_q6_young$q6_arunachal, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_assam <- round(weighted.mean(summary_q6_young$q6_assam, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_bihar <- round(weighted.mean(summary_q6_young$q6_bihar, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_chandigarh <- round(weighted.mean(summary_q6_young$q6_chandigarh, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_chhattisgarh <- round(weighted.mean(summary_q6_young$q6_chhattisgarh, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_dnhdd <- round(weighted.mean(summary_q6_young$q6_dnhdd, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_goa <- round(weighted.mean(summary_q6_young$q6_goa, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_gujarat <- round(weighted.mean(summary_q6_young$q6_gujarat, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_haryana <- round(weighted.mean(summary_q6_young$q6_haryana, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_hp <- round(weighted.mean(summary_q6_young$q6_hp, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_jk <- round(weighted.mean(summary_q6_young$q6_jk, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_jharkhand <- round(weighted.mean(summary_q6_young$q6_jharkhand, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_karnataka <- round(weighted.mean(summary_q6_young$q6_karnataka, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_kerala <- round(weighted.mean(summary_q6_young$q6_kerala, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_ladakh <- round(weighted.mean(summary_q6_young$q6_ladakh, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_lakshadweep <- round(weighted.mean(summary_q6_young$q6_lakshadweep, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_mp <- round(weighted.mean(summary_q6_young$q6_mp, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_maharashtra <- round(weighted.mean(summary_q6_young$q6_maharashtra, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_manipur <- round(weighted.mean(summary_q6_young$q6_manipur, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_meghalaya <- round(weighted.mean(summary_q6_young$q6_meghalaya, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_mizoram <- round(weighted.mean(summary_q6_young$q6_mizoram, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_nagaland <- round(weighted.mean(summary_q6_young$q6_nagaland, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_delhi <- round(weighted.mean(summary_q6_young$q6_delhi, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_none <- round(weighted.mean(summary_q6_young$q6_none, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_odisha <- round(weighted.mean(summary_q6_young$q6_odisha, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_puducherry <- round(weighted.mean(summary_q6_young$q6_puducherry, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_punjab <- round(weighted.mean(summary_q6_young$q6_punjab, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_rajasthan <- round(weighted.mean(summary_q6_young$q6_rajasthan, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_sikkim <- round(weighted.mean(summary_q6_young$q6_sikkim, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_tn <- round(weighted.mean(summary_q6_young$q6_tn, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_telangana <- round(weighted.mean(summary_q6_young$q6_telangana, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_tripura <- round(weighted.mean(summary_q6_young$q6_tripura, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_up <- round(weighted.mean(summary_q6_young$q6_up, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_uttarakhand <- round(weighted.mean(summary_q6_young$q6_uttarakhand, summary_q6_young$state_young_weight)*100,2)
-q6young_mean_wb <- round(weighted.mean(summary_q6_young$q6_wb, summary_q6_young$state_young_weight)*100,2)
+q6young_mean_anislands <- round(weighted.mean(summary_q6_young$q6_anislands, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_andhra <- round(weighted.mean(summary_q6_young$q6_andhra, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_arunachal <- round(weighted.mean(summary_q6_young$q6_arunachal, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_assam <- round(weighted.mean(summary_q6_young$q6_assam, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_bihar <- round(weighted.mean(summary_q6_young$q6_bihar, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_chandigarh <- round(weighted.mean(summary_q6_young$q6_chandigarh, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_chhattisgarh <- round(weighted.mean(summary_q6_young$q6_chhattisgarh, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_dnhdd <- round(weighted.mean(summary_q6_young$q6_dnhdd, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_goa <- round(weighted.mean(summary_q6_young$q6_goa, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_gujarat <- round(weighted.mean(summary_q6_young$q6_gujarat, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_haryana <- round(weighted.mean(summary_q6_young$q6_haryana, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_hp <- round(weighted.mean(summary_q6_young$q6_hp, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_jk <- round(weighted.mean(summary_q6_young$q6_jk, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_jharkhand <- round(weighted.mean(summary_q6_young$q6_jharkhand, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_karnataka <- round(weighted.mean(summary_q6_young$q6_karnataka, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_kerala <- round(weighted.mean(summary_q6_young$q6_kerala, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_ladakh <- round(weighted.mean(summary_q6_young$q6_ladakh, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_lakshadweep <- round(weighted.mean(summary_q6_young$q6_lakshadweep, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_mp <- round(weighted.mean(summary_q6_young$q6_mp, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_maharashtra <- round(weighted.mean(summary_q6_young$q6_maharashtra, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_manipur <- round(weighted.mean(summary_q6_young$q6_manipur, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_meghalaya <- round(weighted.mean(summary_q6_young$q6_meghalaya, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_mizoram <- round(weighted.mean(summary_q6_young$q6_mizoram, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_nagaland <- round(weighted.mean(summary_q6_young$q6_nagaland, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_delhi <- round(weighted.mean(summary_q6_young$q6_delhi, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_none <- round(weighted.mean(summary_q6_young$q6_none, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_odisha <- round(weighted.mean(summary_q6_young$q6_odisha, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_puducherry <- round(weighted.mean(summary_q6_young$q6_puducherry, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_punjab <- round(weighted.mean(summary_q6_young$q6_punjab, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_rajasthan <- round(weighted.mean(summary_q6_young$q6_rajasthan, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_sikkim <- round(weighted.mean(summary_q6_young$q6_sikkim, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_tn <- round(weighted.mean(summary_q6_young$q6_tn, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_telangana <- round(weighted.mean(summary_q6_young$q6_telangana, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_tripura <- round(weighted.mean(summary_q6_young$q6_tripura, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_up <- round(weighted.mean(summary_q6_young$q6_up, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_uttarakhand <- round(weighted.mean(summary_q6_young$q6_uttarakhand, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
+q6young_mean_wb <- round(weighted.mean(summary_q6_young$q6_wb, summary_q6_young$state_young_weight, na.rm = TRUE)*100,2)
 
 q6young_plot <- c(q6young_mean_anislands, q6young_mean_andhra, q6young_mean_arunachal, q6young_mean_assam, q6young_mean_bihar, q6young_mean_chandigarh, q6young_mean_chhattisgarh, q6young_mean_delhi, q6young_mean_dnhdd, q6young_mean_goa, q6young_mean_gujarat, q6young_mean_haryana, q6young_mean_hp, q6young_mean_jharkhand, q6young_mean_jk, q6young_mean_karnataka, q6young_mean_kerala, q6young_mean_ladakh, q6young_mean_lakshadweep, q6young_mean_maharashtra, q6young_mean_manipur, q6young_mean_meghalaya, q6young_mean_mizoram, q6young_mean_mp, q6young_mean_nagaland, q6young_mean_none, q6young_mean_odisha, q6young_mean_puducherry, q6young_mean_punjab, q6young_mean_rajasthan, q6young_mean_sikkim, q6young_mean_telangana, q6young_mean_tn, q6young_mean_tripura, q6young_mean_up, q6young_mean_uttarakhand, q6young_mean_wb)
 
@@ -2605,43 +2573,43 @@ q6young_plot <- ggplot(q6young_plot_dta, aes(x=q6young_plot_labels, y=q6young_pl
   labs(x="",y="Percent", title = "2012 and After")+
   newtheme
 
-q6old_mean_anislands <- round(weighted.mean(summary_q6_old$q6_anislands, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_andhra <- round(weighted.mean(summary_q6_old$q6_andhra, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_arunachal <- round(weighted.mean(summary_q6_old$q6_arunachal, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_assam <- round(weighted.mean(summary_q6_old$q6_assam, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_bihar <- round(weighted.mean(summary_q6_old$q6_bihar, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_chandigarh <- round(weighted.mean(summary_q6_old$q6_chandigarh, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_chhattisgarh <- round(weighted.mean(summary_q6_old$q6_chhattisgarh, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_dnhdd <- round(weighted.mean(summary_q6_old$q6_dnhdd, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_goa <- round(weighted.mean(summary_q6_old$q6_goa, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_gujarat <- round(weighted.mean(summary_q6_old$q6_gujarat, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_haryana <- round(weighted.mean(summary_q6_old$q6_haryana, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_hp <- round(weighted.mean(summary_q6_old$q6_hp, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_jk <- round(weighted.mean(summary_q6_old$q6_jk, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_jharkhand <- round(weighted.mean(summary_q6_old$q6_jharkhand, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_karnataka <- round(weighted.mean(summary_q6_old$q6_karnataka, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_kerala <- round(weighted.mean(summary_q6_old$q6_kerala, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_ladakh <- round(weighted.mean(summary_q6_old$q6_ladakh, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_lakshadweep <- round(weighted.mean(summary_q6_old$q6_lakshadweep, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_mp <- round(weighted.mean(summary_q6_old$q6_mp, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_maharashtra <- round(weighted.mean(summary_q6_old$q6_maharashtra, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_manipur <- round(weighted.mean(summary_q6_old$q6_manipur, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_meghalaya <- round(weighted.mean(summary_q6_old$q6_meghalaya, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_mizoram <- round(weighted.mean(summary_q6_old$q6_mizoram, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_nagaland <- round(weighted.mean(summary_q6_old$q6_nagaland, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_delhi <- round(weighted.mean(summary_q6_old$q6_delhi, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_none <- round(weighted.mean(summary_q6_old$q6_none, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_odisha <- round(weighted.mean(summary_q6_old$q6_odisha, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_puducherry <- round(weighted.mean(summary_q6_old$q6_puducherry, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_punjab <- round(weighted.mean(summary_q6_old$q6_punjab, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_rajasthan <- round(weighted.mean(summary_q6_old$q6_rajasthan, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_sikkim <- round(weighted.mean(summary_q6_old$q6_sikkim, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_tn <- round(weighted.mean(summary_q6_old$q6_tn, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_telangana <- round(weighted.mean(summary_q6_old$q6_telangana, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_tripura <- round(weighted.mean(summary_q6_old$q6_tripura, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_up <- round(weighted.mean(summary_q6_old$q6_up, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_uttarakhand <- round(weighted.mean(summary_q6_old$q6_uttarakhand, summary_q6_old$state_old_weight)*100,2)
-q6old_mean_wb <- round(weighted.mean(summary_q6_old$q6_wb, summary_q6_old$state_old_weight)*100,2)
+q6old_mean_anislands <- round(weighted.mean(summary_q6_old$q6_anislands, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_andhra <- round(weighted.mean(summary_q6_old$q6_andhra, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_arunachal <- round(weighted.mean(summary_q6_old$q6_arunachal, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_assam <- round(weighted.mean(summary_q6_old$q6_assam, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_bihar <- round(weighted.mean(summary_q6_old$q6_bihar, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_chandigarh <- round(weighted.mean(summary_q6_old$q6_chandigarh, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_chhattisgarh <- round(weighted.mean(summary_q6_old$q6_chhattisgarh, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_dnhdd <- round(weighted.mean(summary_q6_old$q6_dnhdd, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_goa <- round(weighted.mean(summary_q6_old$q6_goa, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_gujarat <- round(weighted.mean(summary_q6_old$q6_gujarat, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_haryana <- round(weighted.mean(summary_q6_old$q6_haryana, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_hp <- round(weighted.mean(summary_q6_old$q6_hp, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_jk <- round(weighted.mean(summary_q6_old$q6_jk, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_jharkhand <- round(weighted.mean(summary_q6_old$q6_jharkhand, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_karnataka <- round(weighted.mean(summary_q6_old$q6_karnataka, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_kerala <- round(weighted.mean(summary_q6_old$q6_kerala, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_ladakh <- round(weighted.mean(summary_q6_old$q6_ladakh, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_lakshadweep <- round(weighted.mean(summary_q6_old$q6_lakshadweep, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_mp <- round(weighted.mean(summary_q6_old$q6_mp, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_maharashtra <- round(weighted.mean(summary_q6_old$q6_maharashtra, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_manipur <- round(weighted.mean(summary_q6_old$q6_manipur, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_meghalaya <- round(weighted.mean(summary_q6_old$q6_meghalaya, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_mizoram <- round(weighted.mean(summary_q6_old$q6_mizoram, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_nagaland <- round(weighted.mean(summary_q6_old$q6_nagaland, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_delhi <- round(weighted.mean(summary_q6_old$q6_delhi, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_none <- round(weighted.mean(summary_q6_old$q6_none, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_odisha <- round(weighted.mean(summary_q6_old$q6_odisha, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_puducherry <- round(weighted.mean(summary_q6_old$q6_puducherry, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_punjab <- round(weighted.mean(summary_q6_old$q6_punjab, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_rajasthan <- round(weighted.mean(summary_q6_old$q6_rajasthan, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_sikkim <- round(weighted.mean(summary_q6_old$q6_sikkim, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_tn <- round(weighted.mean(summary_q6_old$q6_tn, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_telangana <- round(weighted.mean(summary_q6_old$q6_telangana, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_tripura <- round(weighted.mean(summary_q6_old$q6_tripura, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_up <- round(weighted.mean(summary_q6_old$q6_up, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_uttarakhand <- round(weighted.mean(summary_q6_old$q6_uttarakhand, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
+q6old_mean_wb <- round(weighted.mean(summary_q6_old$q6_wb, summary_q6_old$state_old_weight, na.rm = TRUE)*100,2)
 
 q6old_plot <- c(q6old_mean_anislands, q6old_mean_andhra, q6old_mean_arunachal, q6old_mean_assam, q6old_mean_bihar, q6old_mean_chandigarh, q6old_mean_chhattisgarh, q6old_mean_delhi, q6old_mean_dnhdd, q6old_mean_goa, q6old_mean_gujarat, q6old_mean_haryana, q6old_mean_hp, q6old_mean_jharkhand, q6old_mean_jk, q6old_mean_karnataka, q6old_mean_kerala, q6old_mean_ladakh, q6old_mean_lakshadweep, q6old_mean_maharashtra, q6old_mean_manipur, q6old_mean_meghalaya, q6old_mean_mizoram, q6old_mean_mp, q6old_mean_nagaland, q6old_mean_none, q6old_mean_odisha, q6old_mean_puducherry, q6old_mean_punjab, q6old_mean_rajasthan, q6old_mean_sikkim, q6old_mean_telangana, q6old_mean_tn, q6old_mean_tripura, q6old_mean_up, q6old_mean_uttarakhand, q6old_mean_wb)
 
@@ -2708,7 +2676,6 @@ q6former_plot <- ggplot(q6former_plot_dta, aes(x=q6former_plot_labels, y=q6forme
   scale_x_discrete(labels = function(q6former_plot_labels) str_wrap(q6former_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "Former Officers")+
   newtheme
-
 plot4_fullage <- plot_grid(q6young_plot,q6old_plot,q6former_plot, nrow=3)
 plot4_fullage
 ```
@@ -2719,12 +2686,11 @@ plot4_fullage
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=11,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
 summary_q6 <- summary_q6 %>% 
 mutate (sdg_tier = ias_processed_dta$sdg)
 
 #Calculating weighted means
-
 ##Aspirants
 q6aspt_weighted_mean_anislands <- round(weighted.mean(summary_q6$q6_anislands[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
 q6aspt_weighted_mean_andhra <- round(weighted.mean(summary_q6$q6_andhra[summary_q6$sdg_tier=="Aspirant"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Aspirant"])*100,2)
@@ -2842,8 +2808,6 @@ q6frnt_weighted_mean_up <- round(weighted.mean(summary_q6$q6_up[summary_q6$sdg_t
 q6frnt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6$q6_uttarakhand[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
 q6frnt_weighted_mean_wb <- round(weighted.mean(summary_q6$q6_wb[summary_q6$sdg_tier=="Frontrunner"], summary_q6$sdg_weight[summary_q6$sdg_tier=="Frontrunner"])*100,2)
 
-
-
 #forming separate vectors
 q6aspt_plot <- c(q6aspt_weighted_mean_anislands, q6aspt_weighted_mean_andhra, q6aspt_weighted_mean_arunachal, q6aspt_weighted_mean_assam, q6aspt_weighted_mean_bihar, q6aspt_weighted_mean_chandigarh, q6aspt_weighted_mean_chhattisgarh, q6aspt_weighted_mean_delhi, q6aspt_weighted_mean_dnhdd, q6aspt_weighted_mean_goa, q6aspt_weighted_mean_gujarat, q6aspt_weighted_mean_haryana, q6aspt_weighted_mean_hp, q6aspt_weighted_mean_jharkhand, q6aspt_weighted_mean_jk, q6aspt_weighted_mean_karnataka, q6aspt_weighted_mean_kerala, q6aspt_weighted_mean_ladakh, q6aspt_weighted_mean_lakshadweep, q6aspt_weighted_mean_maharashtra, q6aspt_weighted_mean_manipur, q6aspt_weighted_mean_meghalaya, q6aspt_weighted_mean_mizoram, q6aspt_weighted_mean_mp, q6aspt_weighted_mean_nagaland, q6aspt_weighted_mean_none, q6aspt_weighted_mean_odisha, q6aspt_weighted_mean_puducherry, q6aspt_weighted_mean_punjab, q6aspt_weighted_mean_rajasthan, q6aspt_weighted_mean_sikkim, q6aspt_weighted_mean_telangana, q6aspt_weighted_mean_tn, q6aspt_weighted_mean_tripura, q6aspt_weighted_mean_up, q6aspt_weighted_mean_uttarakhand, q6aspt_weighted_mean_wb)
 
@@ -2853,7 +2817,6 @@ q6frnt_plot <- c(q6frnt_weighted_mean_anislands, q6frnt_weighted_mean_andhra, q6
 
 #creating common labels
 q6full_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
-
 
 #Invoking GGplot
 ##aspirant states
@@ -2890,7 +2853,6 @@ q6frnt_plot <- ggplot(q6frnt_plot_dta, aes(x=q6full_plot_labels, y=q6frnt_plot, 
   newtheme
 
 #Stacking all plots vertically
-
 grid.newpage()
 grid.draw(rbind(ggplotGrob(q6aspt_plot), ggplotGrob(q6perf_plot), ggplotGrob(q6frnt_plot), size = "last"))
 ```
@@ -2915,9 +2877,8 @@ q7full_plot <- ggplot(q7full_plot_dta, aes(x=q7full_plot_labels, y=q7full_plot, 
   scale_y_continuous(limits = c(0,100)) + 
   scale_x_discrete(labels = function(q7full_plot_labels) str_wrap(q7full_plot_labels, width = 40)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption= "Question 7, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q7full_plot
 ```
 \newpage
@@ -2929,31 +2890,30 @@ Some examples of successful management of the challenges posed by the pandemic s
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
 #Age 
-q7young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X130ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q7young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X130twos, summary_state_analysis_young$state_young_weight)*100,2)
+q7_plotlabels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge \n initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.")
+q7young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X130ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q7young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X130twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
 q7_young_plot<-c(q7young_mean_ones,q7young_mean_twos)
-q7_young_plotlabels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.")
-q7_young_plotdta <- data.frame(q7_young_plot, q7_young_plotlabels) 
-q7_young_plotdta$wrapped_labels = str_wrap(q7_young_plotdta$q7_young_plotlabels, width = 10)
-q7_young_plot <- ggplot(q7_young_plotdta, aes(x = q7_young_plotlabels, y = q7_young_plot, fill = q7_young_plotlabels )) +  
+q7_young_plotdta <- data.frame(q7_young_plot, q7_plotlabels) 
+q7_young_plotdta$wrapped_labels = str_wrap(q7_young_plotdta$q7_plotlabels, width = 10)
+q7_young_plot <- ggplot(q7_young_plotdta, aes(x = q7_plotlabels, y = q7_young_plot, fill = q7_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q7_young_plot),"%"), vjust=-0.3), size=7)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7_young_plot),"%"), vjust=-0.3), size=7.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q7old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X130ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q7old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X130twos, summary_state_analysis_old$state_old_weight)*100,2)
+q7old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X130ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q7old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X130twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q7_old_plot<-c(q7old_mean_ones,q7old_mean_twos)
-q7_old_plotlabels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.")
-q7_old_plotdta <- data.frame(q7_old_plot, q7_old_plotlabels) 
-q7_old_plotdta <- data.frame(q7_old_plot, q7_old_plotlabels) 
-q7_old_plotdta$wrapped_labels = str_wrap(q7_old_plotdta$q7_old_plotlabels, width = 10)
-q7_old_plot <- ggplot(q7_old_plotdta, aes(x = q7_old_plotlabels, y = q7_old_plot, fill = q7_old_plotlabels )) +  
+q7_old_plotdta <- data.frame(q7_old_plot, q7_plotlabels) 
+q7_old_plotdta <- data.frame(q7_old_plot, q7_plotlabels) 
+q7_old_plotdta$wrapped_labels = str_wrap(q7_old_plotdta$q7_plotlabels, width = 10)
+q7_old_plot <- ggplot(q7_old_plotdta, aes(x = q7_plotlabels, y = q7_old_plot, fill = q7_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q7_old_plot),"%"), vjust=-0.3), size=7)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7_old_plot),"%"), vjust=-0.3), size=7.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -2961,13 +2921,12 @@ q7_old_plot <- ggplot(q7_old_plotdta, aes(x = q7_old_plotlabels, y = q7_old_plot
   disaggtheme
 
 q7_former_plot<-c(summary_state_former$X130ones*100, summary_state_former$X130twos*100)
-q7_former_plotlabels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.")
-q7_former_plotdta <- data.frame(q7_former_plot, q7_former_plotlabels) 
-q7_former_plotdta$wrapped_labels = str_wrap(q7_former_plotdta$q7_former_plotlabels, width = 10)
+q7_former_plotdta <- data.frame(q7_former_plot, q7_plotlabels) 
+q7_former_plotdta$wrapped_labels = str_wrap(q7_former_plotdta$q7_plotlabels, width = 10)
 
-q7_former_plot <- ggplot(q7_former_plotdta, aes(x = q7_former_plotlabels, y = q7_former_plot, fill = q7_former_plotlabels )) +  
+q7_former_plot <- ggplot(q7_former_plotdta, aes(x = q7_plotlabels, y = q7_former_plot, fill = q7_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q7_former_plot),"%"), vjust=-0.3), size=7)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7_former_plot),"%"), vjust=-0.3), size=7.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -2978,8 +2937,7 @@ legend7 <- cowplot::get_legend(q7_former_plot)
 q7_former_plot <- q7_former_plot +theme(legend.position = "none")
 plot7_fullage <- plot_grid(q7_young_plot,q7_old_plot,q7_former_plot,
                            nrow = 1)
-
-plot7_fullage <- plot_grid(plot7_fullage, legend7, nrow = 2, rel_heights=c(5,1)) 
+plot7_fullage <- plot_grid(plot7_fullage, legend7, nrow = 2, rel_heights=c(5,2)) 
 plot7_fullage
 ```
 \newpage
@@ -3006,12 +2964,11 @@ summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"
 q7frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X130twos[summary_state_analysis$sdg_tier=="Frontrunner"],
 summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
 
-
 #Forming vectors
 q7aspt_plot <- c(q7aspt_mean_ones, q7aspt_mean_twos) 
 q7perf_plot <- c(q7perf_mean_ones, q7perf_mean_twos)
 q7frnt_plot <- c(q7frnt_mean_ones, q7frnt_mean_twos)
-q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.") 
+q7full_plot_labels <- c("Resources and autonomy can always be generated if only the system were to positively acknowledge \n initiative and motivation as a rule", "The system simply does not provide the resources and autonomy required to succeed.") 
 
 #Constructing Data Frames
 q7aspt_plot_dta <- data.frame(q7aspt_plot, q7full_plot_labels) 
@@ -3026,7 +2983,7 @@ q7frnt_plot_dta$wrapped_labels = str_wrap(q7frnt_plot_dta$q7full_plot_label, wid
 #Invoking ggplot
 q7aspt_plot <- ggplot(q7aspt_plot_dta, aes(x=q7full_plot_labels, y=q7aspt_plot, fill = q7full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q7aspt_plot),"%"), vjust=-0.3), size=7) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7aspt_plot),"%"), vjust=-0.3), size=7.5) +
   scale_y_continuous(limits = c(0,100)) +  
   scale_x_discrete(labels= c("","")) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -3035,7 +2992,7 @@ q7aspt_plot <- ggplot(q7aspt_plot_dta, aes(x=q7full_plot_labels, y=q7aspt_plot, 
 
 q7perf_plot <- ggplot(q7perf_plot_dta, aes(x=q7full_plot_labels, y=q7perf_plot, fill = q7full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q7perf_plot),"%"), vjust=-0.3), size=7) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7perf_plot),"%"), vjust=-0.3), size=7.5) +
   scale_y_continuous(limits = c(0,100)) +  
   scale_x_discrete(labels= c("","")) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -3044,7 +3001,7 @@ q7perf_plot <- ggplot(q7perf_plot_dta, aes(x=q7full_plot_labels, y=q7perf_plot, 
 
 q7frnt_plot_temp <- ggplot(q7frnt_plot_dta, aes(x=q7full_plot_labels, y=q7frnt_plot, fill = q7full_plot_labels)) +
   geom_bar(stat="identity", width= 0.5, show.legend = TRUE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q7frnt_plot),"%"), vjust=-0.3), size=7) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q7frnt_plot),"%"), vjust=-0.3), size=7.5) +
   scale_y_continuous(limits = c(0,100)) +  
   scale_x_discrete(labels= c("","")) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -3052,15 +3009,10 @@ q7frnt_plot_temp <- ggplot(q7frnt_plot_dta, aes(x=q7full_plot_labels, y=q7frnt_p
   disaggtheme
 
 legend7 <- cowplot::get_legend(q7frnt_plot_temp)
-
 q7frnt_plot <- q7frnt_plot_temp +theme(legend.position = "none")
-
 q7_fullsdg <- plot_grid(q7aspt_plot,q7perf_plot,q7frnt_plot, nrow=1)
-
-q7_fullsdg <- plot_grid(q7_fullsdg,legend7, nrow = 2, rel_heights=c(5,1))
-
+q7_fullsdg <- plot_grid(q7_fullsdg,legend7, nrow = 2, rel_heights=c(5,2))
 q7_fullsdg
-
 ```
 \newpage
 
@@ -3085,9 +3037,8 @@ q8full_plot <- ggplot(q8full_plot_dta, aes(x=q8full_plot_labels, y=q8full_plot, 
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q8full_plot_labels) str_wrap(q8full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 8, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q8full_plot
 ```
 \newpage
@@ -3099,36 +3050,36 @@ The government has been criticised for permitting large gatherings (during elect
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
 #Age
-q8young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X131ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q8young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X131twos, summary_state_analysis_young$state_young_weight)*100,2)
-q8young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X131threes, summary_state_analysis_young$state_young_weight)*100,2)
-q8young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X131fours, summary_state_analysis_young$state_young_weight)*100,2)
-q8_young_plot<-c(q8young_mean_ones,q8young_mean_twos,q8young_mean_threes,q8young_mean_fours)
-q8_young_plotlabels <- cq8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.")
-q8_young_plotdta <- data.frame(q8_young_plot, q8_young_plotlabels) 
-q8_young_plotdta$wrapped_labels = str_wrap(q8_young_plotdta$q8_young_plotlabels, width = 10)
+q8_plotlabels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better \n (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have \n prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.")
 
-q8_young_plot <- ggplot(q8_young_plotdta, aes(x = q8_young_plotlabels, y = q8_young_plot, fill = q8_young_plotlabels )) +  
+q8young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X131ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q8young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X131twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q8young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X131threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q8young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X131fours, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q8_young_plot<-c(q8young_mean_ones,q8young_mean_twos,q8young_mean_threes,q8young_mean_fours)
+q8_young_plotdta <- data.frame(q8_young_plot, q8_plotlabels) 
+q8_young_plotdta$wrapped_labels = str_wrap(q8_young_plotdta$q8_plotlabels, width = 10)
+
+q8_young_plot <- ggplot(q8_young_plotdta, aes(x = q8_plotlabels, y = q8_young_plot, fill = q8_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q8_young_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q8_young_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q8old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X131ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q8old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X131twos, summary_state_analysis_old$state_old_weight)*100,2)
-q8old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X131threes, summary_state_analysis_old$state_old_weight)*100,2)
-q8old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X131fours, summary_state_analysis_old$state_old_weight)*100,2)
+q8old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X131ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q8old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X131twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q8old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X131threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q8old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X131fours, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q8_old_plot<-c(q8old_mean_ones,q8old_mean_twos,q8old_mean_threes,q8old_mean_fours)
-q8_old_plotlabels <- cq8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.")
-q8_old_plotdta <- data.frame(q8_old_plot, q8_old_plotlabels) 
-q8_old_plotdta$wrapped_labels = str_wrap(q8_old_plotdta$q8_old_plotlabels, width = 10)
+q8_old_plotdta <- data.frame(q8_old_plot, q8_plotlabels) 
+q8_old_plotdta$wrapped_labels = str_wrap(q8_old_plotdta$q8_plotlabels, width = 10)
 
-q8_old_plot <- ggplot(q8_old_plotdta, aes(x = q8_old_plotlabels, y = q8_old_plot, fill = q8_old_plotlabels )) +  
+q8_old_plot <- ggplot(q8_old_plotdta, aes(x = q8_plotlabels, y = q8_old_plot, fill = q8_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q8_old_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q8_old_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -3136,13 +3087,12 @@ q8_old_plot <- ggplot(q8_old_plotdta, aes(x = q8_old_plotlabels, y = q8_old_plot
   disaggtheme
 
 q8_former_plot<-c(summary_state_former$X131ones*100, summary_state_former$X131twos*100, summary_state_former$X131threes*100, summary_state_former$X131fours*100)
-q8_former_plotlabels <- cq8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.")
-q8_former_plotdta <- data.frame(q8_former_plot, q8_former_plotlabels) 
-q8_former_plotdta$wrapped_labels = str_wrap(q8_former_plotdta$q8_former_plotlabels, width = 10)
+q8_former_plotdta <- data.frame(q8_former_plot, q8_plotlabels) 
+q8_former_plotdta$wrapped_labels = str_wrap(q8_former_plotdta$q8_plotlabels, width = 10)
 
-q8_former_plot <- ggplot(q8_former_plotdta, aes(x = q8_former_plotlabels, y = q8_former_plot, fill = q8_former_plotlabels )) +  
+q8_former_plot <- ggplot(q8_former_plotdta, aes(x = q8_plotlabels, y = q8_former_plot, fill = q8_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q8_former_plot),"%"), vjust=-0.3), size=6)+ 
+  geom_text(aes(label=paste0(sprintf("%0.2f", q8_former_plot),"%"), vjust=-0.3), size=6.5)+ 
   scale_x_discrete(labels= c("","","","",""))+
   scale_y_continuous(limits = c(0,100)) +
   scale_fill_brewer(palette="YlGnBu") +
@@ -3153,8 +3103,7 @@ legend8 <- cowplot::get_legend(q8_former_plot)
 q8_former_plot <- q8_former_plot +theme(legend.position = "none")
 plot8_fullage <- plot_grid(q8_young_plot,q8_old_plot,q8_former_plot,
                              nrow = 1)
-  
-plot8_fullage <- plot_grid(plot8_fullage, legend8, nrow = 2, rel_heights=c(5,1)) 
+plot8_fullage <- plot_grid(plot8_fullage, legend8, nrow = 2, rel_heights=c(5,2)) 
 plot8_fullage
 ```
 \newpage
@@ -3186,7 +3135,7 @@ q8aspt_plot <- c(q8aspt_mean_ones, q8aspt_mean_twos, q8aspt_mean_threes, q8aspt_
 q8frnt_plot <- c(q8frnt_mean_ones, q8frnt_mean_twos, q8frnt_mean_threes, q8frnt_mean_fours)
 q8perf_plot <- c(q8perf_mean_ones, q8perf_mean_twos, q8perf_mean_threes, q8perf_mean_fours)
 
-q8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.") 
+q8full_plot_labels <- c("Knowing the risks involved, such events should not have been scheduled at all.","The risks from these events were too high. They could have been managed better \n (perhaps by staggering the events or by curtailing participation).","The surge was caused by a natural progression of the virus. Prohibiting these events would not have \n prevented this surge.", "These events are of high cultural and democratic importance. There was no choice but to take the risk.") 
 
 #constructing data frames
 q8aspt_plot_dta <- data.frame(q8aspt_plot, q8full_plot_labels)
@@ -3201,7 +3150,7 @@ q8perf_plot_dta$wrapped_labels = str_wrap(q8perf_plot_dta$q8full_plot_labels, wi
 #Invoking ggplot
 q8aspt_plot <- ggplot(q8aspt_plot_dta, aes(x=q8full_plot_labels, y=q8aspt_plot, fill = q8full_plot_labels)) +
   geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q8aspt_plot),"%"), vjust=-0.3), size=6) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q8aspt_plot),"%"), vjust=-0.3), size=6.5) +
   scale_y_continuous(limits = c(0,100))  +
   labs(x="",y="Percent")  +
   scale_x_discrete(labels= c("","","","","")) +
@@ -3211,7 +3160,7 @@ q8aspt_plot <- ggplot(q8aspt_plot_dta, aes(x=q8full_plot_labels, y=q8aspt_plot, 
 
 q8perf_plot <- ggplot(q8perf_plot_dta, aes(x=q8full_plot_labels, y=q8perf_plot, fill = q8full_plot_labels)) +
   geom_bar(stat="identity", width=0.5, show.legend = FALSE) + 
-  geom_text(aes(label=paste0(sprintf("%0.2f", q8perf_plot),"%"), vjust=-0.3), size=6) +
+  geom_text(aes(label=paste0(sprintf("%0.2f", q8perf_plot),"%"), vjust=-0.3), size=6.5) +
   scale_y_continuous(limits = c(0,100)) +
   labs(x="",y="Percent") +
   scale_x_discrete(labels= c("","","","","")) +
@@ -3221,7 +3170,7 @@ q8perf_plot <- ggplot(q8perf_plot_dta, aes(x=q8full_plot_labels, y=q8perf_plot, 
 
 q8frnt_plot_temp <- ggplot(q8frnt_plot_dta, aes(x=q8full_plot_labels, y=q8frnt_plot, fill = q8full_plot_labels)) +
   geom_bar(stat="identity", width=0.5, show.legend = TRUE) + 
-  geom_text(aes(label=scales::percent(q8frnt_plot/100)), vjust=-0.3, size=6) +
+  geom_text(aes(label=scales::percent(q8frnt_plot/100)), vjust=-0.3, size=6.5) +
   scale_y_continuous(limits = c(0,100)) +
   labs(x="",y="Percent") +
   scale_x_discrete(labels= c("","","","","")) +
@@ -3229,15 +3178,10 @@ q8frnt_plot_temp <- ggplot(q8frnt_plot_dta, aes(x=q8full_plot_labels, y=q8frnt_p
   labs(title = "Frontrunner States") +
   disaggtheme
 
-
 legend8 <- cowplot::get_legend(q8frnt_plot_temp)
-
 q8frnt_plot <- q8frnt_plot_temp +theme(legend.position = "none")
-
 q8_fullsdg <- plot_grid(q8aspt_plot,q8perf_plot,q8frnt_plot, nrow=1)
-
-q8_fullsdg <- plot_grid(q8_fullsdg,legend8, nrow = 2, rel_heights=c(5,1))
-
+q8_fullsdg <- plot_grid(q8_fullsdg,legend8, nrow = 2, rel_heights=c(5,2))
 q8_fullsdg
 ```
 \newpage
@@ -3261,9 +3205,8 @@ q9full_plot <- ggplot(q9full_plot_dta, aes(x=q9full_plot_labels, y=q9full_plot, 
   scale_y_continuous(limits = c(0,100)) + 
   scale_x_discrete(labels = function(q9full_plot_labels) str_wrap(q9full_plot_labels, width = 40)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption= "Question 9, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q9full_plot
 ```
 \newpage
@@ -3275,14 +3218,15 @@ The unprecedented nature of this pandemic has meant that policy has had to const
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
 #Age
-q9young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X132ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q9young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X132twos, summary_state_analysis_young$state_young_weight)*100,2)
-q9_young_plot<-c(q9young_mean_ones,q9young_mean_twos)
-q9_young_plotlabels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation from the public.")
-q9_young_plotdta <- data.frame(q9_young_plot, q9_young_plotlabels) 
-q9_young_plotdta$wrapped_labels = str_wrap(q9_young_plotdta$q9_young_plotlabels, width = 10)
+q9_plotlabels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in \n unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of \n greater trust and cooperation from the public.")
 
-q9_young_plot <- ggplot(q9_young_plotdta, aes(x = q9_young_plotlabels, y = q9_young_plot, fill = q9_young_plotlabels )) +  
+q9young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X132ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q9young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X132twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q9_young_plot<-c(q9young_mean_ones,q9young_mean_twos)
+q9_young_plotdta <- data.frame(q9_young_plot, q9_plotlabels) 
+q9_young_plotdta$wrapped_labels = str_wrap(q9_young_plotdta$q9_plotlabels, width = 10)
+
+q9_young_plot <- ggplot(q9_young_plotdta, aes(x = q9_plotlabels, y = q9_young_plot, fill = q9_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q9_young_plot),"%"), vjust=-0.3), size=7)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3291,14 +3235,13 @@ q9_young_plot <- ggplot(q9_young_plotdta, aes(x = q9_young_plotlabels, y = q9_yo
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q9old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X132ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q9old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X132twos, summary_state_analysis_old$state_old_weight)*100,2)
+q9old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X132ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q9old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X132twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q9_old_plot<-c(q9old_mean_ones,q9old_mean_twos)
-q9_old_plotlabels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation from the public.")
-q9_old_plotdta <- data.frame(q9_old_plot, q9_old_plotlabels) 
-q9_old_plotdta$wrapped_labels = str_wrap(q9_old_plotdta$q9_old_plotlabels, width = 10)
+q9_old_plotdta <- data.frame(q9_old_plot, q9_plotlabels) 
+q9_old_plotdta$wrapped_labels = str_wrap(q9_old_plotdta$q9_plotlabels, width = 10)
 
-q9_old_plot <- ggplot(q9_old_plotdta, aes(x = q9_old_plotlabels, y = q9_old_plot, fill = q9_old_plotlabels )) +  
+q9_old_plot <- ggplot(q9_old_plotdta, aes(x = q9_plotlabels, y = q9_old_plot, fill = q9_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q9_old_plot),"%"), vjust=-0.3), size=7)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3308,11 +3251,10 @@ q9_old_plot <- ggplot(q9_old_plotdta, aes(x = q9_old_plotlabels, y = q9_old_plot
   disaggtheme
 
 q9_former_plot<-c(summary_state_former$X132ones*100, summary_state_former$X132twos*100)
-q9_former_plotlabels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among \n  the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation \n from the public.")
-q9_former_plotdta <- data.frame(q9_former_plot, q9_former_plotlabels) 
-q9_former_plotdta$wrapped_labels = str_wrap(q9_former_plotdta$q9_former_plotlabels, width = 10)
+q9_former_plotdta <- data.frame(q9_former_plot, q9_plotlabels) 
+q9_former_plotdta$wrapped_labels = str_wrap(q9_former_plotdta$q9_plotlabels, width = 10)
 
-q9_former_plot <- ggplot(q9_former_plotdta, aes(x = q9_former_plotlabels, y = q9_former_plot, fill = q9_former_plotlabels )) +  
+q9_former_plot <- ggplot(q9_former_plotdta, aes(x = q9_plotlabels, y = q9_former_plot, fill = q9_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q9_former_plot),"%"), vjust=-0.3), size=7)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3325,8 +3267,7 @@ legend9 <- cowplot::get_legend(q9_former_plot)
 q9_former_plot <- q9_former_plot +theme(legend.position = "none")
 plot9_fullage <- plot_grid(q9_young_plot,q9_old_plot,q9_former_plot,
                              nrow = 1)
-  
-plot9_fullage <- plot_grid(plot9_fullage, legend9, nrow = 2, rel_heights=c(5,1)) 
+plot9_fullage <- plot_grid(plot9_fullage, legend9, nrow = 2, rel_heights=c(5,2)) 
 plot9_fullage
 ```
 \newpage
@@ -3353,12 +3294,11 @@ summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"
 q9frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X132twos[summary_state_analysis$sdg_tier=="Frontrunner"],
 summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
 
-
 #Forming vectors
 q9aspt_plot <- c(q9aspt_mean_ones, q9aspt_mean_twos) 
 q9perf_plot <- c(q9perf_mean_ones, q9perf_mean_twos)
 q9frnt_plot <- c(q9frnt_mean_ones, q9frnt_mean_twos)
-q9full_plot_labels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in unnecessary chaos and confusion among \n  the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of greater trust and cooperation \n from the public.")
+q9full_plot_labels <- c("Given the lack of consensus in our democracy, any other course of action would have resulted in \n unnecessary chaos and confusion among the public.","Transparency and greater consultation in policy making could have secured more positive results in terms of \n greater trust and cooperation from the public.")
 
 #Constructing Data Frames
 q9aspt_plot_dta <- data.frame(q9aspt_plot, q9full_plot_labels) 
@@ -3399,15 +3339,10 @@ q9frnt_plot_temp <- ggplot(q9frnt_plot_dta, aes(x=q9full_plot_labels, y=q9frnt_p
   disaggtheme
 
 legend9 <- cowplot::get_legend(q9frnt_plot_temp)
-
 q9frnt_plot <- q9frnt_plot_temp +theme(legend.position = "none")
-
 q9_fullsdg <- plot_grid(q9aspt_plot,q9perf_plot,q9frnt_plot, nrow=1)
-
-q9_fullsdg <- plot_grid(q9_fullsdg,legend9, nrow = 2, rel_heights=c(5,1))
-
+q9_fullsdg <- plot_grid(q9_fullsdg,legend9, nrow = 2, rel_heights=c(5,2))
 q9_fullsdg
-
 ```
 \newpage
 
@@ -3431,9 +3366,8 @@ q10full_plot <- ggplot(q10full_plot_dta, aes(x=q10full_plot_labels, y=q10full_pl
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q10full_plot_labels) str_wrap(q10full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 10, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q10full_plot
 ```
 \newpage
@@ -3444,15 +3378,16 @@ India’s vaccine procurement policy has undergone multiple changes in a short s
 
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
-q10young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X133ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q10young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X133twos, summary_state_analysis_young$state_young_weight)*100,2)
-q10young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X133threes, summary_state_analysis_young$state_young_weight)*100,2)
-q10_young_plot<-c(q10young_mean_ones,q10young_mean_twos,q10young_mean_threes)
-q10_young_plotlabels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature of our country.")
-q10_young_plotdta <- data.frame(q10_young_plot, q10_young_plotlabels) 
-q10_young_plotdta$wrapped_labels = str_wrap(q10_young_plotdta$q10_young_plotlabels, width = 10)
+q10_plotlabels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information \n about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, \n responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given \n the diverse, federal nature of our country.")
 
-q10_young_plot <- ggplot(q10_young_plotdta, aes(x = q10_young_plotlabels, y = q10_young_plot, fill = q10_young_plotlabels )) +  
+q10young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X133ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q10young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X133twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q10young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X133threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q10_young_plot<-c(q10young_mean_ones,q10young_mean_twos,q10young_mean_threes)
+q10_young_plotdta <- data.frame(q10_young_plot, q10_plotlabels) 
+q10_young_plotdta$wrapped_labels = str_wrap(q10_young_plotdta$q10_plotlabels, width = 10)
+
+q10_young_plot <- ggplot(q10_young_plotdta, aes(x = q10_plotlabels, y = q10_young_plot, fill = q10_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q10_young_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3461,15 +3396,14 @@ q10_young_plot <- ggplot(q10_young_plotdta, aes(x = q10_young_plotlabels, y = q1
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q10old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X133ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q10old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X133twos, summary_state_analysis_old$state_old_weight)*100,2)
-q10old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X133threes, summary_state_analysis_old$state_old_weight)*100,2)
+q10old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X133ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q10old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X133twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q10old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X133threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q10_old_plot<-c(q10old_mean_ones,q10old_mean_twos,q10old_mean_threes)
-q10_old_plotlabels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature of our country.")
-q10_old_plotdta <- data.frame(q10_old_plot, q10_old_plotlabels) 
-q10_old_plotdta$wrapped_labels = str_wrap(q10_old_plotdta$q10_old_plotlabels, width = 10)
+q10_old_plotdta <- data.frame(q10_old_plot, q10_plotlabels) 
+q10_old_plotdta$wrapped_labels = str_wrap(q10_old_plotdta$q10_plotlabels, width = 10)
 
-q10_old_plot <- ggplot(q10_old_plotdta, aes(x = q10_old_plotlabels, y = q10_old_plot, fill = q10_old_plotlabels )) +  
+q10_old_plot <- ggplot(q10_old_plotdta, aes(x = q10_plotlabels, y = q10_old_plot, fill = q10_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q10_old_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3479,11 +3413,10 @@ q10_old_plot <- ggplot(q10_old_plotdta, aes(x = q10_old_plotlabels, y = q10_old_
   disaggtheme
 
 q10_former_plot<-c(summary_state_former$X133ones*100, summary_state_former$X133twos*100, summary_state_former$X133threes*100)
-q10_former_plotlabels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political \n imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature \n of our country.")
-q10_former_plotdta <- data.frame(q10_former_plot, q10_former_plotlabels) 
-q10_former_plotdta$wrapped_labels = str_wrap(q10_former_plotdta$q10_former_plotlabels, width = 10)
+q10_former_plotdta <- data.frame(q10_former_plot, q10_plotlabels) 
+q10_former_plotdta$wrapped_labels = str_wrap(q10_former_plotdta$q10_plotlabels, width = 10)
 
-q10_former_plot <- ggplot(q10_former_plotdta, aes(x = q10_former_plotlabels, y = q10_former_plot, fill = q10_former_plotlabels )) +  
+q10_former_plot <- ggplot(q10_former_plotdta, aes(x = q10_plotlabels, y = q10_former_plot, fill = q10_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q10_former_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3496,8 +3429,7 @@ legend10 <- cowplot::get_legend(q10_former_plot)
 q10_former_plot <- q10_former_plot +theme(legend.position = "none")
 plot10_fullage <- plot_grid(q10_young_plot,q10_old_plot,q10_former_plot,
                              nrow = 1)
-  
-plot10_fullage <- plot_grid(plot10_fullage, legend10, nrow = 2, rel_heights=c(5,1)) 
+plot10_fullage <- plot_grid(plot10_fullage, legend10, nrow = 2, rel_heights=c(5,2)) 
 plot10_fullage
 ```
 \newpage
@@ -3527,7 +3459,7 @@ q10aspt_plot <- c(q10aspt_mean_ones, q10aspt_mean_twos, q10aspt_mean_threes)
 q10frnt_plot <- c(q10frnt_mean_ones, q10frnt_mean_twos, q10frnt_mean_threes)
 q10perf_plot <- c(q10perf_mean_ones, q10perf_mean_twos, q10perf_mean_threes)
 
-q10full_plot_labels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, responding to political \n imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given the diverse, federal nature \n of our country.")
+q10full_plot_labels <- c("During the pandemic, policy has exhibited a rational response to changing evidence and information \n about the pandemic.","Even though the pandemic posed unique challenges, policy making could still be characterised as ad hoc, \n responding to political imperatives, public pressure and judicial pronouncements.","In the pandemic context policy making has followed a natural and inevitable course given \n the diverse, federal nature of our country.")
 
 #constructing data frames
 q10aspt_plot_dta <- data.frame(q10aspt_plot, q10full_plot_labels)
@@ -3570,15 +3502,10 @@ q10frnt_plot_temp <- ggplot(q10frnt_plot_dta, aes(x=q10full_plot_labels, y=q10fr
   labs(title = "Frontrunner States") +
   disaggtheme
 
-
 legend10<- cowplot::get_legend(q10frnt_plot_temp)
-
 q10frnt_plot <- q10frnt_plot_temp +theme(legend.position = "none")
-
 q10_fullsdg <- plot_grid(q10aspt_plot,q10perf_plot,q10frnt_plot, nrow=1)
-
-q10_fullsdg <- plot_grid(q10_fullsdg,legend10, nrow = 2, rel_heights=c(5,1))
-
+q10_fullsdg <- plot_grid(q10_fullsdg,legend10, nrow = 2, rel_heights=c(5,2))
 q10_fullsdg
 ```
 \newpage
@@ -3604,9 +3531,8 @@ q11full_plot <- ggplot(q11full_plot_dta, aes(x=q11full_plot_labels, y=q11full_pl
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q11full_plot_labels) str_wrap(q11full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 11, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q11full_plot
 ```
 \newpage
@@ -3618,16 +3544,17 @@ Successful vaccination policy across most of the world has prioritised high risk
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
 #Age
-q11young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X134ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q11young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X134twos, summary_state_analysis_young$state_young_weight)*100,2)
-q11young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X134threes, summary_state_analysis_young$state_young_weight)*100,2)
-q11young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X134fours, summary_state_analysis_young$state_young_weight)*100,2)
-q11_young_plot<-c(q11young_mean_ones,q11young_mean_twos,q11young_mean_threes,q11young_mean_fours)
-q11_young_plotlabels <- cq11full_plot_labels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.")
-q11_young_plotdta <- data.frame(q11_young_plot, q11_young_plotlabels) 
-q11_young_plotdta$wrapped_labels = str_wrap(q11_young_plotdta$q11_young_plotlabels, width = 10)
+q11_plotlabels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could \n have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance \n at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.")
 
-q11_young_plot <- ggplot(q11_young_plotdta, aes(x = q11_young_plotlabels, y = q11_young_plot, fill = q11_young_plotlabels )) +  
+q11young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X134ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q11young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X134twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q11young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X134threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q11young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X134fours, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q11_young_plot<-c(q11young_mean_ones,q11young_mean_twos,q11young_mean_threes,q11young_mean_fours)
+q11_young_plotdta <- data.frame(q11_young_plot, q11_plotlabels) 
+q11_young_plotdta$wrapped_labels = str_wrap(q11_young_plotdta$q11_plotlabels, width = 10)
+
+q11_young_plot <- ggplot(q11_young_plotdta, aes(x = q11_plotlabels, y = q11_young_plot, fill = q11_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q11_young_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3636,16 +3563,15 @@ q11_young_plot <- ggplot(q11_young_plotdta, aes(x = q11_young_plotlabels, y = q1
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q11old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X134ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q11old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X134twos, summary_state_analysis_old$state_old_weight)*100,2)
-q11old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X134threes, summary_state_analysis_old$state_old_weight)*100,2)
-q11old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X134fours, summary_state_analysis_old$state_old_weight)*100,2)
+q11old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X134ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q11old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X134twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q11old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X134threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q11old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X134fours, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q11_old_plot<-c(q11old_mean_ones,q11old_mean_twos,q11old_mean_threes,q11old_mean_fours)
-q11_old_plotlabels <- cq11full_plot_labels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.")
-q11_old_plotdta <- data.frame(q11_old_plot, q11_old_plotlabels) 
-q11_old_plotdta$wrapped_labels = str_wrap(q11_old_plotdta$q11_old_plotlabels, width = 10)
+q11_old_plotdta <- data.frame(q11_old_plot, q11_plotlabels) 
+q11_old_plotdta$wrapped_labels = str_wrap(q11_old_plotdta$q11_plotlabels, width = 10)
 
-q11_old_plot <- ggplot(q11_old_plotdta, aes(x = q11_old_plotlabels, y = q11_old_plot, fill = q11_old_plotlabels )) +  
+q11_old_plot <- ggplot(q11_old_plotdta, aes(x = q11_plotlabels, y = q11_old_plot, fill = q11_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q11_old_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3655,11 +3581,10 @@ q11_old_plot <- ggplot(q11_old_plotdta, aes(x = q11_old_plotlabels, y = q11_old_
   disaggtheme
 
 q11_former_plot<-c(summary_state_former$X134ones*100, summary_state_former$X134twos*100, summary_state_former$X134threes*100, summary_state_former$X134fours*100)
-q11_former_plotlabels <- cq11full_plot_labels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.")
-q11_former_plotdta <- data.frame(q11_former_plot, q11_former_plotlabels) 
-q11_former_plotdta$wrapped_labels = str_wrap(q11_former_plotdta$q11_former_plotlabels, width = 10)
+q11_former_plotdta <- data.frame(q11_former_plot, q11_plotlabels) 
+q11_former_plotdta$wrapped_labels = str_wrap(q11_former_plotdta$q11_plotlabels, width = 10)
 
-q11_former_plot <- ggplot(q11_former_plotdta, aes(x = q11_former_plotlabels, y = q11_former_plot, fill = q11_former_plotlabels )) +  
+q11_former_plot <- ggplot(q11_former_plotdta, aes(x = q11_plotlabels, y = q11_former_plot, fill = q11_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q11_former_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3672,8 +3597,7 @@ legend11 <- cowplot::get_legend(q11_former_plot)
 q11_former_plot <- q11_former_plot +theme(legend.position = "none")
 plot11_fullage <- plot_grid(q11_young_plot,q11_old_plot,q11_former_plot,
                              nrow = 1)
-
-plot11_fullage <- plot_grid(plot11_fullage, legend11, nrow = 2, rel_heights=c(5,1)) 
+plot11_fullage <- plot_grid(plot11_fullage, legend11, nrow = 2, rel_heights=c(5,2)) 
 plot11_fullage
 ```
 \newpage
@@ -3705,7 +3629,7 @@ q11aspt_plot <- c(q11aspt_mean_ones, q11aspt_mean_twos, q11aspt_mean_threes, q11
 q11frnt_plot <- c(q11frnt_mean_ones, q11frnt_mean_twos, q11frnt_mean_threes, q11frnt_mean_fours)
 q11perf_plot <- c(q11perf_mean_ones, q11perf_mean_twos, q11perf_mean_threes, q11perf_mean_fours)
 
-q11full_plot_labels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.") 
+q11full_plot_labels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could \n have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance \n at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.") 
 
 #constructing data frames
 q11aspt_plot_dta <- data.frame(q11aspt_plot, q11full_plot_labels)
@@ -3748,15 +3672,10 @@ q11frnt_plot_temp <- ggplot(q11frnt_plot_dta, aes(x=q11full_plot_labels, y=q11fr
   labs(title = "Frontrunner States") +
   disaggtheme
 
-
 legend11 <- cowplot::get_legend(q11frnt_plot_temp)
-
 q11frnt_plot <- q11frnt_plot_temp +theme(legend.position = "none")
-
 q11_fullsdg <- plot_grid(q11aspt_plot,q11perf_plot,q11frnt_plot, nrow=1)
-
-q11_fullsdg <- plot_grid(q11_fullsdg,legend11, nrow = 2, rel_heights=c(5,1))
-
+q11_fullsdg <- plot_grid(q11_fullsdg,legend11, nrow = 2, rel_heights=c(5,2))
 q11_fullsdg
 ```
 \newpage
@@ -3781,9 +3700,8 @@ q12full_plot <- ggplot(q12full_plot_dta, aes(x=q12full_plot_labels, y=q12full_pl
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q12full_plot_labels) str_wrap(q12full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 12, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q12full_plot
 ```
 \newpage
@@ -3794,16 +3712,17 @@ Choose the option that best describes the overriding feeling among IAS officers 
 
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
-q12young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X135ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q12young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X135twos, summary_state_analysis_young$state_young_weight)*100,2)
-q12young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X135threes, summary_state_analysis_young$state_young_weight)*100,2)
-q12young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X135fours, summary_state_analysis_young$state_young_weight)*100,2)
-q12_young_plot<-c(q12young_mean_ones,q12young_mean_twos,q12young_mean_threes,q12young_mean_fours)
-q12_young_plotlabels <- c("We could at least use our networks to render some assistance at an individual level.", "We should have done so much more to improve the system when we had the time.", "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", "We were proud that our colleagues were able to deliver so much despite such adverse circumstances.")
-q12_young_plotdta <- data.frame(q12_young_plot, q12_young_plotlabels) 
-q12_young_plotdta$wrapped_labels = str_wrap(q12_young_plotdta$q12_young_plotlabels, width = 10)
+q12_plotlabels <- c("We could at least use our networks to render some assistance at an individual level.", "We should have done so much more to improve the system when we had the time.", "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the \n health care system.", "We were proud that our colleagues were able to deliver so much despite such adverse circumstances.")
 
-q12_young_plot <- ggplot(q12_young_plotdta, aes(x = q12_young_plotlabels, y = q12_young_plot, fill = q12_young_plotlabels )) +  
+q12young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X135ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q12young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X135twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q12young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X135threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q12young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X135fours, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q12_young_plot<-c(q12young_mean_ones,q12young_mean_twos,q12young_mean_threes,q12young_mean_fours)
+q12_young_plotdta <- data.frame(q12_young_plot, q12_plotlabels) 
+q12_young_plotdta$wrapped_labels = str_wrap(q12_young_plotdta$q12_plotlabels, width = 10)
+
+q12_young_plot <- ggplot(q12_young_plotdta, aes(x = q12_plotlabels, y = q12_young_plot, fill = q12_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q12_young_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3812,16 +3731,15 @@ q12_young_plot <- ggplot(q12_young_plotdta, aes(x = q12_young_plotlabels, y = q1
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q12old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X135ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q12old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X135twos, summary_state_analysis_old$state_old_weight)*100,2)
-q12old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X135threes, summary_state_analysis_old$state_old_weight)*100,2)
-q12old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X135fours, summary_state_analysis_old$state_old_weight)*100,2)
+q12old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X135ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q12old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X135twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q12old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X135threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q12old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X135fours, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q12_old_plot<-c(q12old_mean_ones,q12old_mean_twos,q12old_mean_threes,q12old_mean_fours)
-q12_old_plotlabels <- c("We could at least use our networks to render some assistance at an individual level.", "We should have done so much more to improve the system when we had the time.", "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", "We were proud that our colleagues were able to deliver so much despite such adverse circumstances.")
-q12_old_plotdta <- data.frame(q12_old_plot, q12_old_plotlabels) 
-q12_old_plotdta$wrapped_labels = str_wrap(q12_old_plotdta$q12_old_plotlabels, width = 10)
+q12_old_plotdta <- data.frame(q12_old_plot, q12_plotlabels) 
+q12_old_plotdta$wrapped_labels = str_wrap(q12_old_plotdta$q12_plotlabels, width = 10)
 
-q12_old_plot <- ggplot(q12_old_plotdta, aes(x = q12_old_plotlabels, y = q12_old_plot, fill = q12_old_plotlabels )) +  
+q12_old_plot <- ggplot(q12_old_plotdta, aes(x = q12_plotlabels, y = q12_old_plot, fill = q12_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q12_old_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3831,11 +3749,10 @@ q12_old_plot <- ggplot(q12_old_plotdta, aes(x = q12_old_plotlabels, y = q12_old_
   disaggtheme
 
 q12_former_plot<-c(summary_state_former$X135ones*100, summary_state_former$X135twos*100, summary_state_former$X135threes*100, summary_state_former$X135fours*100)
-q12_former_plotlabels <- c("We could at least use our networks to render some assistance at an individual level.", "We should have done so much more to improve the system when we had the time.", "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", "We were proud that our colleagues were able to deliver so much despite such adverse circumstances.")
-q12_former_plotdta <- data.frame(q12_former_plot, q12_former_plotlabels) 
-q12_former_plotdta$wrapped_labels = str_wrap(q12_former_plotdta$q12_former_plotlabels, width = 10)
+q12_former_plotdta <- data.frame(q12_former_plot, q12_plotlabels) 
+q12_former_plotdta$wrapped_labels = str_wrap(q12_former_plotdta$q12_plotlabels, width = 10)
 
-q12_former_plot <- ggplot(q12_former_plotdta, aes(x = q12_former_plotlabels, y = q12_former_plot, fill = q12_former_plotlabels )) +  
+q12_former_plot <- ggplot(q12_former_plotdta, aes(x = q12_plotlabels, y = q12_former_plot, fill = q12_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q12_former_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3848,8 +3765,7 @@ legend12 <- cowplot::get_legend(q12_former_plot)
 q12_former_plot <- q12_former_plot +theme(legend.position = "none")
 plot12_fullage <- plot_grid(q12_young_plot,q12_old_plot,q12_former_plot,
                              nrow = 1)
-  
-plot12_fullage <- plot_grid(plot12_fullage, legend12, nrow = 2, rel_heights=c(5,1)) 
+plot12_fullage <- plot_grid(plot12_fullage, legend12, nrow = 2, rel_heights=c(5,2)) 
 plot12_fullage
 ```
 \newpage
@@ -3881,7 +3797,7 @@ q12aspt_plot <- c(q12aspt_mean_ones, q12aspt_mean_twos, q12aspt_mean_threes, q12
 q12frnt_plot <- c(q12frnt_mean_ones, q12frnt_mean_twos, q12frnt_mean_threes, q12frnt_mean_fours)
 q12perf_plot <- c(q12perf_mean_ones, q12perf_mean_twos, q12perf_mean_threes, q12perf_mean_fours)
 
-q12full_plot_labels <- c("We could at least use our networks to render some assistance at an individual level.", "We should have done so much more to improve the system when we had the time.", "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the health care system.", "We were proud that our colleagues were able to deliver so much despite such adverse circumstances.")
+q12full_plot_labels <- c("We could at least use our networks to render some assistance at an individual level.", "We should have done so much more to improve the system when we had the time.", "We were as deprived and helpless as the ordinary citizen, in the face of this utter collapse of the \n health care system.", "We were proud that our colleagues were able to deliver so much despite such adverse circumstances.")
 
 #constructing data frames
 q12aspt_plot_dta <- data.frame(q12aspt_plot, q12full_plot_labels)
@@ -3924,15 +3840,10 @@ q12frnt_plot_temp <- ggplot(q12frnt_plot_dta, aes(x=q12full_plot_labels, y=q12fr
   labs(title = "Frontrunner States") +
   disaggtheme
 
-
 legend12 <- cowplot::get_legend(q12frnt_plot_temp)
-
 q12frnt_plot <- q12frnt_plot_temp +theme(legend.position = "none")
-
 q12_fullsdg <- plot_grid(q12aspt_plot,q12perf_plot,q12frnt_plot, nrow=1)
-
-q12_fullsdg <- plot_grid(q12_fullsdg,legend12, nrow = 2, rel_heights=c(5,1))
-
+q12_fullsdg <- plot_grid(q12_fullsdg,legend12, nrow = 2, rel_heights=c(5,2))
 q12_fullsdg
 ```
 \newpage
@@ -3957,9 +3868,8 @@ q14full_plot <- ggplot(q14full_plot_dta, aes(x=q14full_plot_labels, y=q14full_pl
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q14full_plot_labels) str_wrap(q14full_plot_labels, width = 20)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 14, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q14full_plot
 ```
 \newpage
@@ -3970,16 +3880,17 @@ The government support for India’s huge vaccine production capacity appears to
 
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
-q14young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X137ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q14young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X137twos, summary_state_analysis_young$state_young_weight)*100,2)
-q14young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X137threes, summary_state_analysis_young$state_young_weight)*100,2)
-q14young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X137fours, summary_state_analysis_young$state_young_weight)*100,2)
-q14_young_plot<-c(q14young_mean_ones,q14young_mean_twos,q14young_mean_threes,q14young_mean_fours)
-q14_young_plotlabels <- c("The government's fiscal situation did not permit such measures.", "The pandemic's limited initial impact led to a view that mass vaccination would not be urgently required in India.", "The private sector in India does not inspire confidence.", "The private sector makes profits and should therefore assume the risk involved.")
-q14_young_plotdta <- data.frame(q14_young_plot, q14_young_plotlabels) 
-q14_young_plotdta$wrapped_labels = str_wrap(q14_young_plotdta$q14_young_plotlabels, width = 10)
+q14_plotlabels <- c("The government's fiscal situation did not permit such measures.", "The pandemic's limited initial impact led to a view that mass vaccination would not be urgently \n required in India.", "The private sector in India does not inspire confidence.", "The private sector makes profits and should therefore assume the risk involved.")
 
-q14_young_plot <- ggplot(q14_young_plotdta, aes(x = q14_young_plotlabels, y = q14_young_plot, fill = q14_young_plotlabels )) +  
+q14young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X137ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q14young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X137twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q14young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X137threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q14young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X137fours, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q14_young_plot<-c(q14young_mean_ones,q14young_mean_twos,q14young_mean_threes,q14young_mean_fours)
+q14_young_plotdta <- data.frame(q14_young_plot, q14_plotlabels) 
+q14_young_plotdta$wrapped_labels = str_wrap(q14_young_plotdta$q14_plotlabels, width = 10)
+
+q14_young_plot <- ggplot(q14_young_plotdta, aes(x = q14_plotlabels, y = q14_young_plot, fill = q14_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q14_young_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -3988,16 +3899,15 @@ q14_young_plot <- ggplot(q14_young_plotdta, aes(x = q14_young_plotlabels, y = q1
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q14old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X137ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q14old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X137twos, summary_state_analysis_old$state_old_weight)*100,2)
-q14old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X137threes, summary_state_analysis_old$state_old_weight)*100,2)
-q14old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X137fours, summary_state_analysis_old$state_old_weight)*100,2)
+q14old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X137ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q14old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X137twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q14old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X137threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q14old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X137fours, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q14_old_plot<-c(q14old_mean_ones,q14old_mean_twos,q14old_mean_threes,q14old_mean_fours)
-q14_old_plotlabels <- c("The government's fiscal situation did not permit such measures.", "The pandemic's limited initial impact led to a view that mass vaccination would not be urgently required in India.", "The private sector in India does not inspire confidence.", "The private sector makes profits and should therefore assume the risk involved.")
-q14_old_plotdta <- data.frame(q14_old_plot, q14_old_plotlabels) 
-q14_old_plotdta$wrapped_labels = str_wrap(q14_old_plotdta$q14_old_plotlabels, width = 10)
+q14_old_plotdta <- data.frame(q14_old_plot, q14_plotlabels) 
+q14_old_plotdta$wrapped_labels = str_wrap(q14_old_plotdta$q14_plotlabels, width = 10)
 
-q14_old_plot <- ggplot(q14_old_plotdta, aes(x = q14_old_plotlabels, y = q14_old_plot, fill = q14_old_plotlabels )) +  
+q14_old_plot <- ggplot(q14_old_plotdta, aes(x = q14_plotlabels, y = q14_old_plot, fill = q14_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q14_old_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -4007,11 +3917,10 @@ q14_old_plot <- ggplot(q14_old_plotdta, aes(x = q14_old_plotlabels, y = q14_old_
   disaggtheme
 
 q14_former_plot<-c(summary_state_former$X137ones*100, summary_state_former$X137twos*100, summary_state_former$X137threes*100, summary_state_former$X137fours*100)
-q14_former_plotlabels <- c("The government's fiscal situation did not permit such measures.", "The pandemic's limited initial impact led to a view that mass vaccination would not be urgently required in India.", "The private sector in India does not inspire confidence.", "The private sector makes profits and should therefore assume the risk involved.")
-q14_former_plotdta <- data.frame(q14_former_plot, q14_former_plotlabels) 
-q14_former_plotdta$wrapped_labels = str_wrap(q14_former_plotdta$q14_former_plotlabels, width = 10)
+q14_former_plotdta <- data.frame(q14_former_plot, q14_plotlabels) 
+q14_former_plotdta$wrapped_labels = str_wrap(q14_former_plotdta$q14_plotlabels, width = 10)
 
-q14_former_plot <- ggplot(q14_former_plotdta, aes(x = q14_former_plotlabels, y = q14_former_plot, fill = q14_former_plotlabels )) +  
+q14_former_plot <- ggplot(q14_former_plotdta, aes(x = q14_plotlabels, y = q14_former_plot, fill = q14_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q14_former_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -4024,8 +3933,7 @@ legend14 <- cowplot::get_legend(q14_former_plot)
 q14_former_plot <- q14_former_plot +theme(legend.position = "none")
 plot14_fullage <- plot_grid(q14_young_plot,q14_old_plot,q14_former_plot,
                              nrow = 1)
-  
-plot14_fullage <- plot_grid(plot14_fullage, legend14, nrow = 2, rel_heights=c(5,1)) 
+plot14_fullage <- plot_grid(plot14_fullage, legend14, nrow = 2, rel_heights=c(5,2)) 
 plot14_fullage
 ```
 \newpage
@@ -4057,7 +3965,7 @@ q14aspt_plot <- c(q14aspt_mean_ones, q14aspt_mean_twos, q14aspt_mean_threes, q14
 q14frnt_plot <- c(q14frnt_mean_ones, q14frnt_mean_twos, q14frnt_mean_threes, q14frnt_mean_fours)
 q14perf_plot <- c(q14perf_mean_ones, q14perf_mean_twos, q14perf_mean_threes, q14perf_mean_fours)
 
-q14full_plot_labels <- c("The government's fiscal situation did not permit such measures.", "The pandemic's limited initial impact led to a view that mass vaccination would not be urgently required in India.", "The private sector in India does not inspire confidence.", "The private sector makes profits and should therefore assume the risk involved.") 
+q14full_plot_labels <- c("The government's fiscal situation did not permit such measures.", "The pandemic's limited initial impact led to a view that mass vaccination would not be urgently \n required in India.", "The private sector in India does not inspire confidence.", "The private sector makes profits and should therefore assume the risk involved.") 
 
 #constructing data frames
 q14aspt_plot_dta <- data.frame(q14aspt_plot, q14full_plot_labels)
@@ -4097,15 +4005,10 @@ q14frnt_plot_temp <- ggplot(q14frnt_plot_dta, aes(x=q14full_plot_labels, y=q14fr
   scale_fill_brewer(palette="YlGnBu") +
   disaggtheme
 
-
 legend14 <- cowplot::get_legend(q14frnt_plot_temp)
-
 q14frnt_plot <- q14frnt_plot_temp + theme(legend.position = "none")
-
 q14_fullsdg <- plot_grid(q14aspt_plot,q14perf_plot,q14frnt_plot, nrow=1)
-
-q14_fullsdg <- plot_grid(q14_fullsdg,legend14, nrow = 2, rel_heights=c(5,1))
-
+q14_fullsdg <- plot_grid(q14_fullsdg,legend14, nrow = 2, rel_heights=c(5,2))
 q14_fullsdg
 ```
 \newpage
@@ -4132,9 +4035,8 @@ q15full_plot <- ggplot(q15full_plot_dta, aes(x=q15full_plot_labels, y=q15full_pl
   geom_text(aes(label=paste0(sprintf("%0.2f", q15full_plot),"%"), vjust=-0.3), size=3.5) +
   scale_y_continuous(limits = c(0,100)) +  
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption= "Question 15, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q15full_plot
 ```
 \newpage
@@ -4146,18 +4048,19 @@ To what extent would you agree with the following statement?
 
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
-q15young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X138ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q15young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X138twos, summary_state_analysis_young$state_young_weight)*100,2)
-q15young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X138threes, summary_state_analysis_young$state_young_weight)*100,2)
-q15young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X138fours, summary_state_analysis_young$state_young_weight)*100,2)
+q15_plotlabels <- c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree")
+
+q15young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X138ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q15young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X138twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q15young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X138threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q15young_mean_fours <- round(weighted.mean(summary_state_analysis_young$X138fours, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
 q15_young_plot<-c(q15young_mean_ones,q15young_mean_twos,q15young_mean_threes,q15young_mean_fours)
-q15_young_plotlabels <- c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree")
-q15_young_plotdta <- data.frame(q15_young_plot, q15_young_plotlabels) 
-q15_young_plotdta$wrapped_labels = str_wrap(q15_young_plotdta$q15_young_plotlabels, width = 10)
-q15_young_plotdta$q15_young_plotlabels <- factor(q15_young_plotdta$q15_young_plotlabels,
+q15_young_plotdta <- data.frame(q15_young_plot, q15_plotlabels) 
+q15_young_plotdta$wrapped_labels = str_wrap(q15_young_plotdta$q15_plotlabels, width = 10)
+q15_young_plotdta$q15_plotlabels <- factor(q15_young_plotdta$q15_plotlabels,
                                                levels = c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree"))
 
-q15_young_plot <- ggplot(q15_young_plotdta, aes(x = q15_young_plotlabels, y = q15_young_plot, fill = q15_young_plotlabels )) +  
+q15_young_plot <- ggplot(q15_young_plotdta, aes(x = q15_plotlabels, y = q15_young_plot, fill = q15_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q15_young_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -4166,18 +4069,17 @@ q15_young_plot <- ggplot(q15_young_plotdta, aes(x = q15_young_plotlabels, y = q1
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q15old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X138ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q15old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X138twos, summary_state_analysis_old$state_old_weight)*100,2)
-q15old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X138threes, summary_state_analysis_old$state_old_weight)*100,2)
-q15old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X138fours, summary_state_analysis_old$state_old_weight)*100,2)
+q15old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X138ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q15old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X138twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q15old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X138threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q15old_mean_fours <- round(weighted.mean(summary_state_analysis_old$X138fours, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q15_old_plot<-c(q15old_mean_ones,q15old_mean_twos,q15old_mean_threes,q15old_mean_fours)
-q15_old_plotlabels <- c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree")
-q15_old_plotdta <- data.frame(q15_old_plot, q15_old_plotlabels) 
-q15_old_plotdta$wrapped_labels = str_wrap(q15_old_plotdta$q15_old_plotlabels, width = 10)
-q15_old_plotdta$q15_old_plotlabels <- factor(q15_old_plotdta$q15_old_plotlabels,
+q15_old_plotdta <- data.frame(q15_old_plot, q15_plotlabels) 
+q15_old_plotdta$wrapped_labels = str_wrap(q15_old_plotdta$q15_plotlabels, width = 10)
+q15_old_plotdta$q15_plotlabels <- factor(q15_old_plotdta$q15_plotlabels,
                                                  levels = c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree"))
 
-q15_old_plot <- ggplot(q15_old_plotdta, aes(x = q15_old_plotlabels, y = q15_old_plot, fill = q15_old_plotlabels )) +  
+q15_old_plot <- ggplot(q15_old_plotdta, aes(x = q15_plotlabels, y = q15_old_plot, fill = q15_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q15_old_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -4187,13 +4089,12 @@ q15_old_plot <- ggplot(q15_old_plotdta, aes(x = q15_old_plotlabels, y = q15_old_
   disaggtheme
 
 q15_former_plot<-c(summary_state_former$X138ones*100, summary_state_former$X138twos*100, summary_state_former$X138threes*100, summary_state_former$X138fours*100)
-q15_former_plotlabels <- c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree")
-q15_former_plotdta <- data.frame(q15_former_plot, q15_former_plotlabels) 
-q15_former_plotdta$wrapped_labels = str_wrap(q15_former_plotdta$q15_former_plotlabels, width = 10)
-q15_former_plotdta$q15_former_plotlabels <- factor(q15_former_plotdta$q15_former_plotlabels,
+q15_former_plotdta <- data.frame(q15_former_plot, q15_plotlabels) 
+q15_former_plotdta$wrapped_labels = str_wrap(q15_former_plotdta$q15_plotlabels, width = 10)
+q15_former_plotdta$q15_plotlabels <- factor(q15_former_plotdta$q15_plotlabels,
                                              levels = c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree"))
 
-q15_former_plot <- ggplot(q15_former_plotdta, aes(x = q15_former_plotlabels, y = q15_former_plot, fill = q15_former_plotlabels )) +  
+q15_former_plot <- ggplot(q15_former_plotdta, aes(x = q15_plotlabels, y = q15_former_plot, fill = q15_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q15_former_plot),"%"), vjust=-0.3), size=6)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -4207,7 +4108,7 @@ q15_former_plot <- q15_former_plot +theme(legend.position = "none")
 plot15_fullage <- plot_grid(q15_young_plot,q15_old_plot,q15_former_plot,
                              nrow = 1)
   
-plot15_fullage <- plot_grid(plot15_fullage, legend15, nrow = 2, rel_heights=c(5,1)) 
+plot15_fullage <- plot_grid(plot15_fullage, legend15, nrow = 2, rel_heights=c(5,2)) 
 plot15_fullage
 ```
 \newpage
@@ -4234,12 +4135,10 @@ q15frnt_mean_twos <- round(weighted.mean(summary_state_analysis$X138twos[summary
 q15frnt_mean_threes <- round(weighted.mean(summary_state_analysis$X138threes[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
 q15frnt_mean_fours <- round(weighted.mean(summary_state_analysis$X138fours[summary_state_analysis$sdg_tier=="Frontrunner"], summary_state_analysis$sdg_weight[summary_state_analysis$sdg_tier=="Frontrunner"])*100,2)
 
-
 #Forming vectors 
 q15aspt_plot <- c(q15aspt_mean_ones, q15aspt_mean_twos, q15aspt_mean_threes, q15aspt_mean_fours)
 q15perf_plot <- c(q15perf_mean_ones, q15perf_mean_twos, q15perf_mean_threes, q15perf_mean_fours)
 q15frnt_plot <- c(q15frnt_mean_ones, q15frnt_mean_twos, q15frnt_mean_threes, q15frnt_mean_fours)
-
 
 q15full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree")
 
@@ -4247,7 +4146,6 @@ q15full_plot_labels <- c("Slightly agree", "Slightly disagree", "Strongly agree"
 q15aspt_plot_dta <- data.frame(q15aspt_plot, q15full_plot_labels)
 q15perf_plot_dta <- data.frame(q15perf_plot, q15full_plot_labels)
 q15frnt_plot_dta <- data.frame(q15frnt_plot, q15full_plot_labels)
-
 
 #Levelling labels
 q15aspt_plot_dta$q15full_plot_labels <- factor(q15aspt_plot_dta$q15full_plot_labels,
@@ -4287,15 +4185,10 @@ q15frnt_plot_temp <- ggplot(q15frnt_plot_dta, aes(x=q15full_plot_labels, y=q15fr
   scale_fill_brewer(palette="YlGnBu") +
   disaggtheme
 
-
 legend15 <- cowplot::get_legend (q15frnt_plot_temp)
-
 q15frnt_plot <- q15frnt_plot_temp + theme(legend.position = "none")
-
 q15_fullsdg <- plot_grid(q15aspt_plot,q15perf_plot,q15frnt_plot, nrow=1)
-
-q15_fullsdg <- plot_grid(q15_fullsdg,legend15, nrow = 2, rel_heights=c(5,1))
-
+q15_fullsdg <- plot_grid(q15_fullsdg,legend15, nrow = 2, rel_heights=c(5,2))
 q15_fullsdg
 ```
 \newpage
@@ -4319,9 +4212,8 @@ q16full_plot <- ggplot(q16full_plot_dta, aes(x=q16full_plot_labels, y=q16full_pl
   scale_y_continuous(limits = c(0,100)) +
   scale_x_discrete(labels = function(q16full_plot_labels) str_wrap(q16full_plot_labels, width = 30)) +
   scale_fill_brewer(palette="YlGnBu") +
-  labs(x="",y="Percent", caption = "Question 16, Weighted") +
+  labs(x="",y="Percent") +
   newtheme
-
 q16full_plot
 ```
 \newpage
@@ -4332,15 +4224,16 @@ Which of the following statements best describes the media’s coverage of the p
 
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
-q16young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X139ones, summary_state_analysis_young$state_young_weight)*100,2) 
-q16young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X139twos, summary_state_analysis_young$state_young_weight)*100,2)
-q16young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X139threes, summary_state_analysis_young$state_young_weight)*100,2)
-q16_young_plot<-c(q16young_mean_ones,q16young_mean_twos,q16young_mean_threes)
-q16_young_plotlabels <- c("By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", "The media has failed to capture the full scale and intensity of the disaster.", "The media has made an effort to communicate a realistic picture and rightly drawn attention to the inadequate government response at various places.")
-q16_young_plotdta <- data.frame(q16_young_plot, q16_young_plotlabels) 
-q16_young_plotdta$wrapped_labels = str_wrap(q16_young_plotdta$q16_young_plotlabels, width = 10)
+q16_plotlabels <- c("By focussing on failures in pandemic management, the media has exaggerated the sense of failure \n and despair.", "The media has failed to capture the full scale and intensity of the disaster.", "The media has made an effort to communicate a realistic picture and rightly drawn attention to the \n inadequate government response at various places.")
 
-q16_young_plot <- ggplot(q16_young_plotdta, aes(x = q16_young_plotlabels, y = q16_young_plot, fill = q16_young_plotlabels )) +  
+q16young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X139ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
+q16young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X139twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q16young_mean_threes <- round(weighted.mean(summary_state_analysis_young$X139threes, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
+q16_young_plot<-c(q16young_mean_ones,q16young_mean_twos,q16young_mean_threes)
+q16_young_plotdta <- data.frame(q16_young_plot, q16_plotlabels) 
+q16_young_plotdta$wrapped_labels = str_wrap(q16_young_plotdta$q16_plotlabels, width = 10)
+
+q16_young_plot <- ggplot(q16_young_plotdta, aes(x = q16_plotlabels, y = q16_young_plot, fill = q16_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q16_young_plot),"%"), vjust=-0.3), size=5)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -4349,15 +4242,14 @@ q16_young_plot <- ggplot(q16_young_plotdta, aes(x = q16_young_plotlabels, y = q1
   labs(x="",y="Percent", title = "2012 and After") +
   disaggtheme
 
-q16old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X139ones, summary_state_analysis_old$state_old_weight)*100,2) 
-q16old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X139twos, summary_state_analysis_old$state_old_weight)*100,2)
-q16old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X139threes, summary_state_analysis_old$state_old_weight)*100,2)
+q16old_mean_ones <- round(weighted.mean(summary_state_analysis_old$X139ones, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2) 
+q16old_mean_twos <- round(weighted.mean(summary_state_analysis_old$X139twos, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
+q16old_mean_threes <- round(weighted.mean(summary_state_analysis_old$X139threes, summary_state_analysis_old$state_old_weight, na.rm = TRUE)*100,2)
 q16_old_plot<-c(q16old_mean_ones,q16old_mean_twos,q16old_mean_threes)
-q16_old_plotlabels <- c("By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", "The media has failed to capture the full scale and intensity of the disaster.", "The media has made an effort to communicate a realistic picture and rightly drawn attention to the inadequate government response at various places.")
-q16_old_plotdta <- data.frame(q16_old_plot, q16_old_plotlabels) 
-q16_old_plotdta$wrapped_labels = str_wrap(q16_old_plotdta$q16_old_plotlabels, width = 10)
+q16_old_plotdta <- data.frame(q16_old_plot, q16_plotlabels) 
+q16_old_plotdta$wrapped_labels = str_wrap(q16_old_plotdta$q16_plotlabels, width = 10)
 
-q16_old_plot <- ggplot(q16_old_plotdta, aes(x = q16_old_plotlabels, y = q16_old_plot, fill = q16_old_plotlabels )) +  
+q16_old_plot <- ggplot(q16_old_plotdta, aes(x = q16_plotlabels, y = q16_old_plot, fill = q16_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q16_old_plot),"%"), vjust=-0.3), size=5)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -4367,11 +4259,10 @@ q16_old_plot <- ggplot(q16_old_plotdta, aes(x = q16_old_plotlabels, y = q16_old_
   disaggtheme
 
 q16_former_plot<-c(summary_state_former$X139ones*100, summary_state_former$X139twos*100, summary_state_former$X139threes*100)
-q16_former_plotlabels <- c("By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", "The media has failed to capture the full scale and intensity of the disaster.", "The media has made an effort to communicate a realistic picture and rightly drawn attention to the inadequate government response at \n various places.")
-q16_former_plotdta <- data.frame(q16_former_plot, q16_former_plotlabels) 
-q16_former_plotdta$wrapped_labels = str_wrap(q16_former_plotdta$q16_former_plotlabels, width = 10)
+q16_former_plotdta <- data.frame(q16_former_plot, q16_plotlabels) 
+q16_former_plotdta$wrapped_labels = str_wrap(q16_former_plotdta$q16_plotlabels, width = 10)
 
-q16_former_plot <- ggplot(q16_former_plotdta, aes(x = q16_former_plotlabels, y = q16_former_plot, fill = q16_former_plotlabels )) +  
+q16_former_plot <- ggplot(q16_former_plotdta, aes(x = q16_plotlabels, y = q16_former_plot, fill = q16_plotlabels )) +  
   geom_bar(stat="identity", width= 0.5) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q16_former_plot),"%"), vjust=-0.3), size=5)+ 
   scale_x_discrete(labels= c("","","","",""))+
@@ -4384,8 +4275,7 @@ legend16 <- cowplot::get_legend(q16_former_plot)
 q16_former_plot <- q16_former_plot +theme(legend.position = "none")
 plot16_fullage <- plot_grid(q16_young_plot,q16_old_plot,q16_former_plot,
                              nrow = 1)
-  
-plot16_fullage <- plot_grid(plot16_fullage, legend16, nrow = 2, rel_heights=c(5,1)) 
+plot16_fullage <- plot_grid(plot16_fullage, legend16, nrow = 2, rel_heights=c(5,2)) 
 plot16_fullage
 ```
 \newpage
@@ -4414,7 +4304,7 @@ q16aspt_plot <- c(q16aspt_mean_ones, q16aspt_mean_twos, q16aspt_mean_threes)
 q16frnt_plot <- c(q16frnt_mean_ones, q16frnt_mean_twos, q16frnt_mean_threes)
 q16perf_plot <- c(q16perf_mean_ones, q16perf_mean_twos, q16perf_mean_threes)
 
-q16full_plot_labels <- c("By focussing on failures in pandemic management, the media has exaggerated the sense of failure and despair.", "The media has failed to capture the full scale and intensity of the disaster.", "The media has made an effort to communicate a realistic picture and rightly drawn attention to the inadequate government response at \n various places.") 
+q16full_plot_labels <- c("By focussing on failures in pandemic management, the media has exaggerated the sense of failure \n and despair.", "The media has failed to capture the full scale and intensity of the disaster.", "The media has made an effort to communicate a realistic picture and rightly drawn attention to the \n inadequate government response at \n various places.") 
 
 #constructing data frames
 q16aspt_plot_dta <- data.frame(q16aspt_plot, q16full_plot_labels)
@@ -4425,7 +4315,6 @@ q16perf_plot_dta <- data.frame(q16perf_plot, q16full_plot_labels)
 q16aspt_plot_dta$wrapped_labels = str_wrap(q16aspt_plot_dta$q16full_plot_labels, width = 50)
 q16frnt_plot_dta$wrapped_labels = str_wrap(q16frnt_plot_dta$q16full_plot_labels, width = 50)
 q16perf_plot_dta$wrapped_labels = str_wrap(q16perf_plot_dta$q16full_plot_labels, width = 50)
-
 
 #Invoking ggplot
 q16aspt_plot <- ggplot(q16aspt_plot_dta, aes(x=q16full_plot_labels, y=q16aspt_plot, fill = q16full_plot_labels)) +
@@ -4455,14 +4344,9 @@ q16frnt_plot_temp <- ggplot(q16frnt_plot_dta, aes(x=q16full_plot_labels, y=q16fr
   scale_fill_brewer(palette="YlGnBu") +
   disaggtheme
 
-
 legend16<- cowplot::get_legend(q16frnt_plot_temp)
-
 q16frnt_plot <- q16frnt_plot_temp +theme(legend.position = "none", legend.spacing = unit(2.0,'inches'))
-
 q16_fullsdg <- plot_grid(q16aspt_plot,q16perf_plot,q16frnt_plot, nrow=1)
-
-q16_fullsdg <- plot_grid(q16_fullsdg,legend16, nrow = 2, rel_heights=c(5,1))
-
+q16_fullsdg <- plot_grid(q16_fullsdg,legend16, nrow = 2, rel_heights=c(5,2))
 q16_fullsdg
 ```
