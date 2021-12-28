@@ -10,7 +10,7 @@ output:
 
 \Large 
 
-Notes
+Notes:
 
 1. This document contains aggregate graphs for all survey questions weighted by share of IAS officers in each state.
 
@@ -1762,7 +1762,6 @@ q4young_mean_wb <- round(weighted.mean(summary_q4_young$q4_wb, summary_q4_young$
 
 q4young_plot <- c(q4young_mean_anislands, q4young_mean_andhra, q4young_mean_arunachal, q4young_mean_assam, q4young_mean_bihar, q4young_mean_chandigarh, q4young_mean_chhattisgarh, q4young_mean_delhi, q4young_mean_dnhdd, q4young_mean_goa, q4young_mean_gujarat, q4young_mean_haryana, q4young_mean_hp, q4young_mean_jharkhand, q4young_mean_jk, q4young_mean_karnataka, q4young_mean_kerala, q4young_mean_ladakh, q4young_mean_lakshadweep, q4young_mean_maharashtra, q4young_mean_manipur, q4young_mean_meghalaya, q4young_mean_mizoram, q4young_mean_mp, q4young_mean_nagaland, q4young_mean_none, q4young_mean_odisha, q4young_mean_puducherry, q4young_mean_punjab, q4young_mean_rajasthan, q4young_mean_sikkim, q4young_mean_telangana, q4young_mean_tn, q4young_mean_tripura, q4young_mean_up, q4young_mean_uttarakhand, q4young_mean_wb)
 
-
 q4young_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
 q4young_plot_dta <- data.frame (q4young_plot, q4young_plot_labels) 
@@ -1815,7 +1814,6 @@ q4old_mean_wb <- round(weighted.mean(summary_q4_old$q4_wb, summary_q4_old$state_
 
 q4old_plot <- c(q4old_mean_anislands, q4old_mean_andhra, q4old_mean_arunachal, q4old_mean_assam, q4old_mean_bihar, q4old_mean_chandigarh, q4old_mean_chhattisgarh, q4old_mean_delhi, q4old_mean_dnhdd, q4old_mean_goa, q4old_mean_gujarat, q4old_mean_haryana, q4old_mean_hp, q4old_mean_jharkhand, q4old_mean_jk, q4old_mean_karnataka, q4old_mean_kerala, q4old_mean_ladakh, q4old_mean_lakshadweep, q4old_mean_maharashtra, q4old_mean_manipur, q4old_mean_meghalaya, q4old_mean_mizoram, q4old_mean_mp, q4old_mean_nagaland, q4old_mean_none, q4old_mean_odisha, q4old_mean_puducherry, q4old_mean_punjab, q4old_mean_rajasthan, q4old_mean_sikkim, q4old_mean_telangana, q4old_mean_tn, q4old_mean_tripura, q4old_mean_up, q4old_mean_uttarakhand, q4old_mean_wb)
 
-
 q4old_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
 q4old_plot_dta <- data.frame (q4old_plot, q4old_plot_labels) 
@@ -1827,7 +1825,6 @@ q4old_plot <- ggplot(q4old_plot_dta, aes(x=q4old_plot_labels, y=q4old_plot, fill
   scale_x_discrete(labels = function(q4old_plot_labels) str_wrap(q4old_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2011 and Before")+
   newtheme
-
 
 q4former_mean_anislands <- summary_q4_former$n[summary_q4_former$Merged=="Andaman and Nicobar Islands"]/sum(summary_q4_former$n)*100
 q4former_mean_andhra <- summary_q4_former$n[summary_q4_former$Merged=="Andhra Pradesh"]/sum(summary_q4_former$n)*100
@@ -1869,7 +1866,6 @@ q4former_mean_wb <- summary_q4_former$n[summary_q4_former$Merged=="West Bengal"]
 
 q4former_plot <- c(q4former_mean_anislands, q4former_mean_andhra, q4former_mean_arunachal, q4former_mean_assam, q4former_mean_bihar, q4former_mean_chandigarh, q4former_mean_chhattisgarh, q4former_mean_delhi, q4former_mean_dnhdd, q4former_mean_goa, q4former_mean_gujarat, q4former_mean_haryana, q4former_mean_hp, q4former_mean_jharkhand, q4former_mean_jk, q4former_mean_karnataka, q4former_mean_kerala, q4former_mean_ladakh, q4former_mean_lakshadweep, q4former_mean_maharashtra, q4former_mean_manipur, q4former_mean_meghalaya, q4former_mean_mizoram, q4former_mean_mp, q4former_mean_nagaland, q4former_mean_none, q4former_mean_odisha, q4former_mean_puducherry, q4former_mean_punjab, q4former_mean_rajasthan, q4former_mean_sikkim, q4former_mean_telangana, q4former_mean_tn, q4former_mean_tripura, q4former_mean_up, q4former_mean_uttarakhand, q4former_mean_wb)
 
-
 q4former_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
 q4former_plot_dta <- data.frame (q4former_plot, q4former_plot_labels) 
@@ -1890,7 +1886,6 @@ plot4_fullage
 ## Question 4: Disaggregated by SDG
 
 Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
-
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=11,fig.width=18, warning=FALSE}
 summary_q4 <- summary_q4 %>% 
@@ -2182,7 +2177,6 @@ q5young_mean_wb <- round(weighted.mean(summary_q5_young$q5_wb, summary_q5_young$
 
 q5young_plot <- c(q5young_mean_anislands, q5young_mean_andhra, q5young_mean_arunachal, q5young_mean_assam, q5young_mean_bihar, q5young_mean_chandigarh, q5young_mean_chhattisgarh, q5young_mean_delhi, q5young_mean_dnhdd, q5young_mean_goa, q5young_mean_gujarat, q5young_mean_haryana, q5young_mean_hp, q5young_mean_jharkhand, q5young_mean_jk, q5young_mean_karnataka, q5young_mean_kerala, q5young_mean_ladakh, q5young_mean_lakshadweep, q5young_mean_maharashtra, q5young_mean_manipur, q5young_mean_meghalaya, q5young_mean_mizoram, q5young_mean_mp, q5young_mean_nagaland, q5young_mean_none, q5young_mean_odisha, q5young_mean_puducherry, q5young_mean_punjab, q5young_mean_rajasthan, q5young_mean_sikkim, q5young_mean_telangana, q5young_mean_tn, q5young_mean_tripura, q5young_mean_up, q5young_mean_uttarakhand, q5young_mean_wb)
 
-
 q5young_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
 q5young_plot_dta <- data.frame (q5young_plot, q5young_plot_labels) 
@@ -2235,7 +2229,6 @@ q5old_mean_wb <- round(weighted.mean(summary_q5_old$q5_wb, summary_q5_old$state_
 
 q5old_plot <- c(q5old_mean_anislands, q5old_mean_andhra, q5old_mean_arunachal, q5old_mean_assam, q5old_mean_bihar, q5old_mean_chandigarh, q5old_mean_chhattisgarh, q5old_mean_delhi, q5old_mean_dnhdd, q5old_mean_goa, q5old_mean_gujarat, q5old_mean_haryana, q5old_mean_hp, q5old_mean_jharkhand, q5old_mean_jk, q5old_mean_karnataka, q5old_mean_kerala, q5old_mean_ladakh, q5old_mean_lakshadweep, q5old_mean_maharashtra, q5old_mean_manipur, q5old_mean_meghalaya, q5old_mean_mizoram, q5old_mean_mp, q5old_mean_nagaland, q5old_mean_none, q5old_mean_odisha, q5old_mean_puducherry, q5old_mean_punjab, q5old_mean_rajasthan, q5old_mean_sikkim, q5old_mean_telangana, q5old_mean_tn, q5old_mean_tripura, q5old_mean_up, q5old_mean_uttarakhand, q5old_mean_wb)
 
-
 q5old_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
 q5old_plot_dta <- data.frame (q5old_plot, q5old_plot_labels) 
@@ -2247,7 +2240,6 @@ q5old_plot <- ggplot(q5old_plot_dta, aes(x=q5old_plot_labels, y=q5old_plot, fill
   scale_x_discrete(labels = function(q5old_plot_labels) str_wrap(q5old_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2011 and Before")+
   newtheme
-
 
 q5former_mean_anislands <- summary_q5_former$n[summary_q5_former$Merged=="Andaman and Nicobar Islands"]/sum(summary_q5_former$n)*100
 q5former_mean_andhra <- summary_q5_former$n[summary_q5_former$Merged=="Andhra Pradesh"]/sum(summary_q5_former$n)*100
@@ -2288,7 +2280,6 @@ q5former_mean_uttarakhand <- summary_q5_former$n[summary_q5_former$Merged=="Utta
 q5former_mean_wb <- summary_q5_former$n[summary_q5_former$Merged=="West Bengal"]/sum(summary_q5_former$n)*100
 
 q5former_plot <- c(q5former_mean_anislands, q5former_mean_andhra, q5former_mean_arunachal, q5former_mean_assam, q5former_mean_bihar, q5former_mean_chandigarh, q5former_mean_chhattisgarh, q5former_mean_delhi, q5former_mean_dnhdd, q5former_mean_goa, q5former_mean_gujarat, q5former_mean_haryana, q5former_mean_hp, q5former_mean_jharkhand, q5former_mean_jk, q5former_mean_karnataka, q5former_mean_kerala, q5former_mean_ladakh, q5former_mean_lakshadweep, q5former_mean_maharashtra, q5former_mean_manipur, q5former_mean_meghalaya, q5former_mean_mizoram, q5former_mean_mp, q5former_mean_nagaland, q5former_mean_none, q5former_mean_odisha, q5former_mean_puducherry, q5former_mean_punjab, q5former_mean_rajasthan, q5former_mean_sikkim, q5former_mean_telangana, q5former_mean_tn, q5former_mean_tripura, q5former_mean_up, q5former_mean_uttarakhand, q5former_mean_wb)
-
 
 q5former_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
@@ -2602,7 +2593,6 @@ q6young_mean_wb <- round(weighted.mean(summary_q6_young$q6_wb, summary_q6_young$
 
 q6young_plot <- c(q6young_mean_anislands, q6young_mean_andhra, q6young_mean_arunachal, q6young_mean_assam, q6young_mean_bihar, q6young_mean_chandigarh, q6young_mean_chhattisgarh, q6young_mean_delhi, q6young_mean_dnhdd, q6young_mean_goa, q6young_mean_gujarat, q6young_mean_haryana, q6young_mean_hp, q6young_mean_jharkhand, q6young_mean_jk, q6young_mean_karnataka, q6young_mean_kerala, q6young_mean_ladakh, q6young_mean_lakshadweep, q6young_mean_maharashtra, q6young_mean_manipur, q6young_mean_meghalaya, q6young_mean_mizoram, q6young_mean_mp, q6young_mean_nagaland, q6young_mean_none, q6young_mean_odisha, q6young_mean_puducherry, q6young_mean_punjab, q6young_mean_rajasthan, q6young_mean_sikkim, q6young_mean_telangana, q6young_mean_tn, q6young_mean_tripura, q6young_mean_up, q6young_mean_uttarakhand, q6young_mean_wb)
 
-
 q6young_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
 q6young_plot_dta <- data.frame (q6young_plot, q6young_plot_labels) 
@@ -2655,7 +2645,6 @@ q6old_mean_wb <- round(weighted.mean(summary_q6_old$q6_wb, summary_q6_old$state_
 
 q6old_plot <- c(q6old_mean_anislands, q6old_mean_andhra, q6old_mean_arunachal, q6old_mean_assam, q6old_mean_bihar, q6old_mean_chandigarh, q6old_mean_chhattisgarh, q6old_mean_delhi, q6old_mean_dnhdd, q6old_mean_goa, q6old_mean_gujarat, q6old_mean_haryana, q6old_mean_hp, q6old_mean_jharkhand, q6old_mean_jk, q6old_mean_karnataka, q6old_mean_kerala, q6old_mean_ladakh, q6old_mean_lakshadweep, q6old_mean_maharashtra, q6old_mean_manipur, q6old_mean_meghalaya, q6old_mean_mizoram, q6old_mean_mp, q6old_mean_nagaland, q6old_mean_none, q6old_mean_odisha, q6old_mean_puducherry, q6old_mean_punjab, q6old_mean_rajasthan, q6old_mean_sikkim, q6old_mean_telangana, q6old_mean_tn, q6old_mean_tripura, q6old_mean_up, q6old_mean_uttarakhand, q6old_mean_wb)
 
-
 q6old_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
 q6old_plot_dta <- data.frame (q6old_plot, q6old_plot_labels) 
@@ -2667,7 +2656,6 @@ q6old_plot <- ggplot(q6old_plot_dta, aes(x=q6old_plot_labels, y=q6old_plot, fill
   scale_x_discrete(labels = function(q6old_plot_labels) str_wrap(q6old_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2011 and Before")+
   newtheme
-
 
 q6former_mean_anislands <- summary_q6_former$n[summary_q6_former$Merged=="Andaman and Nicobar Islands"]/sum(summary_q6_former$n)*100
 q6former_mean_andhra <- summary_q6_former$n[summary_q6_former$Merged=="Andhra Pradesh"]/sum(summary_q6_former$n)*100
@@ -2708,7 +2696,6 @@ q6former_mean_uttarakhand <- summary_q6_former$n[summary_q6_former$Merged=="Utta
 q6former_mean_wb <- summary_q6_former$n[summary_q6_former$Merged=="West Bengal"]/sum(summary_q6_former$n)*100
 
 q6former_plot <- c(q6former_mean_anislands, q6former_mean_andhra, q6former_mean_arunachal, q6former_mean_assam, q6former_mean_bihar, q6former_mean_chandigarh, q6former_mean_chhattisgarh, q6former_mean_delhi, q6former_mean_dnhdd, q6former_mean_goa, q6former_mean_gujarat, q6former_mean_haryana, q6former_mean_hp, q6former_mean_jharkhand, q6former_mean_jk, q6former_mean_karnataka, q6former_mean_kerala, q6former_mean_ladakh, q6former_mean_lakshadweep, q6former_mean_maharashtra, q6former_mean_manipur, q6former_mean_meghalaya, q6former_mean_mizoram, q6former_mean_mp, q6former_mean_nagaland, q6former_mean_none, q6former_mean_odisha, q6former_mean_puducherry, q6former_mean_punjab, q6former_mean_rajasthan, q6former_mean_sikkim, q6former_mean_telangana, q6former_mean_tn, q6former_mean_tripura, q6former_mean_up, q6former_mean_uttarakhand, q6former_mean_wb)
-
 
 q6former_plot_labels <- c("AN", "AP", "AR", "AS", "BR", "CH", "CG", "DL", "DNH & DD", "GA", "GJ", "HR", "HP", "JH", "JK", "KA", "KL", "LA", "LD", "MH", "MN", "ML", "MZ", "MP", "NL", "None", "OR", "PY", "PB", "RJ", "SK", "TG", "TN", "TR", "UP", "UK", "WB")
 
@@ -3667,7 +3654,6 @@ q11_old_plot <- ggplot(q11_old_plotdta, aes(x = q11_old_plotlabels, y = q11_old_
   labs(x="",y="Percent", title = "2011 and Before") +
   disaggtheme
 
-
 q11_former_plot<-c(summary_state_former$X134ones*100, summary_state_former$X134twos*100, summary_state_former$X134threes*100, summary_state_former$X134fours*100)
 q11_former_plotlabels <- cq11full_plot_labels <- c("India has successfully followed this nationally laid down trajectory of vaccine implementation.", "Our vaccination efforts have been adequate in following this trajectory though some states could have done better.", "Our vaccination policy implementation has been less than satisfactory because of poor performance at state level.", "Our vaccination policy implementation has been poor due to lack of clear and consistent national direction.")
 q11_former_plotdta <- data.frame(q11_former_plot, q11_former_plotlabels) 
@@ -3686,7 +3672,7 @@ legend11 <- cowplot::get_legend(q11_former_plot)
 q11_former_plot <- q11_former_plot +theme(legend.position = "none")
 plot11_fullage <- plot_grid(q11_young_plot,q11_old_plot,q11_former_plot,
                              nrow = 1)
-  
+
 plot11_fullage <- plot_grid(plot11_fullage, legend11, nrow = 2, rel_heights=c(5,1)) 
 plot11_fullage
 ```
