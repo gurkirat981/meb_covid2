@@ -426,8 +426,8 @@ ias_processed_dta<-nocombined_ias %>%
   #bind_rows(summarise_all(.,~if(is.numeric(.)) sum(.) else("Total"))) %>% 
   mutate(sdg = ifelse(State == "Uttar Pradesh" | State == "Bihar" | State == "Assam", "Aspirant", 
                        ifelse(State=="Puducherry"|State=="Tamil Nadu"| State=="Chandigarh"| State=="Himachal Pradesh"|State =="Kerala", "Frontrunner", "Performer"))) %>% 
-  mutate(state_young_weight = pre2012/ sum(pre2012)) %>% 
-  mutate(state_old_weight = post2012/ sum(post2012)) 
+  mutate(state_young_weight = post2012/ sum(post2012)) %>% 
+  mutate(state_old_weight = pre2012/ sum(pre2012)) 
 
 ias_processed_dta <- ias_processed_dta %>% 
   mutate(sdg_weight = ifelse(sdg == "Aspirant", total/sum(ias_processed_dta$total[ias_processed_dta$sdg=="Aspirant"]), 
