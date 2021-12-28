@@ -10,7 +10,7 @@ output:
 
 \Large 
 
-Notes
+Notes:
 
 1. This document contains aggregate graphs for all survey questions weighted by share of IAS officers in each state.
 
