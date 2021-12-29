@@ -7,7 +7,6 @@ output:
   html_document:
     df_print: paged
 ---
-
 \Large 
 
 Notes:
@@ -1735,7 +1734,7 @@ q4full_plot_dta$wrapped_labels = str_wrap(q4full_plot_dta$q4full_plot_labels, wi
 q4full_plot <- ggplot(q4full_plot_dta, aes(x=q4full_plot_labels, y=q4full_plot, fill = q4full_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q4full_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q4full_plot_labels) str_wrap(q4full_plot_labels, width = 30)) +
   labs(x="",y="Percent")+
   newtheme
@@ -1798,7 +1797,7 @@ q4young_plot_dta$wrapped_labels = str_wrap(q4young_plot_dta$q4young_plot_labels,
 q4young_plot <- ggplot(q4young_plot_dta, aes(x=q4young_plot_labels, y=q4young_plot, fill = q4young_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q4young_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q4young_plot_labels) str_wrap(q4young_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2012 and After")+
   newtheme
@@ -1850,7 +1849,7 @@ q4old_plot_dta$wrapped_labels = str_wrap(q4old_plot_dta$q4old_plot_labels, width
 q4old_plot <- ggplot(q4old_plot_dta, aes(x=q4old_plot_labels, y=q4old_plot, fill = q4old_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q4old_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q4old_plot_labels) str_wrap(q4old_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2011 and Before")+
   newtheme
@@ -1902,7 +1901,7 @@ q4former_plot_dta$wrapped_labels = str_wrap(q4former_plot_dta$q4former_plot_labe
 q4former_plot <- ggplot(q4former_plot_dta, aes(x=q4former_plot_labels, y=q4former_plot, fill = q4former_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q4former_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q4former_plot_labels) str_wrap(q4former_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "Former Officers")+
   newtheme
@@ -2147,7 +2146,7 @@ q5full_plot_dta$wrapped_labels = str_wrap(q5full_plot_dta$q5full_plot_labels, wi
 q5full_plot <- ggplot(q5full_plot_dta, aes(x=q5full_plot_labels, y=q5full_plot, fill = q5full_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q5full_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,30)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q5full_plot_labels) str_wrap(q5full_plot_labels, width = 30)) +
   labs(x="",y="Percent")+
   newtheme
@@ -2210,7 +2209,7 @@ q5young_plot_dta$wrapped_labels = str_wrap(q5young_plot_dta$q5young_plot_labels,
 q5young_plot <- ggplot(q5young_plot_dta, aes(x=q5young_plot_labels, y=q5young_plot, fill = q5young_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q5young_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q5young_plot_labels) str_wrap(q5young_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2012 and After")+
   newtheme
@@ -2262,7 +2261,7 @@ q5old_plot_dta$wrapped_labels = str_wrap(q5old_plot_dta$q5old_plot_labels, width
 q5old_plot <- ggplot(q5old_plot_dta, aes(x=q5old_plot_labels, y=q5old_plot, fill = q5old_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q5old_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q5old_plot_labels) str_wrap(q5old_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2011 and Before")+
   newtheme
@@ -2314,7 +2313,7 @@ q5former_plot_dta$wrapped_labels = str_wrap(q5former_plot_dta$q5former_plot_labe
 q5former_plot <- ggplot(q5former_plot_dta, aes(x=q5former_plot_labels, y=q5former_plot, fill = q5former_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q5former_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q5former_plot_labels) str_wrap(q5former_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "Former Officers")+
   newtheme
@@ -2555,7 +2554,7 @@ q6full_plot_dta$wrapped_labels = str_wrap(q6full_plot_dta$q6full_plot_labels, wi
 q6full_plot <- ggplot(q6full_plot_dta, aes(x=q6full_plot_labels, y=q6full_plot, fill = q6full_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
  geom_text(aes(label=paste0(sprintf("%0.2f", q6full_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q6full_plot_labels) str_wrap(q6full_plot_labels, width = 30)) +
   labs(x="",y="Percent")+
   newtheme
@@ -2617,7 +2616,7 @@ q6young_plot_dta$wrapped_labels = str_wrap(q6young_plot_dta$q6young_plot_labels,
 q6young_plot <- ggplot(q6young_plot_dta, aes(x=q6young_plot_labels, y=q6young_plot, fill = q6young_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q6young_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q6young_plot_labels) str_wrap(q6young_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2012 and After")+
   newtheme
@@ -2669,7 +2668,7 @@ q6old_plot_dta$wrapped_labels = str_wrap(q6old_plot_dta$q6old_plot_labels, width
 q6old_plot <- ggplot(q6old_plot_dta, aes(x=q6old_plot_labels, y=q6old_plot, fill = q6old_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q6old_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q6old_plot_labels) str_wrap(q6old_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "2011 and Before")+
   newtheme
@@ -2722,7 +2721,7 @@ q6former_plot_dta$wrapped_labels = str_wrap(q6former_plot_dta$q6former_plot_labe
 q6former_plot <- ggplot(q6former_plot_dta, aes(x=q6former_plot_labels, y=q6former_plot, fill = q6former_plot_labels)) +
   geom_bar(stat="identity", width= 1, show.legend = FALSE) + 
   geom_text(aes(label=paste0(sprintf("%0.2f", q6former_plot),"%"), vjust=-0.3), size=3.5) +
-  scale_y_continuous(limits = c(0,25)) +
+  scale_y_continuous(limits = c(0,40)) +
   scale_x_discrete(labels = function(q6former_plot_labels) str_wrap(q6former_plot_labels, width = 30)) +
   labs(x="",y="Percent", title = "Former Officers")+
   newtheme
@@ -4098,7 +4097,7 @@ To what extent would you agree with the following statement?
 
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
-q15_plotlabels <- c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree")
+q15_plotlabels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree")
 
 q15young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X138ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
 q15young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X138twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
