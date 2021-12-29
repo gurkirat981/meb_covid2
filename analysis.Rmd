@@ -4098,7 +4098,7 @@ To what extent would you agree with the following statement?
 
 \vspace{6mm}
 ```{r echo = FALSE, fig.height=10,fig.width=18}
-q15_plotlabels <- c("Strongly disagree", "Slightly disagree", "Slightly agree", "Strongly agree")
+q15_plotlabels <- c("Slightly agree", "Slightly disagree", "Strongly agree", "Strongly disagree")
 
 q15young_mean_ones <- round(weighted.mean(summary_state_analysis_young$X138ones, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2) 
 q15young_mean_twos <- round(weighted.mean(summary_state_analysis_young$X138twos, summary_state_analysis_young$state_young_weight, na.rm = TRUE)*100,2)
