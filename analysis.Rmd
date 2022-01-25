@@ -615,9 +615,10 @@ cadre_strength_q4<-as.data.frame(table(full_serving$X12)) %>%
   rename(Cadre=Var1) %>% 
   rename(Cadre_Strength=Freq)
 #Table displaying the proportion of officers who showed bias in each state
-compare_q4<-cbind(cadre_strength, biased_officers) %>% 
-  mutate(Prop_of_Bias=round(No.of_Bias/Cadre_Strength*100,2))
-
+compare_q4<-cbind(cadre_strength_q4, biased_officers_q4) %>% 
+  mutate("Proportion of Biased Responses (Q4)"=round(No.of_Bias/Cadre_Strength*100,2))%>% 
+  rename("Number of Biased Responses (Q4)" = No.of_Bias) %>% 
+  rename("Strength of Cadre in Sample" = Cadre_Strength)
 ```
 
 ```{r, include=FALSE}
@@ -1765,8 +1766,10 @@ cadre_strength_q6<-as.data.frame(table(full_serving$X12)) %>%
   rename(Cadre=Var1) %>% 
   rename(Cadre_Strength=Freq)
 #Table displaying the proportion of officers who showed bias in each state
-compare_q6<-cbind(cadre_strength, biased_officers) %>% 
-  mutate(Prop_of_Bias=round(No.of_Bias/Cadre_Strength*100,2))
+compare_q6<-cbind(cadre_strength_q6, biased_officers_q6) %>% 
+  mutate("Proportion of Biased Responses (Q6)"=round(No.of_Bias/Cadre_Strength*100,2)) %>% 
+  rename("Number of Biased Responses (Q6)" = No.of_Bias) %>% 
+  rename("Strength of Cadre in Sample" = Cadre_Strength) 
 
 #filtering out all officers who selected their own state 
 q6_unbiased <- q6 %>% 
@@ -2916,7 +2919,7 @@ q4full_plot
 
 Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
-241 out of 452 officers felt that their own state has been best at carrying out their pandemic management responsibilities. These officers may be biased in their response. The following graph excludes all biased responses for question 4.
+241 out of 452 officers felt that their own state has been best at carrying out their pandemic management responsibilities. These officers may be biased in their response. The following graph excludes all such potentially biased responses for question 4.
 
 \vspace{6mm}
 ```{r echo=FALSE, fig.height=10, fig.width=18, warning=FALSE}
@@ -3150,7 +3153,7 @@ plot4_fullage
 
 Please select upto two States that you think have best fulfilled their pandemic management responsibilities. (States selected in previous answers can be repeated)  
 
-132 out of the 248 young officers (who joined the IAS in 2012 or later) felt that their own state has been under-appreciated for its successful pandemic management. 110 of the 204 older officers and 38 of 96 former officers were similarly biased in their responses to this question. The following graphs exclude these biased responses. 
+132 out of the 248 young officers (who joined the IAS in 2012 or later) felt that their own state has been under-appreciated for its successful pandemic management. 110 of the 204 older officers and 38 of 96 former officers were similarly biased in their responses to this question. The following graphs exclude these potentialy biased responses. 
 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=17,fig.width=18, warning=FALSE}
@@ -4155,7 +4158,7 @@ q6full_plot
 
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
 
-117 officers out of 452 felt that their own state was under-appreciated for its successful pandemic management. These officers may be biased in their response. The following graph excludes all biased responses for question 6.
+117 officers out of 452 felt that their own state was under-appreciated for its successful pandemic management. These officers may be biased in their response. The following graph excludes all such potentially biased responses for question 6.
 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
@@ -4387,7 +4390,7 @@ plot6_fullage
 
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
 
-100 officers out of the 248 officers who joined the IAS in 2012 or later felt that their own state has been under-appreciated for its successful pandemic management. 71 of the 204 officers who joined the IAS in 2011 or before, and 24 of 96 former officers were similarly biased in their responses to this question. The following graphs exclude these biased responses. 
+100 officers out of the 248 officers who joined the IAS in 2012 or later felt that their own state has been under-appreciated for its successful pandemic management. 71 of the 204 officers who joined the IAS in 2011 or before, and 24 of 96 former officers were similarly biased in their responses to this question. The following graphs exclude these potentially biased responses. 
 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=17,fig.width=18, warning=FALSE}
@@ -4908,6 +4911,7 @@ grid.newpage()
 grid.draw(rbind(ggplotGrob(q6aspt_plot), ggplotGrob(q6perf_plot), ggplotGrob(q6frnt_plot), size = "last"))
 ```
 \newpage
+
 ## Question 7: Aggregate Graph
 
 Some examples of successful management of the challenges posed by the pandemic show that civil servants can perform even under very difficult circumstances. Why is this situation not the norm? Choose the option that you consider more important. 
