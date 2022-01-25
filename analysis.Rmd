@@ -2891,7 +2891,7 @@ q4full_plot
 ```
 \newpage
 
-## Question 4: Disaggregated by Age: Accounting for Officers' Bias
+## Question 4: Accounting for Officers' Bias
 
 Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
