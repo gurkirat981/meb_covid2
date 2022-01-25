@@ -615,9 +615,10 @@ cadre_strength_q4<-as.data.frame(table(full_serving$X12)) %>%
   rename(Cadre=Var1) %>% 
   rename(Cadre_Strength=Freq)
 #Table displaying the proportion of officers who showed bias in each state
-compare_q4<-cbind(cadre_strength, biased_officers) %>% 
-  mutate(Prop_of_Bias=round(No.of_Bias/Cadre_Strength*100,2))
-
+compare_q4<-cbind(cadre_strength_q4, biased_officers_q4) %>% 
+  mutate("Proportion of Biased Responses (Q4)"=round(No.of_Bias/Cadre_Strength*100,2))%>% 
+  rename("Number of Biased Responses (Q4)" = No.of_Bias) %>% 
+  rename("Strength of Cadre in Sample" = Cadre_Strength)
 ```
 
 ```{r, include=FALSE}
@@ -1765,8 +1766,10 @@ cadre_strength_q6<-as.data.frame(table(full_serving$X12)) %>%
   rename(Cadre=Var1) %>% 
   rename(Cadre_Strength=Freq)
 #Table displaying the proportion of officers who showed bias in each state
-compare_q6<-cbind(cadre_strength, biased_officers) %>% 
-  mutate(Prop_of_Bias=round(No.of_Bias/Cadre_Strength*100,2))
+compare_q6<-cbind(cadre_strength_q6, biased_officers_q6) %>% 
+  mutate("Proportion of Biased Responses (Q6)"=round(No.of_Bias/Cadre_Strength*100,2)) %>% 
+  rename("Number of Biased Responses (Q6)" = No.of_Bias) %>% 
+  rename("Strength of Cadre in Sample" = Cadre_Strength) 
 
 #filtering out all officers who selected their own state 
 q6_unbiased <- q6 %>% 
