@@ -516,7 +516,6 @@ summary_q4 <- summary_q4 %>%
   mutate(sdg_weight=ias_processed_dta$sdg_weight)
 
 #Calculating averages for *unbiased* officers only (by filtering out all officers who selected their own state)
-
 non_repeated_q4 <- state_answers_q4 %>% 
 mutate (REPEAT = ifelse (Merged == "Andaman and Nicobar Islands " & X12 == "AGMUT", 1,
 ifelse (Merged == "Andhra Pradesh" & X12 == "Andhra Pradesh", 1,
@@ -603,7 +602,6 @@ summary_nr_q4 <- nr_q4 %>%
 summary_nr_q4 <- summary_nr_q4 %>% 
   mutate(state_weight=ias_processed_dta$state_weight) %>% 
   mutate(sdg_weight=ias_processed_dta$sdg_weight)
-```
 ```
 
 ```{r, include=FALSE}
@@ -775,10 +773,10 @@ q4_state_answers1_old <- fullage_old %>%
   dplyr:: select(-Merged1.1)
 
 state_answers_q4_old <- fullage_old %>% 
-  dplyr::select (state, Merged1.2) %>% 
+  dplyr::select (state, Merged1.2, X12) %>% 
   mutate (Merged = Merged1.2) %>% 
   dplyr:: select (-Merged1.2) %>% 
-  add_row(q4_state_answers1_old, X12) 
+  add_row(q4_state_answers1_old) 
 
 summary_q4_old <- state_answers_q4_old %>% 
   group_by(state) %>% 
