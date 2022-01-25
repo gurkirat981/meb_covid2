@@ -2895,7 +2895,7 @@ q4full_plot
 
 Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
-241 officers (out of 452) felt that their own state has been best at executing their pandemic management responsibilities. These officers may be biased in their response. The following graph excludes all biased responses for question 4.
+241 officers (out of 452) felt that their own state has been best at carrying out their pandemic management responsibilities. These officers may be biased in their response. The following graph excludes all biased responses for question 4.
 
 \vspace{6mm}
 ```{r echo=FALSE, fig.height=10, fig.width=18, warning=FALSE}
