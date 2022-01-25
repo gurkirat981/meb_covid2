@@ -220,33 +220,45 @@ summary_nogroup<-full_serving %>%
 
 ```{r, include=FALSE}
 #Creating a dataset with the averages for each answer choice for all questions grouped by the state 
-summary_state_age<-full_serving %>% 
+summary_state_age<-full_respondents %>% 
   dplyr::select(c(X16, X17, X18, X130, X131, X132, X133, X134, X135, X137, X138, X139, state, age)) %>% 
   group_by(state) %>% 
   summarise(X16ones_old=sum(X16[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X16twos_old=sum(X16[age=="2011 and before"]==2)/length(state[age=="2011 and before"]),
             X16ones_young=sum(X16[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X16twos_young=sum(X16[age=="2012 and after"]==2)/length(state[age=="2012 and after"]),
+            X16ones_former=sum(X16[age=="Former officer"]==1)/length(state[age=="Former officer"]), X16twos_former=sum(X16[age=="Former officer"]==2)/length(state[age=="Former officer"]),
             X17ones_old=sum(X17[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X17twos_old=sum(X17[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X17threes_old=sum(X17[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X17fours_old=sum(X17[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
             X17ones_young=sum(X17[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X17twos_young=sum(X17[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X17threes_young=sum(X17[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X17fours_young=sum(X17[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+            X17ones_former=sum(X17[age=="Former officer"]==1)/length(state[age=="Former officer"]), X17twos_former=sum(X17[age=="Former officer"]==2)/length(state[age=="Former officer"]), X17threes_former=sum(X17[age=="Former officer"]==3)/length(state[age=="Former officer"]), X17fours_former=sum(X17[age=="Former officer"]==4)/length(state[age=="Former officer"]),
           X18ones_old=sum(X18[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X18twos_old=sum(X18[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X18threes_old=sum(X18[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X18fours_old=sum(X18[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
           X18ones_young=sum(X18[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X18twos_young=sum(X18[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X18threes_young=sum(X18[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X18fours_young=sum(X18[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X18ones_former=sum(X18[age=="Former officer"]==1)/length(state[age=="Former officer"]), X18twos_former=sum(X18[age=="Former officer"]==2)/length(state[age=="Former officer"]), X18threes_former=sum(X18[age=="Former officer"]==3)/length(state[age=="Former officer"]), X18fours_former=sum(X18[age=="Former officer"]==4)/length(state[age=="Former officer"]),
           X130ones_old=sum(X130[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X130twos_old=sum(X130[age=="2011 and before"]==2)/length(state[age=="2011 and before"]),
           X130ones_young=sum(X130[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X130twos_young=sum(X130[age=="2012 and after"]==2)/length(state[age=="2012 and after"]),
-          X131ones_old=sum(X131[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X131twos_old=sum(X131[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X131threes_old=sum(X131[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X131fours_old=sum(X131[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
+          X130ones_former=sum(X130[age=="Former officer"]==1)/length(state[age=="Former officer"]), X130twos_former=sum(X130[age=="Former officer"]==2)/length(state[age=="Former officer"]),
+           X131ones_old=sum(X131[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X131twos_old=sum(X131[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X131threes_old=sum(X131[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X131fours_old=sum(X131[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
           X131ones_young=sum(X131[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X131twos_young=sum(X131[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X131threes_young=sum(X131[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X131fours_young=sum(X131[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X131ones_former=sum(X131[age=="Former officer"]==1)/length(state[age=="Former officer"]), X131twos_former=sum(X131[age=="Former officer"]==2)/length(state[age=="Former officer"]), X131threes_former=sum(X131[age=="Former officer"]==3)/length(state[age=="Former officer"]), X131fours_former=sum(X131[age=="Former officer"]==4)/length(state[age=="Former officer"]),
           X132ones_old=sum(X132[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X132twos_old=sum(X132[age=="2011 and before"]==2)/length(state[age=="2011 and before"]),
           X132ones_young=sum(X132[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X132twos_young=sum(X132[age=="2012 and after"]==2)/length(state[age=="2012 and after"]),
+          X132ones_former=sum(X132[age=="Former officer"]==1)/length(state[age=="Former officer"]), X132twos_former=sum(X132[age=="Former officer"]==2)/length(state[age=="Former officer"]),
           X133ones_old=sum(X133[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X133twos_old=sum(X133[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X133threes_old=sum(X133[age=="2011 and before"]==3)/length(state[age=="2011 and before"]),
           X133ones_young=sum(X133[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X133twos_young=sum(X133[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X133threes_young=sum(X133[age=="2012 and after"]==3)/length(state[age=="2012 and after"]),
+          X133ones_former=sum(X133[age=="Former officer"]==1)/length(state[age=="Former officer"]), X133twos_former=sum(X133[age=="Former officer"]==2)/length(state[age=="Former officer"]), X133threes_former=sum(X133[age=="Former officer"]==3)/length(state[age=="Former officer"]),
           X134ones_old=sum(X134[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X134twos_old=sum(X134[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X134threes_old=sum(X134[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X134fours_old=sum(X134[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
           X134ones_young=sum(X134[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X134twos_young=sum(X134[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X134threes_young=sum(X134[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X134fours_young=sum(X134[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X134ones_former=sum(X134[age=="Former officer"]==1)/length(state[age=="Former officer"]), X134twos_former=sum(X134[age=="Former officer"]==2)/length(state[age=="Former officer"]), X134threes_former=sum(X134[age=="Former officer"]==3)/length(state[age=="Former officer"]), X134fours_former=sum(X134[age=="Former officer"]==4)/length(state[age=="Former officer"]),
           X135ones_old=sum(X135[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X135twos_old=sum(X135[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X135threes_old=sum(X135[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X135fours_old=sum(X135[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
           X135ones_young=sum(X135[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X135twos_young=sum(X135[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X135threes_young=sum(X135[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X135fours_young=sum(X135[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X135ones_former=sum(X135[age=="Former officer"]==1)/length(state[age=="Former officer"]), X135twos_former=sum(X135[age=="Former officer"]==2)/length(state[age=="Former officer"]), X135threes_former=sum(X135[age=="Former officer"]==3)/length(state[age=="Former officer"]), X135fours_former=sum(X135[age=="Former officer"]==4)/length(state[age=="Former officer"]),
           X137ones_old=sum(X137[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X137twos_old=sum(X137[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X137threes_old=sum(X137[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X137fours_old=sum(X137[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
           X137ones_young=sum(X137[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X137twos_young=sum(X137[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X137threes_young=sum(X137[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X137fours_young=sum(X137[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X137ones_former=sum(X137[age=="Former officer"]==1)/length(state[age=="Former officer"]), X137twos_former=sum(X137[age=="Former officer"]==2)/length(state[age=="Former officer"]), X137threes_former=sum(X137[age=="Former officer"]==3)/length(state[age=="Former officer"]), X137fours_former=sum(X137[age=="Former officer"]==4)/length(state[age=="Former officer"]),
           X138ones_old=sum(X138[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X138twos_old=sum(X138[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X138threes_old=sum(X138[age=="2011 and before"]==3)/length(state[age=="2011 and before"]), X138fours_old=sum(X138[age=="2011 and before"]==4)/length(state[age=="2011 and before"]),
           X138ones_young=sum(X138[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X138twos_young=sum(X138[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X138threes_young=sum(X138[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), X138fours_young=sum(X138[age=="2012 and after"]==4)/length(state[age=="2012 and after"]),
+          X138ones_former=sum(X138[age=="Former officer"]==1)/length(state[age=="Former officer"]), X138twos_former=sum(X138[age=="Former officer"]==2)/length(state[age=="Former officer"]), X138threes_former=sum(X138[age=="Former officer"]==3)/length(state[age=="Former officer"]), X138fours_former=sum(X138[age=="Former officer"]==4)/length(state[age=="Former officer"]),
           X139ones_old=sum(X139[age=="2011 and before"]==1)/length(state[age=="2011 and before"]), X139twos_old=sum(X139[age=="2011 and before"]==2)/length(state[age=="2011 and before"]), X139threes_old=sum(X139[age=="2011 and before"]==3)/length(state[age=="2011 and before"]),
           X139ones_young=sum(X139[age=="2012 and after"]==1)/length(state[age=="2012 and after"]), X139twos_young=sum(X139[age=="2012 and after"]==2)/length(state[age=="2012 and after"]), X139threes_young=sum(X139[age=="2012 and after"]==3)/length(state[age=="2012 and after"]), 
+          X139ones_former=sum(X139[age=="Former officer"]==1)/length(state[age=="Former officer"]), X139twos_former=sum(X139[age=="Former officer"]==2)/length(state[age=="Former officer"]), X139threes_former=sum(X139[age=="Former officer"]==3)/length(state[age=="Former officer"]), 
           sample_stateresp=sum(length(state))) %>% 
   ungroup() %>% 
   mutate(sample_stateweight=sample_stateresp/length(full_serving$state))
@@ -354,11 +366,18 @@ ias_processed_dta <- ias_processed_dta %>%
 
 ```{r, include=FALSE}
 #Adding state weights and age weights to summary_state to create a new dataset called summary_state_analysis
+
+ias_processed_dta <- ias_processed_dta %>% 
+  add_row()
+
 summary_state_analysis_age<-summary_state_age %>% 
   mutate(state_weight=ias_processed_dta$state_weight) %>% 
   mutate(sdg_weight=ias_processed_dta$sdg_weight) %>% 
   mutate(age_weight_young=ias_processed_dta$prop_pre2012_withinstate) %>% 
-  mutate(age_weight_old=ias_processed_dta$prop_post2012_withinstate)
+  mutate(age_weight_old=ias_processed_dta$prop_post2012_withinstate) 
+
+summary_state_analysis_age<-summary_state_analysis_age %>%  
+  mutate(state = replace_na(state, "No State (Former)"))
 ```
 
 ```{r}
