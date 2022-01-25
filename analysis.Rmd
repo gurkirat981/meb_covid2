@@ -602,6 +602,22 @@ summary_nr_q4 <- nr_q4 %>%
 summary_nr_q4 <- summary_nr_q4 %>% 
   mutate(state_weight=ias_processed_dta$state_weight) %>% 
   mutate(sdg_weight=ias_processed_dta$sdg_weight)
+
+#241 officers selected their own state 
+#They are from the following states:
+bias_q4<-which(non_repeated_q4$REPEAT==1)
+biased_officers_q4<-as.data.frame(table(non_repeated_q4$X12[bias_q4])) %>% 
+  dplyr::select(-Var1) %>% 
+  rename(No.of_Bias=Freq)
+
+cadre_strength_q4<-as.data.frame(table(full_serving$X12)) %>% 
+  filter(!Var1=="Nagaland", !Var1=="Uttarakhand") %>% 
+  rename(Cadre=Var1) %>% 
+  rename(Cadre_Strength=Freq)
+#Table displaying the proportion of officers who showed bias in each state
+compare_q4<-cbind(cadre_strength, biased_officers) %>% 
+  mutate(Prop_of_Bias=round(No.of_Bias/Cadre_Strength*100,2))
+
 ```
 
 ```{r, include=FALSE}
@@ -1114,11 +1130,11 @@ state_answers_q5<-state_answers_q5 %>%
 #42 officers selected their own state                             
 #These officers come from the following states: 
 bias<-which(state_answers_q5$state_bias==1)
-table(state_answers_q5_unbiased$X12[bias])
+table(state_answers_q5$X12[bias])
 
 #filtering out all officers who selected their own state 
-state_answers_q5_unbiased <- state_answers_q5_unbiased %>% 
-  filter(!same_state==1)
+state_answers_q5_unbiased <- state_answers_q5 %>% 
+  filter(!state_bias==1)
 
 #Calculating averages for question 5 (previously "Merged 2")
 summary_q5<- state_answers_q5 %>% 
@@ -1739,22 +1755,21 @@ q6 <- q6 %>%
 
 #171 officers selected their own state 
 #They are from the following states:
-bias<-which(q6$state_bias==1)
-biased_officers<-as.data.frame(table(q6$X12[bias])) %>% 
+bias_q6<-which(q6$state_bias==1)
+biased_officers_q6<-as.data.frame(table(q6$X12[bias_q6])) %>% 
   dplyr::select(-Var1) %>% 
   rename(No.of_Bias=Freq)
 
-cadre_strength<-as.data.frame(table(full_serving$X12)) %>% 
+cadre_strength_q6<-as.data.frame(table(full_serving$X12)) %>% 
   filter(!Var1=="Chattisgarh", !Var1=="Manipur", !Var1=="Nagaland", !Var1=="Uttarakhand") %>% 
   rename(Cadre=Var1) %>% 
   rename(Cadre_Strength=Freq)
 #Table displaying the proportion of officers who showed bias in each state
-compare<-cbind(cadre_strength, biased_officers) %>% 
+compare_q6<-cbind(cadre_strength, biased_officers) %>% 
   mutate(Prop_of_Bias=round(No.of_Bias/Cadre_Strength*100,2))
 
-comparedf(biased_officers, cadre_strength)
 #filtering out all officers who selected their own state 
-q6_unbiased <- q6_unbiased %>% 
+q6_unbiased <- q6 %>% 
   filter(!state_bias==1)
 
 #Calculating averages for Q6 for all officers
@@ -1848,6 +1863,8 @@ summary_q6_unbiased <- q6_unbiased %>%
             q6_uttarakhand=sum(Merged =="Uttarakhand")/length(state),
             q6_wb=sum(Merged =="West Bengal")/length(state),.groups='drop') %>% 
   ungroup() %>% 
+  add_row(state="Andaman and Nicobar Islands") %>% 
+  arrange(state) %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
 
 summary_q6_unbiased <- summary_q6_unbiased %>% 
@@ -1907,7 +1924,7 @@ bias<-which(state_answers_q6_young$state_bias==1)
 table(state_answers_q6_young$X12[bias])  
 
 #filtering out all officers who selected their own state 
-state_answers_q6_young_unbiased <- state_answers_q6_young_unbiased %>% 
+state_answers_q6_young_unbiased <- state_answers_q6_young %>% 
   filter(!state_bias==1)
 
 #Calculating averages for Q6 for all young officers
@@ -2011,6 +2028,7 @@ summary_q6_young_unbiased <- state_answers_q6_young_unbiased %>%
   add_row(state="Lakshadweep Islands") %>%
   add_row(state="Puducherry") %>% 
   add_row(state="Mizoram") %>% 
+  add_row(state="Arunachal Pradesh") %>% 
   arrange(state) 
 #There are no young officers from A and N Islands, Chandigarh, Lakshadweep Islands, Puducherry and Mizoram. The summary produced for young officers, thus, is five rows shorter. In order to cbind this dataset with other (like ias_processed_dta) for weight calculations, we have added these states with NAs to match the number of rows across datasets. This is done for all summaries for young and old officers.
 summary_q6_young_unbiased <- summary_q6_young_unbiased %>% 
@@ -2069,7 +2087,7 @@ bias<-which(state_answers_q6_old$state_bias==1)
 table(state_answers_q6_old$X12[bias])  
 
 #filtering out all officers who selected their own state 
-state_answers_q6_old_unbiased <- state_answers_q6_old_unbiased %>% 
+state_answers_q6_old_unbiased <- state_answers_q6_old %>% 
   filter(!state_bias==1)
 
 #Calculating averages for Q6 for all old officers 
@@ -2165,7 +2183,10 @@ summary_q6_old_unbiased <- state_answers_q6_old_unbiased %>%
             q6_wb=sum(Merged =="West Bengal")/length(state),.groups='drop') %>% 
   ungroup() %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE)) %>%
-  add_row(state="Nagaland") %>% 
+  add_row(state="Nagaland") %>%
+  add_row(state="Andaman and Nicobar Islands") %>%
+  add_row(state="DNH and DD") %>%
+  add_row(state="Jammu & Kashmir") %>%
   arrange(state) 
 #There are no old officers from Nagaland. The summary produced for young officers, thus, is one row shorter. In order to cbind this dataset with other (like ias_processed_dta) for weight calculations, we have added these states with NAs to match the number of rows across datasets. This is done for all summaries for young and old officers.
 summary_q6_old_unbiased <- summary_q6_old_unbiased %>% 
@@ -2224,7 +2245,7 @@ bias<-which(state_answers_q6_former$state_bias==1)
 table(state_answers_q6_former$X12[bias])  
 
 #filtering out all officers who selected their own state 
-state_answers_q6_old_unbiased <- state_answers_q6_old %>% 
+state_answers_q6_former_unbiased <- state_answers_q6_former %>% 
   filter(!state_bias==1)
 
 #Calculating averages for Q6 for all former officers
@@ -2891,11 +2912,11 @@ q4full_plot
 ```
 \newpage
 
-## Question 4: Accounting for Officers' Bias
+## Question 4: Aggregate Graph: Accounting for Officers' Bias
 
 Please select upto two States that you think have best fulfilled their pandemic management responsibilities. 
 
-241 officers (out of 452) felt that their own state has been best at carrying out their pandemic management responsibilities. These officers may be biased in their response. The following graph excludes all biased responses for question 4.
+241 out of 452 officers felt that their own state has been best at carrying out their pandemic management responsibilities. These officers may be biased in their response. The following graph excludes all biased responses for question 4.
 
 \vspace{6mm}
 ```{r echo=FALSE, fig.height=10, fig.width=18, warning=FALSE}
@@ -3129,10 +3150,10 @@ plot4_fullage
 
 Please select upto two States that you think have best fulfilled their pandemic management responsibilities. (States selected in previous answers can be repeated)  
 
-Responses by officers who have selected their own states have been excluded from the following graph.
+132 out of the 248 young officers (who joined the IAS in 2012 or later) felt that their own state has been under-appreciated for its successful pandemic management. 110 of the 204 older officers and 38 of 96 former officers were similarly biased in their responses to this question. The following graphs exclude these biased responses. 
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=17,fig.width=18, warning=FALSE}
 #Dis-aggregated by Age (by omitting responses identical to the cadre)
 
 q4young_mean_anislands_nr <- round(weighted.mean(summary_nr_q4_young$q4_anislands, summary_nr_q4_young$state_young_weight,na.rm=TRUE)*100,2)
@@ -3484,7 +3505,7 @@ Please select upto two States that you think have best fulfilled their pandemic 
 Responses by officers who have selected their own states have been excluded from the following graph.
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=17,fig.width=18, warning=FALSE}
 summary_nr_q4 <- summary_nr_q4 %>% 
 mutate (sdg_tier = ias_processed_dta$sdg)
 
@@ -4129,6 +4150,7 @@ q6full_plot <- ggplot(q6full_plot_dta, aes(x=q6full_plot_labels, y=q6full_plot, 
 q6full_plot      
 ```
 \newpage
+
 ## Question 6: Aggregate Graph: Accounting for Officers' Bias 
 
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
@@ -4137,43 +4159,43 @@ Please select one State that you think has been under-appreciated for its succes
 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=10,fig.width=18, warning=FALSE}
-q6full_mean_anislands <- round(weighted.mean(summary_q6_unbiased$q6_anislands, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_andhra <- round(weighted.mean(summary_q6_unbiased$q6_andhra, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_arunachal <- round(weighted.mean(summary_q6_unbiased$q6_arunachal, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_assam <- round(weighted.mean(summary_q6_unbiased$q6_assam, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_bihar <- round(weighted.mean(summary_q6_unbiased$q6_bihar, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_chandigarh <- round(weighted.mean(summary_q6_unbiased$q6_chandigarh, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_chhattisgarh <- round(weighted.mean(summary_q6_unbiased$q6_chhattisgarh, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_dnhdd <- round(weighted.mean(summary_q6_unbiased$q6_dnhdd, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_goa <- round(weighted.mean(summary_q6_unbiased$q6_goa, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_gujarat <- round(weighted.mean(summary_q6_unbiased$q6_gujarat, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_haryana <- round(weighted.mean(summary_q6_unbiased$q6_haryana, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_hp <- round(weighted.mean(summary_q6_unbiased$q6_hp, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_jk <- round(weighted.mean(summary_q6_unbiased$q6_jk, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_jharkhand <- round(weighted.mean(summary_q6_unbiased$q6_jharkhand, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_karnataka <- round(weighted.mean(summary_q6_unbiased$q6_karnataka, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_kerala <- round(weighted.mean(summary_q6_unbiased$q6_kerala, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_ladakh <- round(weighted.mean(summary_q6_unbiased$q6_ladakh, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_lakshadweep <- round(weighted.mean(summary_q6_unbiased$q6_lakshadweep, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_mp <- round(weighted.mean(summary_q6_unbiased$q6_mp, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_maharashtra <- round(weighted.mean(summary_q6_unbiased$q6_maharashtra, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_manipur <- round(weighted.mean(summary_q6_unbiased$q6_manipur, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_meghalaya <- round(weighted.mean(summary_q6_unbiased$q6_meghalaya, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_mizoram <- round(weighted.mean(summary_q6_unbiased$q6_mizoram, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_nagaland <- round(weighted.mean(summary_q6_unbiased$q6_nagaland, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_delhi <- round(weighted.mean(summary_q6_unbiased$q6_delhi, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_none <- round(weighted.mean(summary_q6_unbiased$q6_none, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_odisha <- round(weighted.mean(summary_q6_unbiased$q6_odisha, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_puducherry <- round(weighted.mean(summary_q6_unbiased$q6_puducherry, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_punjab <- round(weighted.mean(summary_q6_unbiased$q6_punjab, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_rajasthan <- round(weighted.mean(summary_q6_unbiased$q6_rajasthan, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_sikkim <- round(weighted.mean(summary_q6_unbiased$q6_sikkim, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_tn <- round(weighted.mean(summary_q6_unbiased$q6_tn, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_telangana <- round(weighted.mean(summary_q6_unbiased$q6_telangana, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_tripura <- round(weighted.mean(summary_q6_unbiased$q6_tripura, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_up <- round(weighted.mean(summary_q6_unbiased$q6_up, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_uttarakhand <- round(weighted.mean(summary_q6_unbiased$q6_uttarakhand, summary_q6_unbiased$state_weight)*100,2)
-q6full_mean_wb <- round(weighted.mean(summary_q6_unbiased$q6_wb, summary_q6_unbiased$state_weight)*100,2)
+q6full_mean_anislands <- round(weighted.mean(summary_q6_unbiased$q6_anislands, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_andhra <- round(weighted.mean(summary_q6_unbiased$q6_andhra, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_arunachal <- round(weighted.mean(summary_q6_unbiased$q6_arunachal, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_assam <- round(weighted.mean(summary_q6_unbiased$q6_assam, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_bihar <- round(weighted.mean(summary_q6_unbiased$q6_bihar, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_chandigarh <- round(weighted.mean(summary_q6_unbiased$q6_chandigarh, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_chhattisgarh <- round(weighted.mean(summary_q6_unbiased$q6_chhattisgarh, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_dnhdd <- round(weighted.mean(summary_q6_unbiased$q6_dnhdd, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_goa <- round(weighted.mean(summary_q6_unbiased$q6_goa, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_gujarat <- round(weighted.mean(summary_q6_unbiased$q6_gujarat, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_haryana <- round(weighted.mean(summary_q6_unbiased$q6_haryana, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_hp <- round(weighted.mean(summary_q6_unbiased$q6_hp, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_jk <- round(weighted.mean(summary_q6_unbiased$q6_jk, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_jharkhand <- round(weighted.mean(summary_q6_unbiased$q6_jharkhand, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_karnataka <- round(weighted.mean(summary_q6_unbiased$q6_karnataka, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_kerala <- round(weighted.mean(summary_q6_unbiased$q6_kerala, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_ladakh <- round(weighted.mean(summary_q6_unbiased$q6_ladakh, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_lakshadweep <- round(weighted.mean(summary_q6_unbiased$q6_lakshadweep, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_mp <- round(weighted.mean(summary_q6_unbiased$q6_mp, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_maharashtra <- round(weighted.mean(summary_q6_unbiased$q6_maharashtra, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_manipur <- round(weighted.mean(summary_q6_unbiased$q6_manipur, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_meghalaya <- round(weighted.mean(summary_q6_unbiased$q6_meghalaya, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_mizoram <- round(weighted.mean(summary_q6_unbiased$q6_mizoram, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_nagaland <- round(weighted.mean(summary_q6_unbiased$q6_nagaland, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_delhi <- round(weighted.mean(summary_q6_unbiased$q6_delhi, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_none <- round(weighted.mean(summary_q6_unbiased$q6_none, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_odisha <- round(weighted.mean(summary_q6_unbiased$q6_odisha, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_puducherry <- round(weighted.mean(summary_q6_unbiased$q6_puducherry, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_punjab <- round(weighted.mean(summary_q6_unbiased$q6_punjab, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_rajasthan <- round(weighted.mean(summary_q6_unbiased$q6_rajasthan, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_sikkim <- round(weighted.mean(summary_q6_unbiased$q6_sikkim, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_tn <- round(weighted.mean(summary_q6_unbiased$q6_tn, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_telangana <- round(weighted.mean(summary_q6_unbiased$q6_telangana, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_tripura <- round(weighted.mean(summary_q6_unbiased$q6_tripura, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_up <- round(weighted.mean(summary_q6_unbiased$q6_up, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_uttarakhand <- round(weighted.mean(summary_q6_unbiased$q6_uttarakhand, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
+q6full_mean_wb <- round(weighted.mean(summary_q6_unbiased$q6_wb, summary_q6_unbiased$state_weight, na.rm = TRUE)*100,2)
 
 q6full_plot <- c(q6full_mean_anislands, q6full_mean_andhra, q6full_mean_arunachal, q6full_mean_assam, q6full_mean_bihar, q6full_mean_chandigarh, q6full_mean_chhattisgarh, q6full_mean_delhi, q6full_mean_dnhdd, q6full_mean_goa, q6full_mean_gujarat, q6full_mean_haryana, q6full_mean_hp, q6full_mean_jharkhand, q6full_mean_jk, q6full_mean_karnataka, q6full_mean_kerala, q6full_mean_ladakh, q6full_mean_lakshadweep, q6full_mean_maharashtra, q6full_mean_manipur, q6full_mean_meghalaya, q6full_mean_mizoram, q6full_mean_mp, q6full_mean_nagaland, q6full_mean_none, q6full_mean_odisha, q6full_mean_puducherry, q6full_mean_punjab, q6full_mean_rajasthan, q6full_mean_sikkim, q6full_mean_telangana, q6full_mean_tn, q6full_mean_tripura, q6full_mean_up, q6full_mean_uttarakhand, q6full_mean_wb)
 
@@ -4365,10 +4387,10 @@ plot6_fullage
 
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
 
-100 officers out of the 248 officers who joined the IAS in 2012 or later felt that their own state has been under-appreciated for its successful pandemic management. 71 of the 204 officers who joined the IAS in 2011 or before, and 24 former officers were similarly biased in their responses to this question. The following graphs exclude these biased responses. 
+100 officers out of the 248 officers who joined the IAS in 2012 or later felt that their own state has been under-appreciated for its successful pandemic management. 71 of the 204 officers who joined the IAS in 2011 or before, and 24 of 96 former officers were similarly biased in their responses to this question. The following graphs exclude these biased responses. 
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=17,fig.width=18, warning=FALSE}
 #Age
 q6young_mean_anislands <- round(weighted.mean(summary_q6_young_unbiased$q6_anislands, summary_q6_young_unbiased$state_young_weight, na.rm = TRUE)*100,2)
 q6young_mean_andhra <- round(weighted.mean(summary_q6_young_unbiased$q6_andhra, summary_q6_young_unbiased$state_young_weight, na.rm = TRUE)*100,2)
@@ -4707,6 +4729,7 @@ grid.newpage()
 grid.draw(rbind(ggplotGrob(q6aspt_plot), ggplotGrob(q6perf_plot), ggplotGrob(q6frnt_plot), size = "last"))
 ```
 \newpage
+
 ## Question 6: Disaggregated by SDG: Accounting for Officers' Bias
 
 Please select one State that you think has been under-appreciated for its success in pandemic management. (States selected in previous answers can be repeated)  
@@ -4714,7 +4737,7 @@ Please select one State that you think has been under-appreciated for its succes
 Responses by officers who indicated their own states as being under-appreciated have been excluded from the following graph. 
 
 \vspace{6mm}
-```{r, echo = FALSE, fig.height=20,fig.width=18, warning=FALSE}
+```{r, echo = FALSE, fig.height=17,fig.width=18, warning=FALSE}
 summary_q6_unbiased <- summary_q6_unbiased %>% 
   mutate (sdg_tier = ias_processed_dta$sdg)
 
@@ -4759,43 +4782,43 @@ q6aspt_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6_unbiased$q6_u
 q6aspt_weighted_mean_wb <- round(weighted.mean(summary_q6_unbiased$q6_wb[summary_q6_unbiased$sdg_tier=="Aspirant"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Aspirant"])*100,2)
 
 ##Performers
-q6perf_weighted_mean_anislands <- round(weighted.mean(summary_q6_unbiased$q6_anislands[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_andhra <- round(weighted.mean(summary_q6_unbiased$q6_andhra[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_arunachal <- round(weighted.mean(summary_q6_unbiased$q6_arunachal[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_assam <- round(weighted.mean(summary_q6_unbiased$q6_assam[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_bihar <- round(weighted.mean(summary_q6_unbiased$q6_bihar[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_chandigarh <- round(weighted.mean(summary_q6_unbiased$q6_chandigarh[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q6_unbiased$q6_chhattisgarh[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_dnhdd <- round(weighted.mean(summary_q6_unbiased$q6_dnhdd[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_goa <- round(weighted.mean(summary_q6_unbiased$q6_goa[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_gujarat <- round(weighted.mean(summary_q6_unbiased$q6_gujarat[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_haryana <- round(weighted.mean(summary_q6_unbiased$q6_haryana[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_hp <- round(weighted.mean(summary_q6_unbiased$q6_hp[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_jk <- round(weighted.mean(summary_q6_unbiased$q6_jk[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_jharkhand <- round(weighted.mean(summary_q6_unbiased$q6_jharkhand[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_karnataka <- round(weighted.mean(summary_q6_unbiased$q6_karnataka[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_kerala <- round(weighted.mean(summary_q6_unbiased$q6_kerala[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_ladakh <- round(weighted.mean(summary_q6_unbiased$q6_ladakh[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_lakshadweep <- round(weighted.mean(summary_q6_unbiased$q6_lakshadweep[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_mp <- round(weighted.mean(summary_q6_unbiased$q6_mp[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_maharashtra <- round(weighted.mean(summary_q6_unbiased$q6_maharashtra[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_manipur <- round(weighted.mean(summary_q6_unbiased$q6_manipur[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_meghalaya <- round(weighted.mean(summary_q6_unbiased$q6_meghalaya[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_mizoram <- round(weighted.mean(summary_q6_unbiased$q6_mizoram[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_nagaland <- round(weighted.mean(summary_q6_unbiased$q6_nagaland[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_delhi <- round(weighted.mean(summary_q6_unbiased$q6_delhi[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_none <- round(weighted.mean(summary_q6_unbiased$q6_none[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_odisha <- round(weighted.mean(summary_q6_unbiased$q6_odisha[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_puducherry <- round(weighted.mean(summary_q6_unbiased$q6_puducherry[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_punjab <- round(weighted.mean(summary_q6_unbiased$q6_punjab[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_rajasthan <- round(weighted.mean(summary_q6_unbiased$q6_rajasthan[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_sikkim <- round(weighted.mean(summary_q6_unbiased$q6_sikkim[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_tn <- round(weighted.mean(summary_q6_unbiased$q6_tn[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_telangana <- round(weighted.mean(summary_q6_unbiased$q6_telangana[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_tripura <- round(weighted.mean(summary_q6_unbiased$q6_tripura[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_up <- round(weighted.mean(summary_q6_unbiased$q6_up[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6_unbiased$q6_uttarakhand[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
-q6perf_weighted_mean_wb <- round(weighted.mean(summary_q6_unbiased$q6_wb[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"])*100,2)
+q6perf_weighted_mean_anislands <- round(weighted.mean(summary_q6_unbiased$q6_anislands[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_andhra <- round(weighted.mean(summary_q6_unbiased$q6_andhra[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_arunachal <- round(weighted.mean(summary_q6_unbiased$q6_arunachal[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_assam <- round(weighted.mean(summary_q6_unbiased$q6_assam[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_bihar <- round(weighted.mean(summary_q6_unbiased$q6_bihar[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_chandigarh <- round(weighted.mean(summary_q6_unbiased$q6_chandigarh[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_chhattisgarh <- round(weighted.mean(summary_q6_unbiased$q6_chhattisgarh[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_dnhdd <- round(weighted.mean(summary_q6_unbiased$q6_dnhdd[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_goa <- round(weighted.mean(summary_q6_unbiased$q6_goa[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_gujarat <- round(weighted.mean(summary_q6_unbiased$q6_gujarat[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_haryana <- round(weighted.mean(summary_q6_unbiased$q6_haryana[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_hp <- round(weighted.mean(summary_q6_unbiased$q6_hp[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_jk <- round(weighted.mean(summary_q6_unbiased$q6_jk[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_jharkhand <- round(weighted.mean(summary_q6_unbiased$q6_jharkhand[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_karnataka <- round(weighted.mean(summary_q6_unbiased$q6_karnataka[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_kerala <- round(weighted.mean(summary_q6_unbiased$q6_kerala[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_ladakh <- round(weighted.mean(summary_q6_unbiased$q6_ladakh[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_lakshadweep <- round(weighted.mean(summary_q6_unbiased$q6_lakshadweep[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_mp <- round(weighted.mean(summary_q6_unbiased$q6_mp[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_maharashtra <- round(weighted.mean(summary_q6_unbiased$q6_maharashtra[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_manipur <- round(weighted.mean(summary_q6_unbiased$q6_manipur[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_meghalaya <- round(weighted.mean(summary_q6_unbiased$q6_meghalaya[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_mizoram <- round(weighted.mean(summary_q6_unbiased$q6_mizoram[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_nagaland <- round(weighted.mean(summary_q6_unbiased$q6_nagaland[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_delhi <- round(weighted.mean(summary_q6_unbiased$q6_delhi[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_none <- round(weighted.mean(summary_q6_unbiased$q6_none[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_odisha <- round(weighted.mean(summary_q6_unbiased$q6_odisha[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_puducherry <- round(weighted.mean(summary_q6_unbiased$q6_puducherry[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_punjab <- round(weighted.mean(summary_q6_unbiased$q6_punjab[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_rajasthan <- round(weighted.mean(summary_q6_unbiased$q6_rajasthan[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_sikkim <- round(weighted.mean(summary_q6_unbiased$q6_sikkim[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_tn <- round(weighted.mean(summary_q6_unbiased$q6_tn[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_telangana <- round(weighted.mean(summary_q6_unbiased$q6_telangana[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_tripura <- round(weighted.mean(summary_q6_unbiased$q6_tripura[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_up <- round(weighted.mean(summary_q6_unbiased$q6_up[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6_unbiased$q6_uttarakhand[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_wb <- round(weighted.mean(summary_q6_unbiased$q6_wb[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
 
 ##Frontrunner
 q6frnt_weighted_mean_anislands <- round(weighted.mean(summary_q6_unbiased$q6_anislands[summary_q6_unbiased$sdg_tier=="Frontrunner"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Frontrunner"])*100,2)
