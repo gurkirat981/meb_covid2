@@ -2569,11 +2569,13 @@ summary_q6_unbiased<-as.data.frame(t(summary_q6_unbiased)) %>%
 state_responses<-cbind(summary_q4_unweighted, summary_nr_q4_unweighted, summary_q5_nonweighted, summary_q5_unbiased, summary_q6_nonweighted, summary_q6_unbiased) 
 
 state_responses<-setNames(cbind(rownames(state_responses), state_responses, row.names = NULL), 
-         c("Responses (Selected States)", "Q4 Proportion of All Responses", "Q4 Proportion of Unbiased Responses", "Q5 Proportion of All Responses", "Q5 Proportion of Unbiased Responses",  "Q6 Proportion of All Responses", "Q6 Proportion of Unbiased Responses"))
+         c("Responses (Selected States)", "Q4 Proportion of All Responses (%)", "Q4 Responses Excluding those where Officers Selected their Own State (%)", "Q5 Proportion of All Responses (%)", "Q5 Responses Excluding those where Officers Selected their Own State (%)",  "Q6 Proportion of All Responses (%)", "Q6 Responses Excluding those where Officers Selected their Own State (%)"))
 
 state_responses %>%
-  kbl(caption = "Officer responses for Q4, Q5 and Q6") %>%
-  kable_classic(full_width = F, html_font = "Cambria")
+  kbl(caption = "Officer responses for Q4, Q5 and Q6")%>%
+  kable_classic(full_width = F, html_font = "Cambria", font_size = 13) %>% 
+  footnote(number = c("Question 4: 241 officers (out of 452) selected their own state", "Question 5: 42 officers (out of 452) selected their own state" ,"Question 6: 117 officers (out of 452) selected their own state"))
+
 ```
 \newpage
 
