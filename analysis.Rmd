@@ -48,6 +48,7 @@ library(janitor)
 library(gridExtra)
 library(grid)
 library(ggpubr)
+library(kableExtra)
 ```
 
 ```{r, include=FALSE}
@@ -676,6 +677,10 @@ summary_q4_unweighted <- state_answers_q4 %>%
   ungroup() 
 
 
+#summary_q4 <- summary_q4 %>% 
+  #mutate(state_weight=ias_processed_dta$state_weight) %>% 
+  #mutate(sdg_weight=ias_processed_dta$sdg_weight)
+
 #Calculating averages for *unbiased* officers only (by filtering out all officers who selected their own merged)
 non_repeated_q4 <- state_answers_q4 %>% 
 mutate (REPEAT = ifelse (Merged == "Andaman and Nicobar Islands " & X12 == "AGMUT", 1,
@@ -763,13 +768,17 @@ summary_nr_q4_unweighted <- nr_q4 %>%
 #Merging averages for cumulative and biased responses in a single table/data-frame
 row.names(summary_q4_unweighted) <- LETTERS[1:1]
 summary_q4_unweighted <- as.data.frame(t(summary_q4_unweighted)) %>% 
-rename ("Percentage of Responses-Cumulative (Best State)" = A)
+rename ("Responses-Cumulative" = A)
 
 row.names(summary_nr_q4_unweighted) <- LETTERS[1:1]
 summary_nr_q4_unweighted <- as.data.frame(t(summary_nr_q4_unweighted)) %>% 
-rename ("Percentage of Responses-Unbiased (Best State)" = A )
+rename ("Responses-Unbiased" = A )
 
 q4_unweighted <- cbind (summary_q4_unweighted, summary_nr_q4_unweighted)
+
+q4_unweighted %>%
+  kbl(caption = "Officer responses for Best State") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 ```
 
 ```{r, include=FALSE}
