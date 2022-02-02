@@ -637,25 +637,25 @@ state_answers_q4 <- full_serving %>%
 na.omit() 
 
 summary_q4_unweighted <- state_answers_q4 %>% 
-  summarise(Anislands= round(sum(Merged =="Andaman and Nicobar Islands")*100/length(Merged),2),
-            AndhraPradesh=round(sum(Merged =="Andhra Pradesh")*100/length(Merged),2), 
-            ArunachalPradesh=round(sum(Merged =="Arunachal Pradesh")*100/length(Merged),2),
+  summarise("Andaman and Nicobar Islands"=round(sum(Merged =="Andaman and Nicobar Islands")*100/length(Merged),2),
+            "Andhra Pradesh"=round(sum(Merged =="Andhra Pradesh")*100/length(Merged),2), 
+            "Arunachal Pradesh"=round(sum(Merged =="Arunachal Pradesh")*100/length(Merged),2),
             Assam=round(sum(Merged =="Assam")*100/length(Merged),2),
             Bihar=round(sum(Merged =="Bihar")*100/length(Merged),2),
-            Chandigarh=round(sum(Merged =="Chandigarh")*100/length(Merged),2),
+            Chandigarh= round(sum(Merged =="Chandigarh")*100/length(Merged),2),
             Chhattisgarh=round(sum(Merged =="Chhattisgarh")*100/length(Merged),2),
             DNHDD=round(sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")*100/length(Merged),2),
             Goa=round(sum(Merged =="Goa")*100/length(Merged),2),
             Gujarat=round(sum(Merged =="Gujarat")*100/length(Merged),2),
             Haryana=round(sum(Merged =="Haryana")*100/length(Merged),2),
-            HimachalPradesh=round(sum(Merged =="Himachal Pradesh")*100/length(Merged),2),
-            JammuKashmir=round(sum(Merged =="Jammu and Kashmir")*100/length(Merged),2),
+            "Himachal Pradesh"=round(sum(Merged =="Himachal Pradesh")*100/length(Merged),2),
+            "Jammu and Kashmir"=round(sum(Merged =="Jammu and Kashmir")*100/length(Merged),2),
             Jharkhand=round(sum(Merged =="Jharkhand")*100/length(Merged),2),
             Karnataka=round(sum(Merged =="Karnataka")*100/length(Merged),2),
             Kerala=round(sum(Merged =="Kerala")*100/length(Merged),2),
             Ladakh=round(sum(Merged =="Ladakh")*100/length(Merged),2),
-            LakshadweepIslands=round(sum(Merged =="Lakshadweep")*100/length(Merged),2),
-            MadhyaPradesh=round(sum(Merged =="Madhya Pradesh")*100/length(Merged),2),
+            "Lakshadweep Islands"=round(sum(Merged =="Lakshadweep")*100/length(Merged),2),
+            "Madhya Pradesh"=round(sum(Merged =="Madhya Pradesh")*100/length(Merged),2),
             Maharashtra=round(sum(Merged =="Maharashtra")*100/length(Merged),2),
             Manipur=round(sum(Merged =="Manipur")*100/length(Merged),2),
             Meghalaya=round(sum(Merged =="Meghalaya")*100/length(Merged),2),
@@ -668,12 +668,12 @@ summary_q4_unweighted <- state_answers_q4 %>%
             Punjab=round(sum(Merged =="Punjab")*100/length(Merged),2),
             Rajasthan=round(sum(Merged =="Rajasthan")*100/length(Merged),2),
             Sikkim=round(sum(Merged =="Sikkim")*100/length(Merged),2),
-            TamilNadu=round(sum(Merged =="Tamil Nadu")*100/length(Merged),2),
+            "Tamil Nadu"=round(sum(Merged =="Tamil Nadu")*100/length(Merged),2),
             Telangana=round(sum(Merged =="Telangana")*100/length(Merged),2),
             Tripura=round(sum(Merged =="Tripura")*100/length(Merged),2),
-            UttarPradesh=round(sum(Merged =="Uttar Pradesh")*100/length(Merged),2),
+            "Uttar Pradesh"=round(sum(Merged =="Uttar Pradesh")*100/length(Merged),2),
             Uttarakhand=round(sum(Merged =="Uttarakhand")*100/length(Merged),2),
-            WestBengal=round(sum(Merged =="West Bengal")*100/length(Merged),2)) %>% 
+            "West Bengal"=round(sum(Merged =="West Bengal")*100/length(Merged),2)) %>% 
   ungroup() 
 
 
@@ -724,74 +724,46 @@ nr_q4 <- non_repeated_q4 %>%
 
 summary_nr_q4_unweighted <- nr_q4 %>% 
   na.omit() %>% 
- summarise(Anislands= round(sum(Merged =="Andaman and Nicobar Islands")*100/length(Merged),2),
-          AndhraPradesh=round(sum(Merged =="Andhra Pradesh")*100/length(Merged),2), 
-          ArunachalPradesh=round(sum(Merged =="Arunachal Pradesh")*100/length(Merged),2),
-          Assam=round(sum(Merged =="Assam")*100/length(Merged),2),
-          Bihar=round(sum(Merged =="Bihar")*100/length(Merged),2),
-          Chandigarh=round(sum(Merged =="Chandigarh")*100/length(Merged),2),
-          Chhattisgarh=round(sum(Merged =="Chhattisgarh")*100/length(Merged),2),
-          DNHDD=round(sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")*100/length(Merged),2),
-          Goa=round(sum(Merged =="Goa")*100/length(Merged),2),
-          Gujrat=round(sum(Merged =="Gujarat")*100/length(Merged),2),
-          Haryana=round(sum(Merged =="Haryana")*100/length(Merged),2),
-          HimachalPradesh=round(sum(Merged =="Himachal Pradesh")*100/length(Merged),2),
-          JammuKashmir=round(sum(Merged =="Jammu and Kashmir")*100/length(Merged),2),
-          Jharkhand=round(sum(Merged =="Jharkhand")*100/length(Merged),2),
-          Karnataka=round(sum(Merged =="Karnataka")*100/length(Merged),2),
-          Kerala=round(sum(Merged =="Kerala")*100/length(Merged),2),
-          Ladakh=round(sum(Merged =="Ladakh")*100/length(Merged),2),
-          LakshadweepIslands=round(sum(Merged =="Lakshadweep")*100/length(Merged),2),
-          MadhyaPradesh=round(sum(Merged =="Madhya Pradesh")*100/length(Merged),2),
-          Maharashtra=round(sum(Merged =="Maharashtra")*100/length(Merged),2),
-          Manipur=round(sum(Merged =="Manipur")*100/length(Merged),2),
-          Meghalaya=round(sum(Merged =="Meghalaya")*100/length(Merged),2),
-          Mizoram=round(sum(Merged =="Mizoram")*100/length(Merged),2),
-          Nagaland=round(sum(Merged =="Nagaland")*100/length(Merged),2),
-          Delhi=round(sum(Merged =="NCT of Delhi")*100/length(Merged),2),
-          None=round(sum(Merged =="No state has performed well")*100/length(Merged),2),
-          Odisha=round(sum(Merged =="Odisha")*100/length(Merged),2),
-          Puducherry=round(sum(Merged =="Puducherry")*100/length(Merged),2),
-          Punjab=round(sum(Merged =="Punjab")*100/length(Merged),2),
-          Rajasthan=round(sum(Merged =="Rajasthan")*100/length(Merged),2),
-          Sikkim=round(sum(Merged =="Sikkim")*100/length(Merged),2),
-          TamilNadu=round(sum(Merged =="Tamil Nadu")*100/length(Merged),2),
-          Telangana=round(sum(Merged =="Telangana")*100/length(Merged),2),
-          Tripura=round(sum(Merged =="Tripura")*100/length(Merged),2),
-          UttarPradesh=round(sum(Merged =="Uttar Pradesh")*100/length(Merged),2),
-          Uttarakhand=round(sum(Merged =="Uttarakhand")*100/length(Merged),2),
-          WestBengal=round(sum(Merged =="West Bengal")*100/length(Merged),2)) %>% 
+ summarise("Andaman and Nicobar Islands"=round(sum(Merged =="Andaman and Nicobar Islands")*100/length(Merged),2),
+            "Andhra Pradesh"=round(sum(Merged =="Andhra Pradesh")*100/length(Merged),2), 
+            "Arunachal Pradesh"=round(sum(Merged =="Arunachal Pradesh")*100/length(Merged),2),
+            Assam=round(sum(Merged =="Assam")*100/length(Merged),2),
+            Bihar=round(sum(Merged =="Bihar")*100/length(Merged),2),
+            Chandigarh= round(sum(Merged =="Chandigarh")*100/length(Merged),2),
+            Chhattisgarh=round(sum(Merged =="Chhattisgarh")*100/length(Merged),2),
+            DNHDD=round(sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")*100/length(Merged),2),
+            Goa=round(sum(Merged =="Goa")*100/length(Merged),2),
+            Gujarat=round(sum(Merged =="Gujarat")*100/length(Merged),2),
+            Haryana=round(sum(Merged =="Haryana")*100/length(Merged),2),
+            "Himachal Pradesh"=round(sum(Merged =="Himachal Pradesh")*100/length(Merged),2),
+            "Jammu and Kashmir"=round(sum(Merged =="Jammu and Kashmir")*100/length(Merged),2),
+            Jharkhand=round(sum(Merged =="Jharkhand")*100/length(Merged),2),
+            Karnataka=round(sum(Merged =="Karnataka")*100/length(Merged),2),
+            Kerala=round(sum(Merged =="Kerala")*100/length(Merged),2),
+            Ladakh=round(sum(Merged =="Ladakh")*100/length(Merged),2),
+            "Lakshadweep Islands"=round(sum(Merged =="Lakshadweep")*100/length(Merged),2),
+            "Madhya Pradesh"=round(sum(Merged =="Madhya Pradesh")*100/length(Merged),2),
+            Maharashtra=round(sum(Merged =="Maharashtra")*100/length(Merged),2),
+            Manipur=round(sum(Merged =="Manipur")*100/length(Merged),2),
+            Meghalaya=round(sum(Merged =="Meghalaya")*100/length(Merged),2),
+            Mizoram=round(sum(Merged =="Mizoram")*100/length(Merged),2),
+            Nagaland=round(sum(Merged =="Nagaland")*100/length(Merged),2),
+            Delhi=round(sum(Merged =="NCT of Delhi")*100/length(Merged),2),
+            None=round(sum(Merged =="No state has performed well")*100/length(Merged),2),
+            Odisha=round(sum(Merged =="Odisha")*100/length(Merged),2),
+            Puducherry=round(sum(Merged =="Puducherry")*100/length(Merged),2),
+            Punjab=round(sum(Merged =="Punjab")*100/length(Merged),2),
+            Rajasthan=round(sum(Merged =="Rajasthan")*100/length(Merged),2),
+            Sikkim=round(sum(Merged =="Sikkim")*100/length(Merged),2),
+            "Tamil Nadu"=round(sum(Merged =="Tamil Nadu")*100/length(Merged),2),
+            Telangana=round(sum(Merged =="Telangana")*100/length(Merged),2),
+            Tripura=round(sum(Merged =="Tripura")*100/length(Merged),2),
+            "Uttar Pradesh"=round(sum(Merged =="Uttar Pradesh")*100/length(Merged),2),
+            Uttarakhand=round(sum(Merged =="Uttarakhand")*100/length(Merged),2),
+            "West Bengal"=round(sum(Merged =="West Bengal")*100/length(Merged),2)) %>% 
   ungroup() 
 ```
 
-```{r}
-
-# #Merging averages for cumulative and biased responses in a single table/data-frame
-# row.names(summary_q4_unweighted) <- LETTERS[1:1]
-# summary_q4_unweighted <- as.data.frame(t(summary_q4_unweighted)) %>% 
-# rename ("Percentage of Responses-Cumulative (Best State)" = A)
-# 
-# row.names(summary_nr_q4_unweighted) <- LETTERS[1:1]
-# summary_nr_q4_unweighted <- as.data.frame(t(summary_nr_q4_unweighted)) %>% 
-# rename ("Percentage of Responses-Unbiased (Best State)" = A )
-# 
-# q4_unweighted <- cbind (summary_q4_unweighted, summary_nr_q4_unweighted)
-
-#Merging averages for cumulative and biased responses in a single table/data-frame
-row.names(summary_q4_unweighted) <- LETTERS[1:1]
-summary_q4_unweighted <- as.data.frame(t(summary_q4_unweighted)) %>% 
-rename ("Responses-Cumulative" = A)
-
-row.names(summary_nr_q4_unweighted) <- LETTERS[1:1]
-summary_nr_q4_unweighted <- as.data.frame(t(summary_nr_q4_unweighted)) %>% 
-rename ("Responses-Unbiased" = A )
-
-q4_unweighted <- cbind (summary_q4_unweighted, summary_nr_q4_unweighted)
-
-q4_unweighted %>%
-  kbl(caption = "Officer responses for Best State") %>%
-  kable_classic(full_width = F, html_font = "Cambria")
-```
 
 ```{r, include=FALSE}
 #For young officers only: calculating averages for question 4 
@@ -2597,7 +2569,11 @@ summary_q6_unbiased<-as.data.frame(t(summary_q6_unbiased)) %>%
 state_responses<-cbind(summary_q4_unweighted, summary_nr_q4_unweighted, summary_q5_nonweighted, summary_q5_unbiased, summary_q6_nonweighted, summary_q6_unbiased) 
 
 state_responses<-setNames(cbind(rownames(state_responses), state_responses, row.names = NULL), 
-         c("state", "Q4 Proportion of All Responses", "Q4 Proportion of Unbiased Responses", "Q5 Proportion of All Responses", "Q5 Proportion of Unbiased Responses",  "Q6 Proportion of All Responses", "Q6 Proportion of Unbiased Responses"))
+         c("Responses (Selected States)", "Q4 Proportion of All Responses", "Q4 Proportion of Unbiased Responses", "Q5 Proportion of All Responses", "Q5 Proportion of Unbiased Responses",  "Q6 Proportion of All Responses", "Q6 Proportion of Unbiased Responses"))
+
+state_responses %>%
+  kbl(caption = "Officer responses for Q4, Q5 and Q6") %>%
+  kable_classic(full_width = F, html_font = "Cambria")
 ```
 \newpage
 
