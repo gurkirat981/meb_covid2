@@ -765,6 +765,18 @@ summary_nr_q4_unweighted <- nr_q4 %>%
 ```
 
 ```{r}
+
+# #Merging averages for cumulative and biased responses in a single table/data-frame
+# row.names(summary_q4_unweighted) <- LETTERS[1:1]
+# summary_q4_unweighted <- as.data.frame(t(summary_q4_unweighted)) %>% 
+# rename ("Percentage of Responses-Cumulative (Best State)" = A)
+# 
+# row.names(summary_nr_q4_unweighted) <- LETTERS[1:1]
+# summary_nr_q4_unweighted <- as.data.frame(t(summary_nr_q4_unweighted)) %>% 
+# rename ("Percentage of Responses-Unbiased (Best State)" = A )
+# 
+# q4_unweighted <- cbind (summary_q4_unweighted, summary_nr_q4_unweighted)
+
 #Merging averages for cumulative and biased responses in a single table/data-frame
 row.names(summary_q4_unweighted) <- LETTERS[1:1]
 summary_q4_unweighted <- as.data.frame(t(summary_q4_unweighted)) %>% 
@@ -1345,53 +1357,87 @@ summary_q5 <- summary_q5 %>%
   mutate(state_weight=ias_processed_dta$state_weight) %>% 
   mutate(sdg_weight=ias_processed_dta$sdg_weight)
 
+#Calculating averages for question 5 without state grouping
+summary_q5_nonweighted<- state_answers_q5 %>% 
+  na.omit() %>% 
+  summarise(q5_anislands=sum(Merged=="Andaman and Nicobar Islands")/ length(Merged),
+            q5_andhra=sum(Merged=="Andhra Pradesh")/length(Merged), 
+            q5_arunachal=sum(Merged=="Arunachal Pradesh")/length(Merged),
+            q5_assam=sum(Merged=="Assam")/length(Merged),
+            q5_bihar=sum(Merged=="Bihar")/length(Merged),
+            q5_chandigarh=sum(Merged =="Chandigarh")/length(Merged),
+            q5_chhattisgarh=sum(Merged=="Chhattisgarh")/length(Merged),
+            q5_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(Merged),
+            q5_goa=sum(Merged=="Goa")/length(Merged),
+            q5_gujarat=sum(Merged=="Gujarat")/length(Merged),
+            q5_haryana=sum(Merged=="Haryana")/length(Merged),
+            q5_hp=sum(Merged=="Himachal Pradesh")/length(Merged),
+            q5_jk=sum(Merged=="Jammu and Kashmir")/length(Merged),
+            q5_jharkhand=sum(Merged=="Jharkhand")/length(Merged),
+            q5_karnataka=sum(Merged=="Karnataka")/length(Merged),
+            q5_kerala=sum(Merged=="Kerala")/length(Merged),
+            q5_ladakh=sum(Merged =="Ladakh")/length(Merged),
+            q5_lakshadweep=sum(Merged=="Lakshadweep")/length(Merged),
+            q5_mp=sum(Merged=="Madhya Pradesh")/length(Merged),
+            q5_maharashtra=sum(Merged=="Maharashtra")/length(Merged),
+            q5_manipur=sum(Merged=="Manipur")/length(Merged),
+            q5_meghalaya=sum(Merged=="Meghalaya")/length(Merged),
+            q5_mizoram=sum(Merged=="Mizoram")/length(Merged),
+            q5_nagaland=sum(Merged =="Nagaland")/length(Merged),
+            q5_delhi=sum(Merged=="NCT of Delhi")/length(Merged),
+            q5_none=sum(Merged=="No state has performed poorly")/length(Merged),
+            q5_odisha=sum(Merged =="Odisha")/length(Merged),
+            q5_puducherry=sum(Merged=="Puducherry")/length(Merged),
+            q5_punjab=sum(Merged=="Punjab")/length(Merged),
+            q5_rajasthan=sum(Merged=="Rajasthan")/length(Merged),
+            q5_sikkim=sum(Merged =="Sikkim")/length(Merged),
+            q5_tn=sum(Merged=="Tamil Nadu")/length(Merged),
+            q5_telangana=sum(Merged=="Telangana")/length(Merged),
+            q5_tripura=sum(Merged =="Tripura")/length(Merged),
+            q5_up=sum(Merged=="Uttar Pradesh")/length(Merged),
+            q5_uttarakhand=sum(Merged=="Uttarakhand")/length(Merged),
+            q5_wb=sum(Merged=="West Bengal")/length(Merged))
+
 #Calculating averages for question 5 for *unbiased* officers only 
 summary_q5_unbiased<- state_answers_q5_unbiased %>% 
-  group_by(state) %>% 
   na.omit() %>% 
-  summarise(q5_anislands=sum(Merged=="Andaman and Nicobar Islands")/ length(state),
-            q5_andhra=sum(Merged=="Andhra Pradesh")/length(state), 
-            q5_arunachal=sum(Merged=="Arunachal Pradesh")/length(state),
-            q5_assam=sum(Merged=="Assam")/length(state),
-            q5_bihar=sum(Merged=="Bihar")/length(state),
-            q5_chandigarh=sum(Merged =="Chandigarh")/length(state),
-            q5_chhattisgarh=sum(Merged=="Chhattisgarh")/length(state),
-            q5_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(state),
-            q5_goa=sum(Merged=="Goa")/length(state),
-            q5_gujarat=sum(Merged=="Gujarat")/length(state),
-            q5_haryana=sum(Merged=="Haryana")/length(state),
-            q5_hp=sum(Merged=="Himachal Pradesh")/length(state),
-            q5_jk=sum(Merged=="Jammu and Kashmir")/length(state),
-            q5_jharkhand=sum(Merged=="Jharkhand")/length(state),
-            q5_karnataka=sum(Merged=="Karnataka")/length(state),
-            q5_kerala=sum(Merged=="Kerala")/length(state),
-            q5_ladakh=sum(Merged =="Ladakh")/length(state),
-            q5_lakshadweep=sum(Merged=="Lakshadweep")/length(state),
-            q5_mp=sum(Merged=="Madhya Pradesh")/length(state),
-            q5_maharashtra=sum(Merged=="Maharashtra")/length(state),
-            q5_manipur=sum(Merged=="Manipur")/length(state),
-            q5_meghalaya=sum(Merged=="Meghalaya")/length(state),
-            q5_mizoram=sum(Merged=="Mizoram")/length(state),
-            q5_nagaland=sum(Merged =="Nagaland")/length(state),
-            q5_delhi=sum(Merged=="NCT of Delhi")/length(state),
-            q5_none=sum(Merged=="No state has performed poorly")/length(state),
-            q5_odisha=sum(Merged =="Odisha")/length(state),
-            q5_puducherry=sum(Merged=="Puducherry")/length(state),
-            q5_punjab=sum(Merged=="Punjab")/length(state),
-            q5_rajasthan=sum(Merged=="Rajasthan")/length(state),
-            q5_sikkim=sum(Merged =="Sikkim")/length(state),
-            q5_tn=sum(Merged=="Tamil Nadu")/length(state),
-            q5_telangana=sum(Merged=="Telangana")/length(state),
-            q5_tripura=sum(Merged =="Tripura")/length(state),
-            q5_up=sum(Merged=="Uttar Pradesh")/length(state),
-            q5_uttarakhand=sum(Merged=="Uttarakhand")/length(state),
-            q5_wb=sum(Merged=="West Bengal")/length(state),.groups='drop') %>% 
-  ungroup() %>% 
-  mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
- 
-summary_q5_unbiased <- summary_q5_unbiased %>% 
-  mutate(state_weight=ias_processed_dta$state_weight) %>% 
-  mutate(sdg_weight=ias_processed_dta$sdg_weight)
+  summarise(q5_anislands=sum(Merged=="Andaman and Nicobar Islands")/ length(Merged),
+            q5_andhra=sum(Merged=="Andhra Pradesh")/length(Merged), 
+            q5_arunachal=sum(Merged=="Arunachal Pradesh")/length(Merged),
+            q5_assam=sum(Merged=="Assam")/length(Merged),
+            q5_bihar=sum(Merged=="Bihar")/length(Merged),
+            q5_chandigarh=sum(Merged =="Chandigarh")/length(Merged),
+            q5_chhattisgarh=sum(Merged=="Chhattisgarh")/length(Merged),
+            q5_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(Merged),
+            q5_goa=sum(Merged=="Goa")/length(Merged),
+            q5_gujarat=sum(Merged=="Gujarat")/length(Merged),
+            q5_haryana=sum(Merged=="Haryana")/length(Merged),
+            q5_hp=sum(Merged=="Himachal Pradesh")/length(Merged),
+            q5_jk=sum(Merged=="Jammu and Kashmir")/length(Merged),
+            q5_jharkhand=sum(Merged=="Jharkhand")/length(Merged),
+            q5_karnataka=sum(Merged=="Karnataka")/length(Merged),
+            q5_kerala=sum(Merged=="Kerala")/length(Merged),
+            q5_ladakh=sum(Merged =="Ladakh")/length(Merged),
+            q5_lakshadweep=sum(Merged=="Lakshadweep")/length(Merged),
+            q5_mp=sum(Merged=="Madhya Pradesh")/length(Merged),
+            q5_maharashtra=sum(Merged=="Maharashtra")/length(Merged),
+            q5_manipur=sum(Merged=="Manipur")/length(Merged),
+            q5_meghalaya=sum(Merged=="Meghalaya")/length(Merged),
+            q5_mizoram=sum(Merged=="Mizoram")/length(Merged),
+            q5_nagaland=sum(Merged =="Nagaland")/length(Merged),
+            q5_delhi=sum(Merged=="NCT of Delhi")/length(Merged),
+            q5_none=sum(Merged=="No state has performed poorly")/length(Merged),
+            q5_odisha=sum(Merged =="Odisha")/length(Merged),
+            q5_puducherry=sum(Merged=="Puducherry")/length(Merged),
+            q5_punjab=sum(Merged=="Punjab")/length(Merged),
+            q5_rajasthan=sum(Merged=="Rajasthan")/length(Merged),
+            q5_sikkim=sum(Merged =="Sikkim")/length(Merged),
+            q5_tn=sum(Merged=="Tamil Nadu")/length(Merged),
+            q5_telangana=sum(Merged=="Telangana")/length(Merged),
+            q5_tripura=sum(Merged =="Tripura")/length(Merged),
+            q5_up=sum(Merged=="Uttar Pradesh")/length(Merged),
+            q5_uttarakhand=sum(Merged=="Uttarakhand")/length(Merged),
+            q5_wb=sum(Merged=="West Bengal")/length(Merged))
 ```
 
 ```{r, include=FALSE}
@@ -1983,56 +2029,87 @@ summary_q6 <- summary_q6 %>%
   mutate(state_weight=ias_processed_dta$state_weight) %>% 
   mutate(sdg_weight=ias_processed_dta$sdg_weight) 
 
+#Calculating averages for Q6 for all officers without state grouping
+summary_q6_nonweighted <- q6 %>% 
+  na.omit() %>% 
+  summarise(q6_anislands=sum(Merged =="Andaman and Nicobar Islands")/length(Merged),
+            q6_andhra=sum(Merged =="Andhra Pradesh")/length(Merged), 
+            q6_arunachal=sum(Merged =="Arunachal Pradesh")/length(Merged),
+            q6_assam=sum(Merged =="Assam")/length(Merged),
+            q6_bihar=sum(Merged =="Bihar")/length(Merged),
+            q6_chandigarh=sum(Merged =="Chandigarh")/length(Merged),
+            q6_chhattisgarh=sum(Merged =="Chhattisgarh")/length(Merged),
+            q6_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(Merged),
+            q6_goa=sum(Merged =="Goa")/length(Merged),
+            q6_gujarat=sum(Merged =="Gujarat")/length(Merged),
+            q6_haryana=sum(Merged =="Haryana")/length(Merged),
+            q6_hp=sum(Merged =="Himachal Pradesh")/length(Merged),
+            q6_jk=sum(Merged =="Jammu and Kashmir")/length(Merged),
+            q6_jharkhand=sum(Merged =="Jharkhand")/length(Merged),
+            q6_karnataka=sum(Merged =="Karnataka")/length(Merged),
+            q6_kerala=sum(Merged =="Kerala")/length(Merged),
+            q6_ladakh=sum(Merged =="Ladakh")/length(Merged),
+            q6_lakshadweep=sum(Merged =="Lakshadweep")/length(Merged),
+            q6_mp=sum(Merged =="Madhya Pradesh")/length(Merged),
+            q6_maharashtra=sum(Merged =="Maharashtra")/length(Merged),
+            q6_manipur=sum(Merged =="Manipur")/length(Merged),
+            q6_meghalaya=sum(Merged =="Meghalaya")/length(Merged),
+            q6_mizoram=sum(Merged =="Mizoram")/length(Merged),
+            q6_nagaland=sum(Merged =="Nagaland")/length(Merged),
+            q6_delhi=sum(Merged =="NCT of Delhi")/length(Merged),
+            q6_none=sum(Merged =="No state has been under-appreciated")/length(Merged),
+            q6_odisha=sum(Merged =="Odisha")/length(Merged),
+            q6_puducherry=sum(Merged =="Puducherry")/length(Merged),
+            q6_punjab=sum(Merged =="Punjab")/length(Merged),
+            q6_rajasthan=sum(Merged =="Rajasthan")/length(Merged),
+            q6_sikkim=sum(Merged =="Sikkim")/length(Merged),
+            q6_tn=sum(Merged =="Tamil Nadu")/length(Merged),
+            q6_telangana=sum(Merged =="Telangana")/length(Merged),
+            q6_tripura=sum(Merged =="Tripura")/length(Merged),
+            q6_up=sum(Merged =="Uttar Pradesh")/length(Merged),
+            q6_uttarakhand=sum(Merged =="Uttarakhand")/length(Merged),
+            q6_wb=sum(Merged =="West Bengal")/length(Merged)) 
 
 #Calculating averages for Q6 for *unbiased* officers only
 summary_q6_unbiased <- q6_unbiased %>% 
-  group_by(state) %>% 
   na.omit() %>% 
-  summarise(q6_anislands=sum(Merged =="Andaman and Nicobar Islands")/length(state),
-            q6_andhra=sum(Merged =="Andhra Pradesh")/length(state), 
-            q6_arunachal=sum(Merged =="Arunachal Pradesh")/length(state),
-            q6_assam=sum(Merged =="Assam")/length(state),
-            q6_bihar=sum(Merged =="Bihar")/length(state),
-            q6_chandigarh=sum(Merged =="Chandigarh")/length(state),
-            q6_chhattisgarh=sum(Merged =="Chhattisgarh")/length(state),
-            q6_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(state),
-            q6_goa=sum(Merged =="Goa")/length(state),
-            q6_gujarat=sum(Merged =="Gujarat")/length(state),
-            q6_haryana=sum(Merged =="Haryana")/length(state),
-            q6_hp=sum(Merged =="Himachal Pradesh")/length(state),
-            q6_jk=sum(Merged =="Jammu and Kashmir")/length(state),
-            q6_jharkhand=sum(Merged =="Jharkhand")/length(state),
-            q6_karnataka=sum(Merged =="Karnataka")/length(state),
-            q6_kerala=sum(Merged =="Kerala")/length(state),
-            q6_ladakh=sum(Merged =="Ladakh")/length(state),
-            q6_lakshadweep=sum(Merged =="Lakshadweep")/length(state),
-            q6_mp=sum(Merged =="Madhya Pradesh")/length(state),
-            q6_maharashtra=sum(Merged =="Maharashtra")/length(state),
-            q6_manipur=sum(Merged =="Manipur")/length(state),
-            q6_meghalaya=sum(Merged =="Meghalaya")/length(state),
-            q6_mizoram=sum(Merged =="Mizoram")/length(state),
-            q6_nagaland=sum(Merged =="Nagaland")/length(state),
-            q6_delhi=sum(Merged =="NCT of Delhi")/length(state),
-            q6_none=sum(Merged =="No state has been under-appreciated")/length(state),
-            q6_odisha=sum(Merged =="Odisha")/length(state),
-            q6_puducherry=sum(Merged =="Puducherry")/length(state),
-            q6_punjab=sum(Merged =="Punjab")/length(state),
-            q6_rajasthan=sum(Merged =="Rajasthan")/length(state),
-            q6_sikkim=sum(Merged =="Sikkim")/length(state),
-            q6_tn=sum(Merged =="Tamil Nadu")/length(state),
-            q6_telangana=sum(Merged =="Telangana")/length(state),
-            q6_tripura=sum(Merged =="Tripura")/length(state),
-            q6_up=sum(Merged =="Uttar Pradesh")/length(state),
-            q6_uttarakhand=sum(Merged =="Uttarakhand")/length(state),
-            q6_wb=sum(Merged =="West Bengal")/length(state),.groups='drop') %>% 
-  ungroup() %>% 
-  add_row(state="Andaman and Nicobar Islands") %>% 
-  arrange(state) %>% 
-  mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
-
-summary_q6_unbiased <- summary_q6_unbiased %>% 
-  mutate(state_weight=ias_processed_dta$state_weight) %>% 
-  mutate(sdg_weight=ias_processed_dta$sdg_weight) 
+  summarise(q6_anislands=sum(Merged =="Andaman and Nicobar Islands")/length(Merged),
+            q6_andhra=sum(Merged =="Andhra Pradesh")/length(Merged), 
+            q6_arunachal=sum(Merged =="Arunachal Pradesh")/length(Merged),
+            q6_assam=sum(Merged =="Assam")/length(Merged),
+            q6_bihar=sum(Merged =="Bihar")/length(Merged),
+            q6_chandigarh=sum(Merged =="Chandigarh")/length(Merged),
+            q6_chhattisgarh=sum(Merged =="Chhattisgarh")/length(Merged),
+            q6_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(Merged),
+            q6_goa=sum(Merged =="Goa")/length(Merged),
+            q6_gujarat=sum(Merged =="Gujarat")/length(Merged),
+            q6_haryana=sum(Merged =="Haryana")/length(Merged),
+            q6_hp=sum(Merged =="Himachal Pradesh")/length(Merged),
+            q6_jk=sum(Merged =="Jammu and Kashmir")/length(Merged),
+            q6_jharkhand=sum(Merged =="Jharkhand")/length(Merged),
+            q6_karnataka=sum(Merged =="Karnataka")/length(Merged),
+            q6_kerala=sum(Merged =="Kerala")/length(Merged),
+            q6_ladakh=sum(Merged =="Ladakh")/length(Merged),
+            q6_lakshadweep=sum(Merged =="Lakshadweep")/length(Merged),
+            q6_mp=sum(Merged =="Madhya Pradesh")/length(Merged),
+            q6_maharashtra=sum(Merged =="Maharashtra")/length(Merged),
+            q6_manipur=sum(Merged =="Manipur")/length(Merged),
+            q6_meghalaya=sum(Merged =="Meghalaya")/length(Merged),
+            q6_mizoram=sum(Merged =="Mizoram")/length(Merged),
+            q6_nagaland=sum(Merged =="Nagaland")/length(Merged),
+            q6_delhi=sum(Merged =="NCT of Delhi")/length(Merged),
+            q6_none=sum(Merged =="No state has been under-appreciated")/length(Merged),
+            q6_odisha=sum(Merged =="Odisha")/length(Merged),
+            q6_puducherry=sum(Merged =="Puducherry")/length(Merged),
+            q6_punjab=sum(Merged =="Punjab")/length(Merged),
+            q6_rajasthan=sum(Merged =="Rajasthan")/length(Merged),
+            q6_sikkim=sum(Merged =="Sikkim")/length(Merged),
+            q6_tn=sum(Merged =="Tamil Nadu")/length(Merged),
+            q6_telangana=sum(Merged =="Telangana")/length(Merged),
+            q6_tripura=sum(Merged =="Tripura")/length(Merged),
+            q6_up=sum(Merged =="Uttar Pradesh")/length(Merged),
+            q6_uttarakhand=sum(Merged =="Uttarakhand")/length(Merged),
+            q6_wb=sum(Merged =="West Bengal")/length(Merged))
 ```
 
 ```{r, include=FALSE}
@@ -2496,6 +2573,31 @@ summary_q6_former_unbiased <- state_answers_q6_former_unbiased %>%
             q6_wb=sum(Merged =="West Bengal")/length(Merged),.groups='drop') %>% 
   ungroup() %>% 
   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE))
+```
+
+```{r}
+#Creating a table with responses to Q 4, 5 and 6 for all officers and for unbiased officers 
+summary_q4_unweighted<-as.data.frame(t(summary_q4_unweighted)) %>% 
+  rename("q4_prop"=V1)
+summary_nr_q4_unweighted<-as.data.frame(t(summary_nr_q4_unweighted)) %>% 
+  rename("q4_unbias_prop"=V1)
+summary_q5_nonweighted<-as.data.frame(t(summary_q5_nonweighted)) %>% 
+  mutate(V1=round(V1*100, digits=2)) %>%
+  rename("q5_prop"=V1)
+summary_q5_unbiased<-as.data.frame(t(summary_q5_unbiased)) %>%
+  mutate(V1=round(V1*100, digits=2)) %>% 
+  rename("q5_unbias_prop"=V1)
+summary_q6_nonweighted<-as.data.frame(t(summary_q6_nonweighted)) %>% 
+  mutate(V1=round(V1*100, digits=2)) %>%
+  rename("q6_prop"=V1)
+summary_q6_unbiased<-as.data.frame(t(summary_q6_unbiased)) %>% 
+  mutate(V1=round(V1*100, digits=2)) %>%
+  rename("q6_unbias_prop"=V1)
+
+state_responses<-cbind(summary_q4_unweighted, summary_nr_q4_unweighted, summary_q5_nonweighted, summary_q5_unbiased, summary_q6_nonweighted, summary_q6_unbiased) 
+
+state_responses<-setNames(cbind(rownames(state_responses), state_responses, row.names = NULL), 
+         c("state", "Q4 Proportion of All Responses", "Q4 Proportion of Unbiased Responses", "Q5 Proportion of All Responses", "Q5 Proportion of Unbiased Responses",  "Q6 Proportion of All Responses", "Q6 Proportion of Unbiased Responses"))
 ```
 \newpage
 
