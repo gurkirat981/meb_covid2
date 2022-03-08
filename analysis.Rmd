@@ -6644,3 +6644,161 @@ q16_fullsdg <- plot_grid(q16aspt_plot,q16perf_plot,q16frnt_plot, nrow=1)
 q16_fullsdg <- plot_grid(q16_fullsdg,legend16, nrow = 2, rel_heights=c(5,2))
 q16_fullsdg
 ```
+
+```{r}
+#Tables for question 4
+States_Q4 <- c("Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chattisgarh", "NCT of Delhi","Dadra and Nagar Haveli and Daman and Dui", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Jammu and Kashmir", "Karnataka", "Kerala", "Ladakh", "Lakshadweep Islands", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Madhya Pradesh", "Nagaland","No state has performed well", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tamil Nadu", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal")
+
+#Question 4, aggregate
+q4full_plot1 <- c(q4full_mean_anislands, q4full_mean_andhra, q4full_mean_arunachal, q4full_mean_assam, q4full_mean_bihar, q4full_mean_chandigarh, q4full_mean_chhattisgarh, q4full_mean_delhi, q4full_mean_dnhdd, q4full_mean_goa, q4full_mean_gujarat, q4full_mean_haryana, q4full_mean_hp, q4full_mean_jharkhand, q4full_mean_jk, q4full_mean_karnataka, q4full_mean_kerala, q4full_mean_ladakh, q4full_mean_lakshadweep, q4full_mean_maharashtra, q4full_mean_manipur, q4full_mean_meghalaya, q4full_mean_mizoram, q4full_mean_mp, q4full_mean_nagaland, q4full_mean_none, q4full_mean_odisha, q4full_mean_puducherry, q4full_mean_punjab, q4full_mean_rajasthan, q4full_mean_sikkim, q4full_mean_telangana, q4full_mean_tn, q4full_mean_tripura, q4full_mean_up, q4full_mean_uttarakhand, q4full_mean_wb)
+
+q4_plot_dta1 <- data.frame (States_Q4, q4full_plot1) %>% 
+arrange (desc(q4full_plot1)) %>% 
+rename ("Aggregate Percentages (Q4)" = q4full_plot1)
+
+#Question 4, Disaggreaged by Age
+q4young_plot1 <- c(q4young_mean_anislands, q4young_mean_andhra, q4young_mean_arunachal, q4young_mean_assam, q4young_mean_bihar, q4young_mean_chandigarh, q4young_mean_chhattisgarh, q4young_mean_delhi, q4young_mean_dnhdd, q4young_mean_goa, q4young_mean_gujarat, q4young_mean_haryana, q4young_mean_hp, q4young_mean_jharkhand, q4young_mean_jk, q4young_mean_karnataka, q4young_mean_kerala, q4young_mean_ladakh, q4young_mean_lakshadweep, q4young_mean_maharashtra, q4young_mean_manipur, q4young_mean_meghalaya, q4young_mean_mizoram, q4young_mean_mp, q4young_mean_nagaland, q4young_mean_none, q4young_mean_odisha, q4young_mean_puducherry, q4young_mean_punjab, q4young_mean_rajasthan, q4young_mean_sikkim, q4young_mean_telangana, q4young_mean_tn, q4young_mean_tripura, q4young_mean_up, q4young_mean_uttarakhand, q4young_mean_wb)
+
+q4young_plot_dta1 <- data.frame (States_Q4, q4young_plot1) 
+
+q4old_plot1 <- c(q4old_mean_anislands, q4old_mean_andhra, q4old_mean_arunachal, q4old_mean_assam, q4old_mean_bihar, q4old_mean_chandigarh, q4old_mean_chhattisgarh, q4old_mean_delhi, q4old_mean_dnhdd, q4old_mean_goa, q4old_mean_gujarat, q4old_mean_haryana, q4old_mean_hp, q4old_mean_jharkhand, q4old_mean_jk, q4old_mean_karnataka, q4old_mean_kerala, q4old_mean_ladakh, q4old_mean_lakshadweep, q4old_mean_maharashtra, q4old_mean_manipur, q4old_mean_meghalaya, q4old_mean_mizoram, q4old_mean_mp, q4old_mean_nagaland, q4old_mean_none, q4old_mean_odisha, q4old_mean_puducherry, q4old_mean_punjab, q4old_mean_rajasthan, q4old_mean_sikkim, q4old_mean_telangana, q4old_mean_tn, q4old_mean_tripura, q4old_mean_up, q4old_mean_uttarakhand, q4old_mean_wb)
+
+q4old_plot_dta1 <- data.frame (q4old_plot1)
+
+q4former_plot1 <- c(q4former_mean_anislands, q4former_mean_andhra, q4former_mean_arunachal, q4former_mean_assam, q4former_mean_bihar, q4former_mean_chandigarh, q4former_mean_chhattisgarh, q4former_mean_delhi, q4former_mean_dnhdd, q4former_mean_goa, q4former_mean_gujarat, q4former_mean_haryana, q4former_mean_hp, q4former_mean_jharkhand, q4former_mean_jk, q4former_mean_karnataka, q4former_mean_kerala, q4former_mean_ladakh, q4former_mean_lakshadweep, q4former_mean_maharashtra, q4former_mean_manipur, q4former_mean_meghalaya, q4former_mean_mizoram, q4former_mean_mp, q4former_mean_nagaland, q4former_mean_none, q4former_mean_odisha, q4former_mean_puducherry, q4former_mean_punjab, q4former_mean_rajasthan, q4former_mean_sikkim, q4former_mean_telangana, q4former_mean_tn, q4former_mean_tripura, q4former_mean_up, q4former_mean_uttarakhand, q4former_mean_wb)
+
+q4former_plot_dta1 <- data.frame (q4former_plot1)
+
+q4_age_dta <- cbind (q4young_plot_dta1, q4old_plot_dta1, q4former_plot_dta1) %>% 
+arrange (desc(q4old_plot_dta1)) %>% 
+rename ("Percentages (Q4 Young)" = q4young_plot1) %>% 
+rename ("Percentages (Q4 Old)" = q4old_plot1) %>% 
+rename ("Percentages (Q4 Former)" = q4former_plot1)
+
+#Question 4, Disaggregated by SDG
+
+q4aspt_plot1 <- c(q4aspt_weighted_mean_anislands, q4aspt_weighted_mean_andhra, q4aspt_weighted_mean_arunachal, q4aspt_weighted_mean_assam, q4aspt_weighted_mean_bihar, q4aspt_weighted_mean_chandigarh, q4aspt_weighted_mean_chhattisgarh, q4aspt_weighted_mean_delhi, q4aspt_weighted_mean_dnhdd, q4aspt_weighted_mean_goa, q4aspt_weighted_mean_gujarat, q4aspt_weighted_mean_haryana, q4aspt_weighted_mean_hp, q4aspt_weighted_mean_jharkhand, q4aspt_weighted_mean_jk, q4aspt_weighted_mean_karnataka, q4aspt_weighted_mean_kerala, q4aspt_weighted_mean_ladakh, q4aspt_weighted_mean_lakshadweep, q4aspt_weighted_mean_maharashtra, q4aspt_weighted_mean_manipur, q4aspt_weighted_mean_meghalaya, q4aspt_weighted_mean_mizoram, q4aspt_weighted_mean_mp, q4aspt_weighted_mean_nagaland, q4aspt_weighted_mean_none, q4aspt_weighted_mean_odisha, q4aspt_weighted_mean_puducherry, q4aspt_weighted_mean_punjab, q4aspt_weighted_mean_rajasthan, q4aspt_weighted_mean_sikkim, q4aspt_weighted_mean_telangana, q4aspt_weighted_mean_tn, q4aspt_weighted_mean_tripura, q4aspt_weighted_mean_up, q4aspt_weighted_mean_uttarakhand, q4aspt_weighted_mean_wb)
+
+q4perf_plot1 <- c(q4perf_weighted_mean_anislands, q4perf_weighted_mean_andhra, q4perf_weighted_mean_arunachal, q4perf_weighted_mean_assam, q4perf_weighted_mean_bihar, q4perf_weighted_mean_chandigarh, q4perf_weighted_mean_chhattisgarh, q4perf_weighted_mean_delhi, q4perf_weighted_mean_dnhdd, q4perf_weighted_mean_goa, q4perf_weighted_mean_gujarat, q4perf_weighted_mean_haryana, q4perf_weighted_mean_hp, q4perf_weighted_mean_jharkhand, q4perf_weighted_mean_jk, q4perf_weighted_mean_karnataka, q4perf_weighted_mean_kerala, q4perf_weighted_mean_ladakh, q4perf_weighted_mean_lakshadweep, q4perf_weighted_mean_maharashtra, q4perf_weighted_mean_manipur, q4perf_weighted_mean_meghalaya, q4perf_weighted_mean_mizoram, q4perf_weighted_mean_mp, q4perf_weighted_mean_nagaland, q4perf_weighted_mean_none, q4perf_weighted_mean_odisha, q4perf_weighted_mean_puducherry, q4perf_weighted_mean_punjab, q4perf_weighted_mean_rajasthan, q4perf_weighted_mean_sikkim, q4perf_weighted_mean_telangana, q4perf_weighted_mean_tn, q4perf_weighted_mean_tripura, q4perf_weighted_mean_up, q4perf_weighted_mean_uttarakhand, q4perf_weighted_mean_wb)
+
+q4frnt_plot1 <- c(q4frnt_weighted_mean_anislands, q4frnt_weighted_mean_andhra, q4frnt_weighted_mean_arunachal, q4frnt_weighted_mean_assam, q4frnt_weighted_mean_bihar, q4frnt_weighted_mean_chandigarh, q4frnt_weighted_mean_chhattisgarh, q4frnt_weighted_mean_delhi, q4frnt_weighted_mean_dnhdd, q4frnt_weighted_mean_goa, q4frnt_weighted_mean_gujarat, q4frnt_weighted_mean_haryana, q4frnt_weighted_mean_hp, q4frnt_weighted_mean_jharkhand, q4frnt_weighted_mean_jk, q4frnt_weighted_mean_karnataka, q4frnt_weighted_mean_kerala, q4frnt_weighted_mean_ladakh, q4frnt_weighted_mean_lakshadweep, q4frnt_weighted_mean_maharashtra, q4frnt_weighted_mean_manipur, q4frnt_weighted_mean_meghalaya, q4frnt_weighted_mean_mizoram, q4frnt_weighted_mean_mp, q4frnt_weighted_mean_nagaland, q4frnt_weighted_mean_none, q4frnt_weighted_mean_odisha, q4frnt_weighted_mean_puducherry, q4frnt_weighted_mean_punjab, q4frnt_weighted_mean_rajasthan, q4frnt_weighted_mean_sikkim, q4frnt_weighted_mean_telangana, q4frnt_weighted_mean_tn, q4frnt_weighted_mean_tripura, q4frnt_weighted_mean_up, q4frnt_weighted_mean_uttarakhand, q4frnt_weighted_mean_wb)
+
+q4aspt_plot_dta1 <- data.frame (States_Q4, q4aspt_plot1) 
+q4perf_plot_dta1 <- data.frame (q4perf_plot1)
+q4frnt_plot_dta1 <- data.frame (q4frnt_plot1)
+
+q4_sdg_dta <- cbind (q4aspt_plot_dta1, q4perf_plot_dta1, q4frnt_plot_dta1) %>% 
+arrange (desc(q4perf_plot_dta1)) %>% 
+rename ("Percentages (Q4 Aspirant)" = q4aspt_plot1) %>% 
+rename ("Percentages (Q4 Performer)" = q4perf_plot1) %>% 
+rename ("Percentages (Q4 Frontrunner)" = q4frnt_plot1)
+
+write.table (q4_plot_dta1, "/Users/gurkirat/Documents/GitHub/ias-release/q4_plot_dta1.txt", sep = "\t")
+write.table (q4_age_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q4_age_dta.txt", sep = "\t")
+write.table (q4_sdg_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q4_sdg_dta.txt", sep = "\t")
+```
+
+```{r}
+#Tables for question 5
+States_Q5 <- c("Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chattisgarh", "NCT of Delhi","Dadra and Nagar Haveli and Daman and Dui", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Jammu and Kashmir", "Karnataka", "Kerala", "Ladakh", "Lakshadweep Islands", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Madhya Pradesh", "Nagaland","No state has performed poorly", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tamil Nadu", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal")
+
+#Question 5, aggregate
+q5full_plot1 <- c(q5full_mean_anislands, q5full_mean_andhra, q5full_mean_arunachal, q5full_mean_assam, q5full_mean_bihar, q5full_mean_chandigarh, q5full_mean_chhattisgarh, q5full_mean_delhi, q5full_mean_dnhdd, q5full_mean_goa, q5full_mean_gujarat, q5full_mean_haryana, q5full_mean_hp, q5full_mean_jharkhand, q5full_mean_jk, q5full_mean_karnataka, q5full_mean_kerala, q5full_mean_ladakh, q5full_mean_lakshadweep, q5full_mean_maharashtra, q5full_mean_manipur, q5full_mean_meghalaya, q5full_mean_mizoram, q5full_mean_mp, q5full_mean_nagaland, q5full_mean_none, q5full_mean_odisha, q5full_mean_puducherry, q5full_mean_punjab, q5full_mean_rajasthan, q5full_mean_sikkim, q5full_mean_telangana, q5full_mean_tn, q5full_mean_tripura, q5full_mean_up, q5full_mean_uttarakhand, q5full_mean_wb)
+
+q5_plot_dta1 <- data.frame (States_Q5, q5full_plot1) %>% 
+arrange (desc(q5full_plot1)) %>% 
+rename ("Aggregate Percentages (Q5)" = q5full_plot1)
+
+#Question 4, Disaggreaged by Age
+q5young_plot1 <- c(q5young_mean_anislands, q5young_mean_andhra, q5young_mean_arunachal, q5young_mean_assam, q5young_mean_bihar, q5young_mean_chandigarh, q5young_mean_chhattisgarh, q5young_mean_delhi, q5young_mean_dnhdd, q5young_mean_goa, q5young_mean_gujarat, q5young_mean_haryana, q5young_mean_hp, q5young_mean_jharkhand, q5young_mean_jk, q5young_mean_karnataka, q5young_mean_kerala, q5young_mean_ladakh, q5young_mean_lakshadweep, q5young_mean_maharashtra, q5young_mean_manipur, q5young_mean_meghalaya, q5young_mean_mizoram, q5young_mean_mp, q5young_mean_nagaland, q5young_mean_none, q5young_mean_odisha, q5young_mean_puducherry, q5young_mean_punjab, q5young_mean_rajasthan, q5young_mean_sikkim, q5young_mean_telangana, q5young_mean_tn, q5young_mean_tripura, q5young_mean_up, q5young_mean_uttarakhand, q5young_mean_wb)
+
+q5young_plot_dta1 <- data.frame (States_Q5, q5young_plot1) 
+
+q5old_plot1 <- c(q5old_mean_anislands, q5old_mean_andhra, q5old_mean_arunachal, q5old_mean_assam, q5old_mean_bihar, q5old_mean_chandigarh, q5old_mean_chhattisgarh, q5old_mean_delhi, q5old_mean_dnhdd, q5old_mean_goa, q5old_mean_gujarat, q5old_mean_haryana, q5old_mean_hp, q5old_mean_jharkhand, q5old_mean_jk, q5old_mean_karnataka, q5old_mean_kerala, q5old_mean_ladakh, q5old_mean_lakshadweep, q5old_mean_maharashtra, q5old_mean_manipur, q5old_mean_meghalaya, q5old_mean_mizoram, q5old_mean_mp, q5old_mean_nagaland, q5old_mean_none, q5old_mean_odisha, q5old_mean_puducherry, q5old_mean_punjab, q5old_mean_rajasthan, q5old_mean_sikkim, q5old_mean_telangana, q5old_mean_tn, q5old_mean_tripura, q5old_mean_up, q5old_mean_uttarakhand, q5old_mean_wb)
+
+q5old_plot_dta1 <- data.frame (q5old_plot1)
+
+q5former_plot1 <- c(q5former_mean_anislands, q5former_mean_andhra, q5former_mean_arunachal, q5former_mean_assam, q5former_mean_bihar, q5former_mean_chandigarh, q5former_mean_chhattisgarh, q5former_mean_delhi, q5former_mean_dnhdd, q5former_mean_goa, q5former_mean_gujarat, q5former_mean_haryana, q5former_mean_hp, q5former_mean_jharkhand, q5former_mean_jk, q5former_mean_karnataka, q5former_mean_kerala, q5former_mean_ladakh, q5former_mean_lakshadweep, q5former_mean_maharashtra, q5former_mean_manipur, q5former_mean_meghalaya, q5former_mean_mizoram, q5former_mean_mp, q5former_mean_nagaland, q5former_mean_none, q5former_mean_odisha, q5former_mean_puducherry, q5former_mean_punjab, q5former_mean_rajasthan, q5former_mean_sikkim, q5former_mean_telangana, q5former_mean_tn, q5former_mean_tripura, q5former_mean_up, q5former_mean_uttarakhand, q5former_mean_wb)
+
+q5former_plot_dta1 <- data.frame (q5former_plot1)
+
+q5_age_dta <- cbind (q5young_plot_dta1, q5old_plot_dta1, q5former_plot_dta1) %>% 
+arrange (desc(q5old_plot_dta1)) %>% 
+rename ("Percentages (Q5 Young)" = q5young_plot1) %>% 
+rename ("Percentages (Q5 Old)" = q5old_plot1) %>% 
+rename ("Percentages (Q5 Former)" = q5former_plot1)
+
+#Question 5, Disaggregated by SDG
+q5aspt_plot1 <- c(q5aspt_weighted_mean_anislands, q5aspt_weighted_mean_andhra, q5aspt_weighted_mean_arunachal, q5aspt_weighted_mean_assam, q5aspt_weighted_mean_bihar, q5aspt_weighted_mean_chandigarh, q5aspt_weighted_mean_chhattisgarh, q5aspt_weighted_mean_delhi, q5aspt_weighted_mean_dnhdd, q5aspt_weighted_mean_goa, q5aspt_weighted_mean_gujarat, q5aspt_weighted_mean_haryana, q5aspt_weighted_mean_hp, q5aspt_weighted_mean_jharkhand, q5aspt_weighted_mean_jk, q5aspt_weighted_mean_karnataka, q5aspt_weighted_mean_kerala, q5aspt_weighted_mean_ladakh, q5aspt_weighted_mean_lakshadweep, q5aspt_weighted_mean_maharashtra, q5aspt_weighted_mean_manipur, q5aspt_weighted_mean_meghalaya, q5aspt_weighted_mean_mizoram, q5aspt_weighted_mean_mp, q5aspt_weighted_mean_nagaland, q5aspt_weighted_mean_none, q5aspt_weighted_mean_odisha, q5aspt_weighted_mean_puducherry, q5aspt_weighted_mean_punjab, q5aspt_weighted_mean_rajasthan, q5aspt_weighted_mean_sikkim, q5aspt_weighted_mean_telangana, q5aspt_weighted_mean_tn, q5aspt_weighted_mean_tripura, q5aspt_weighted_mean_up, q5aspt_weighted_mean_uttarakhand, q5aspt_weighted_mean_wb)
+
+q5perf_plot1 <- c(q5perf_weighted_mean_anislands, q5perf_weighted_mean_andhra, q5perf_weighted_mean_arunachal, q5perf_weighted_mean_assam, q5perf_weighted_mean_bihar, q5perf_weighted_mean_chandigarh, q5perf_weighted_mean_chhattisgarh, q5perf_weighted_mean_delhi, q5perf_weighted_mean_dnhdd, q5perf_weighted_mean_goa, q5perf_weighted_mean_gujarat, q5perf_weighted_mean_haryana, q5perf_weighted_mean_hp, q5perf_weighted_mean_jharkhand, q5perf_weighted_mean_jk, q5perf_weighted_mean_karnataka, q5perf_weighted_mean_kerala, q5perf_weighted_mean_ladakh, q5perf_weighted_mean_lakshadweep, q5perf_weighted_mean_maharashtra, q5perf_weighted_mean_manipur, q5perf_weighted_mean_meghalaya, q5perf_weighted_mean_mizoram, q5perf_weighted_mean_mp, q5perf_weighted_mean_nagaland, q5perf_weighted_mean_none, q5perf_weighted_mean_odisha, q5perf_weighted_mean_puducherry, q5perf_weighted_mean_punjab, q5perf_weighted_mean_rajasthan, q5perf_weighted_mean_sikkim, q5perf_weighted_mean_telangana, q5perf_weighted_mean_tn, q5perf_weighted_mean_tripura, q5perf_weighted_mean_up, q5perf_weighted_mean_uttarakhand, q5perf_weighted_mean_wb)
+
+q5frnt_plot1 <- c(q5frnt_weighted_mean_anislands, q5frnt_weighted_mean_andhra, q5frnt_weighted_mean_arunachal, q5frnt_weighted_mean_assam, q5frnt_weighted_mean_bihar, q5frnt_weighted_mean_chandigarh, q5frnt_weighted_mean_chhattisgarh, q5frnt_weighted_mean_delhi, q5frnt_weighted_mean_dnhdd, q5frnt_weighted_mean_goa, q5frnt_weighted_mean_gujarat, q5frnt_weighted_mean_haryana, q5frnt_weighted_mean_hp, q5frnt_weighted_mean_jharkhand, q5frnt_weighted_mean_jk, q5frnt_weighted_mean_karnataka, q5frnt_weighted_mean_kerala, q5frnt_weighted_mean_ladakh, q5frnt_weighted_mean_lakshadweep, q5frnt_weighted_mean_maharashtra, q5frnt_weighted_mean_manipur, q5frnt_weighted_mean_meghalaya, q5frnt_weighted_mean_mizoram, q5frnt_weighted_mean_mp, q5frnt_weighted_mean_nagaland, q5frnt_weighted_mean_none, q5frnt_weighted_mean_odisha, q5frnt_weighted_mean_puducherry, q5frnt_weighted_mean_punjab, q5frnt_weighted_mean_rajasthan, q5frnt_weighted_mean_sikkim, q5frnt_weighted_mean_telangana, q5frnt_weighted_mean_tn, q5frnt_weighted_mean_tripura, q5frnt_weighted_mean_up, q5frnt_weighted_mean_uttarakhand, q5frnt_weighted_mean_wb)
+
+q5aspt_plot_dta1 <- data.frame (States_Q5, q5aspt_plot1) 
+q5perf_plot_dta1 <- data.frame (q5perf_plot1)
+q5frnt_plot_dta1 <- data.frame (q5frnt_plot1)
+
+q5_sdg_dta <- cbind (q5aspt_plot_dta1, q5perf_plot_dta1, q5frnt_plot_dta1) %>% 
+arrange (desc(q5perf_plot_dta1)) %>% 
+rename ("Percentages (Q5 Aspirant)" = q5aspt_plot1) %>% 
+rename ("Percentages (Q5 Performer)" = q5perf_plot1) %>% 
+rename ("Percentages (Q5 Frontrunner)" = q5frnt_plot1)
+
+write.table (q5_plot_dta1, "/Users/gurkirat/Documents/GitHub/ias-release/q5_plot_dta1.txt", sep = "\t")
+write.table (q5_age_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q5_age_dta.txt", sep = "\t")
+write.table (q5_sdg_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q5_sdg_dta.txt", sep = "\t")
+```
+
+```{r}
+#Tables for question 6
+`States_Q6` <- c("Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chattisgarh", "NCT of Delhi","Dadra and Nagar Haveli and Daman and Dui", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Jammu and Kashmir", "Karnataka", "Kerala", "Ladakh", "Lakshadweep Islands", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Madhya Pradesh", "Nagaland","No state has been under-appreciated", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tamil Nadu", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal")
+
+#Question 6, aggregate
+q6full_plot1 <- c(q6full_mean_anislands, q6full_mean_andhra, q6full_mean_arunachal, q6full_mean_assam, q6full_mean_bihar, q6full_mean_chandigarh, q6full_mean_chhattisgarh, q6full_mean_delhi, q6full_mean_dnhdd, q6full_mean_goa, q6full_mean_gujarat, q6full_mean_haryana, q6full_mean_hp, q6full_mean_jharkhand, q6full_mean_jk, q6full_mean_karnataka, q6full_mean_kerala, q6full_mean_ladakh, q6full_mean_lakshadweep, q6full_mean_maharashtra, q6full_mean_manipur, q6full_mean_meghalaya, q6full_mean_mizoram, q6full_mean_mp, q6full_mean_nagaland, q6full_mean_none, q6full_mean_odisha, q6full_mean_puducherry, q6full_mean_punjab, q6full_mean_rajasthan, q6full_mean_sikkim, q6full_mean_telangana, q6full_mean_tn, q6full_mean_tripura, q6full_mean_up, q6full_mean_uttarakhand, q6full_mean_wb)
+
+q6_plot_dta1 <- data.frame (States_Q6, q6full_plot1) %>% 
+arrange (desc(q6full_plot1)) %>% 
+rename ("Aggregate Percentages (Q6)" = q6full_plot1)
+
+#Question 6, Disaggreaged by Age
+q6young_plot1 <- c(q6young_mean_anislands, q6young_mean_andhra, q6young_mean_arunachal, q6young_mean_assam, q6young_mean_bihar, q6young_mean_chandigarh, q6young_mean_chhattisgarh, q6young_mean_delhi, q6young_mean_dnhdd, q6young_mean_goa, q6young_mean_gujarat, q6young_mean_haryana, q6young_mean_hp, q6young_mean_jharkhand, q6young_mean_jk, q6young_mean_karnataka, q6young_mean_kerala, q6young_mean_ladakh, q6young_mean_lakshadweep, q6young_mean_maharashtra, q6young_mean_manipur, q6young_mean_meghalaya, q6young_mean_mizoram, q6young_mean_mp, q6young_mean_nagaland, q6young_mean_none, q6young_mean_odisha, q6young_mean_puducherry, q6young_mean_punjab, q6young_mean_rajasthan, q6young_mean_sikkim, q6young_mean_telangana, q6young_mean_tn, q6young_mean_tripura, q6young_mean_up, q6young_mean_uttarakhand, q6young_mean_wb)
+
+q6young_plot_dta1 <- data.frame (States_Q6, q6young_plot1) 
+
+q6old_plot1 <- c(q6old_mean_anislands, q6old_mean_andhra, q6old_mean_arunachal, q6old_mean_assam, q6old_mean_bihar, q6old_mean_chandigarh, q6old_mean_chhattisgarh, q6old_mean_delhi, q6old_mean_dnhdd, q6old_mean_goa, q6old_mean_gujarat, q6old_mean_haryana, q6old_mean_hp, q6old_mean_jharkhand, q6old_mean_jk, q6old_mean_karnataka, q6old_mean_kerala, q6old_mean_ladakh, q6old_mean_lakshadweep, q6old_mean_maharashtra, q6old_mean_manipur, q6old_mean_meghalaya, q6old_mean_mizoram, q6old_mean_mp, q6old_mean_nagaland, q6old_mean_none, q6old_mean_odisha, q6old_mean_puducherry, q6old_mean_punjab, q6old_mean_rajasthan, q6old_mean_sikkim, q6old_mean_telangana, q6old_mean_tn, q6old_mean_tripura, q6old_mean_up, q6old_mean_uttarakhand, q6old_mean_wb)
+
+q6old_plot_dta1 <- data.frame (q6old_plot1)
+
+q6former_plot1 <- c(q6former_mean_anislands, q6former_mean_andhra, q6former_mean_arunachal, q6former_mean_assam, q6former_mean_bihar, q6former_mean_chandigarh, q6former_mean_chhattisgarh, q6former_mean_delhi, q6former_mean_dnhdd, q6former_mean_goa, q6former_mean_gujarat, q6former_mean_haryana, q6former_mean_hp, q6former_mean_jharkhand, q6former_mean_jk, q6former_mean_karnataka, q6former_mean_kerala, q6former_mean_ladakh, q6former_mean_lakshadweep, q6former_mean_maharashtra, q6former_mean_manipur, q6former_mean_meghalaya, q6former_mean_mizoram, q6former_mean_mp, q6former_mean_nagaland, q6former_mean_none, q6former_mean_odisha, q6former_mean_puducherry, q6former_mean_punjab, q6former_mean_rajasthan, q6former_mean_sikkim, q6former_mean_telangana, q6former_mean_tn, q6former_mean_tripura, q6former_mean_up, q6former_mean_uttarakhand, q6former_mean_wb)
+
+q6former_plot_dta1 <- data.frame (q6former_plot1)
+
+q6_age_dta <- cbind (q6young_plot_dta1, q6old_plot_dta1, q6former_plot_dta1) %>% 
+arrange (desc(q6old_plot_dta1)) %>% 
+rename ("Percentages (Q6 Young)" = q6young_plot1) %>% 
+rename ("Percentages (Q6 Old)" = q6old_plot1) %>% 
+rename ("Percentages (Q6 Former)" = q6former_plot1)
+
+#Question 6, Disaggregated by SDG
+q6aspt_plot1 <- c(q6aspt_weighted_mean_anislands, q6aspt_weighted_mean_andhra, q6aspt_weighted_mean_arunachal, q6aspt_weighted_mean_assam, q6aspt_weighted_mean_bihar, q6aspt_weighted_mean_chandigarh, q6aspt_weighted_mean_chhattisgarh, q6aspt_weighted_mean_delhi, q6aspt_weighted_mean_dnhdd, q6aspt_weighted_mean_goa, q6aspt_weighted_mean_gujarat, q6aspt_weighted_mean_haryana, q6aspt_weighted_mean_hp, q6aspt_weighted_mean_jharkhand, q6aspt_weighted_mean_jk, q6aspt_weighted_mean_karnataka, q6aspt_weighted_mean_kerala, q6aspt_weighted_mean_ladakh, q6aspt_weighted_mean_lakshadweep, q6aspt_weighted_mean_maharashtra, q6aspt_weighted_mean_manipur, q6aspt_weighted_mean_meghalaya, q6aspt_weighted_mean_mizoram, q6aspt_weighted_mean_mp, q6aspt_weighted_mean_nagaland, q6aspt_weighted_mean_none, q6aspt_weighted_mean_odisha, q6aspt_weighted_mean_puducherry, q6aspt_weighted_mean_punjab, q6aspt_weighted_mean_rajasthan, q6aspt_weighted_mean_sikkim, q6aspt_weighted_mean_telangana, q6aspt_weighted_mean_tn, q6aspt_weighted_mean_tripura, q6aspt_weighted_mean_up, q6aspt_weighted_mean_uttarakhand, q6aspt_weighted_mean_wb)
+
+q6perf_plot1 <- c(q6perf_weighted_mean_anislands, q6perf_weighted_mean_andhra, q6perf_weighted_mean_arunachal, q6perf_weighted_mean_assam, q6perf_weighted_mean_bihar, q6perf_weighted_mean_chandigarh, q6perf_weighted_mean_chhattisgarh, q6perf_weighted_mean_delhi, q6perf_weighted_mean_dnhdd, q6perf_weighted_mean_goa, q6perf_weighted_mean_gujarat, q6perf_weighted_mean_haryana, q6perf_weighted_mean_hp, q6perf_weighted_mean_jharkhand, q6perf_weighted_mean_jk, q6perf_weighted_mean_karnataka, q6perf_weighted_mean_kerala, q6perf_weighted_mean_ladakh, q6perf_weighted_mean_lakshadweep, q6perf_weighted_mean_maharashtra, q6perf_weighted_mean_manipur, q6perf_weighted_mean_meghalaya, q6perf_weighted_mean_mizoram, q6perf_weighted_mean_mp, q6perf_weighted_mean_nagaland, q6perf_weighted_mean_none, q6perf_weighted_mean_odisha, q6perf_weighted_mean_puducherry, q6perf_weighted_mean_punjab, q6perf_weighted_mean_rajasthan, q6perf_weighted_mean_sikkim, q6perf_weighted_mean_telangana, q6perf_weighted_mean_tn, q6perf_weighted_mean_tripura, q6perf_weighted_mean_up, q6perf_weighted_mean_uttarakhand, q6perf_weighted_mean_wb)
+
+q6frnt_plot1 <- c(q6frnt_weighted_mean_anislands, q6frnt_weighted_mean_andhra, q6frnt_weighted_mean_arunachal, q6frnt_weighted_mean_assam, q6frnt_weighted_mean_bihar, q6frnt_weighted_mean_chandigarh, q6frnt_weighted_mean_chhattisgarh, q6frnt_weighted_mean_delhi, q6frnt_weighted_mean_dnhdd, q6frnt_weighted_mean_goa, q6frnt_weighted_mean_gujarat, q6frnt_weighted_mean_haryana, q6frnt_weighted_mean_hp, q6frnt_weighted_mean_jharkhand, q6frnt_weighted_mean_jk, q6frnt_weighted_mean_karnataka, q6frnt_weighted_mean_kerala, q6frnt_weighted_mean_ladakh, q6frnt_weighted_mean_lakshadweep, q6frnt_weighted_mean_maharashtra, q6frnt_weighted_mean_manipur, q6frnt_weighted_mean_meghalaya, q6frnt_weighted_mean_mizoram, q6frnt_weighted_mean_mp, q6frnt_weighted_mean_nagaland, q6frnt_weighted_mean_none, q6frnt_weighted_mean_odisha, q6frnt_weighted_mean_puducherry, q6frnt_weighted_mean_punjab, q6frnt_weighted_mean_rajasthan, q6frnt_weighted_mean_sikkim, q6frnt_weighted_mean_telangana, q6frnt_weighted_mean_tn, q6frnt_weighted_mean_tripura, q6frnt_weighted_mean_up, q6frnt_weighted_mean_uttarakhand, q6frnt_weighted_mean_wb)
+
+q6aspt_plot_dta1 <- data.frame (States_Q6, q6aspt_plot1) 
+q6perf_plot_dta1 <- data.frame (q6perf_plot1)
+q6frnt_plot_dta1 <- data.frame (q6frnt_plot1)
+
+q6_sdg_dta <- cbind (q6aspt_plot_dta1, q6perf_plot_dta1, q6frnt_plot_dta1) %>% 
+arrange (desc(q6perf_plot_dta1)) %>% 
+rename ("Percentages (Q6 Aspirant)" = q6aspt_plot1) %>% 
+rename ("Percentages (Q6 Performer)" = q6perf_plot1) %>% 
+rename ("Percentages (Q6 Frontrunner)" = q6frnt_plot1)
+
+write.table (q6_plot_dta1, "/Users/gurkirat/Documents/GitHub/ias-release/q6_plot_dta1.txt", sep = "\t")
+write.table (q6_age_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q6_age_dta.txt", sep = "\t")
+write.table (q6_sdg_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q6_sdg_dta.txt", sep = "\t")
+```
+
