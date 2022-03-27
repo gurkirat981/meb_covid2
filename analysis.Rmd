@@ -2044,44 +2044,54 @@ summary_q6_nonweighted <- q6 %>%
 
 #Calculating averages for Q6 for *unbiased* officers only
 summary_q6_unbiased <- q6_unbiased %>% 
+  group_by(state) %>% 
   na.omit() %>% 
-  summarise(q6_anislands=sum(Merged =="Andaman and Nicobar Islands")/length(Merged),
-            q6_andhra=sum(Merged =="Andhra Pradesh")/length(Merged), 
-            q6_arunachal=sum(Merged =="Arunachal Pradesh")/length(Merged),
-            q6_assam=sum(Merged =="Assam")/length(Merged),
-            q6_bihar=sum(Merged =="Bihar")/length(Merged),
-            q6_chandigarh=sum(Merged =="Chandigarh")/length(Merged),
-            q6_chhattisgarh=sum(Merged =="Chhattisgarh")/length(Merged),
-            q6_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(Merged),
-            q6_goa=sum(Merged =="Goa")/length(Merged),
-            q6_gujarat=sum(Merged =="Gujarat")/length(Merged),
-            q6_haryana=sum(Merged =="Haryana")/length(Merged),
-            q6_hp=sum(Merged =="Himachal Pradesh")/length(Merged),
-            q6_jk=sum(Merged =="Jammu and Kashmir")/length(Merged),
-            q6_jharkhand=sum(Merged =="Jharkhand")/length(Merged),
-            q6_karnataka=sum(Merged =="Karnataka")/length(Merged),
-            q6_kerala=sum(Merged =="Kerala")/length(Merged),
-            q6_ladakh=sum(Merged =="Ladakh")/length(Merged),
-            q6_lakshadweep=sum(Merged =="Lakshadweep")/length(Merged),
-            q6_mp=sum(Merged =="Madhya Pradesh")/length(Merged),
-            q6_maharashtra=sum(Merged =="Maharashtra")/length(Merged),
-            q6_manipur=sum(Merged =="Manipur")/length(Merged),
-            q6_meghalaya=sum(Merged =="Meghalaya")/length(Merged),
-            q6_mizoram=sum(Merged =="Mizoram")/length(Merged),
-            q6_nagaland=sum(Merged =="Nagaland")/length(Merged),
-            q6_delhi=sum(Merged =="NCT of Delhi")/length(Merged),
-            q6_none=sum(Merged =="No state has been under-appreciated")/length(Merged),
-            q6_odisha=sum(Merged =="Odisha")/length(Merged),
-            q6_puducherry=sum(Merged =="Puducherry")/length(Merged),
-            q6_punjab=sum(Merged =="Punjab")/length(Merged),
-            q6_rajasthan=sum(Merged =="Rajasthan")/length(Merged),
-            q6_sikkim=sum(Merged =="Sikkim")/length(Merged),
-            q6_tn=sum(Merged =="Tamil Nadu")/length(Merged),
-            q6_telangana=sum(Merged =="Telangana")/length(Merged),
-            q6_tripura=sum(Merged =="Tripura")/length(Merged),
-            q6_up=sum(Merged =="Uttar Pradesh")/length(Merged),
-            q6_uttarakhand=sum(Merged =="Uttarakhand")/length(Merged),
-            q6_wb=sum(Merged =="West Bengal")/length(Merged))
+  summarise(q6_anislands=sum(Merged =="Andaman and Nicobar Islands")/length(state),
+            q6_andhra=sum(Merged =="Andhra Pradesh")/length(state), 
+            q6_arunachal=sum(Merged =="Arunachal Pradesh")/length(state),
+            q6_assam=sum(Merged =="Assam")/length(state),
+            q6_bihar=sum(Merged =="Bihar")/length(state),
+            q6_chandigarh=sum(Merged =="Chandigarh")/length(state),
+            q6_chhattisgarh=sum(Merged =="Chhattisgarh")/length(state),
+            q6_dnhdd=sum(Merged =="Dadra and Nagar Haveli and Daman and Dui")/length(state),
+            q6_goa=sum(Merged =="Goa")/length(state),
+            q6_gujarat=sum(Merged =="Gujarat")/length(state),
+            q6_haryana=sum(Merged =="Haryana")/length(state),
+            q6_hp=sum(Merged =="Himachal Pradesh")/length(state),
+            q6_jk=sum(Merged =="Jammu and Kashmir")/length(state),
+            q6_jharkhand=sum(Merged =="Jharkhand")/length(state),
+            q6_karnataka=sum(Merged =="Karnataka")/length(state),
+            q6_kerala=sum(Merged =="Kerala")/length(state),
+            q6_ladakh=sum(Merged =="Ladakh")/length(state),
+            q6_lakshadweep=sum(Merged =="Lakshadweep")/length(state),
+            q6_mp=sum(Merged =="Madhya Pradesh")/length(state),
+            q6_maharashtra=sum(Merged =="Maharashtra")/length(state),
+            q6_manipur=sum(Merged =="Manipur")/length(state),
+            q6_meghalaya=sum(Merged =="Meghalaya")/length(state),
+            q6_mizoram=sum(Merged =="Mizoram")/length(state),
+            q6_nagaland=sum(Merged =="Nagaland")/length(state),
+            q6_delhi=sum(Merged =="NCT of Delhi")/length(state),
+            q6_none=sum(Merged =="No state has been under-appreciated")/length(state),
+            q6_odisha=sum(Merged =="Odisha")/length(state),
+            q6_puducherry=sum(Merged =="Puducherry")/length(state),
+            q6_punjab=sum(Merged =="Punjab")/length(state),
+            q6_rajasthan=sum(Merged =="Rajasthan")/length(state),
+            q6_sikkim=sum(Merged =="Sikkim")/length(state),
+            q6_tn=sum(Merged =="Tamil Nadu")/length(state),
+            q6_telangana=sum(Merged =="Telangana")/length(state),
+            q6_tripura=sum(Merged =="Tripura")/length(state),
+            q6_up=sum(Merged =="Uttar Pradesh")/length(state),
+            q6_uttarakhand=sum(Merged =="Uttarakhand")/length(state),
+            q6_wb=sum(Merged =="West Bengal")/length(state)) %>% 
+  ungroup() %>% 
+   mutate(total=rowSums(select_if(., is.numeric), na.rm = TRUE)) %>% 
+  add_row(state="Andaman and Nicobar Islands") %>% 
+  arrange(state)
+
+summary_q6_unbiased <- summary_q6_unbiased %>% 
+  mutate(state_weight=ias_processed_dta$state_weight) %>% 
+  mutate(sdg_weight=ias_processed_dta$sdg_weight)
+
 ```
 
 ```{r, include=FALSE}
@@ -4981,9 +4991,6 @@ Responses by officers who indicated their own states as being under-appreciated 
 
 \vspace{6mm}
 ```{r, echo = FALSE, fig.height=17,fig.width=18, warning=FALSE}
-summary_q6_unbiased <- summary_q6_unbiased %>% 
-  mutate (sdg_tier = ias_processed_dta$sdg)
-
 #Calculating weighted means
 ##Aspirants
 q6aspt_weighted_mean_anislands <- round(weighted.mean(summary_q6_unbiased$q6_anislands[summary_q6_unbiased$sdg_tier=="Aspirant"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Aspirant"])*100,2)
@@ -5049,18 +5056,18 @@ q6perf_weighted_mean_manipur <- round(weighted.mean(summary_q6_unbiased$q6_manip
 q6perf_weighted_mean_meghalaya <- round(weighted.mean(summary_q6_unbiased$q6_meghalaya[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
 q6perf_weighted_mean_mizoram <- round(weighted.mean(summary_q6_unbiased$q6_mizoram[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
 q6perf_weighted_mean_nagaland <- round(weighted.mean(summary_q6_unbiased$q6_nagaland[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_delhi <- round(weighted.mean(summary_q6_unbiased$q6_delhi[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_none <- round(weighted.mean(summary_q6_unbiased$q6_none[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_odisha <- round(weighted.mean(summary_q6_unbiased$q6_odisha[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_puducherry <- round(weighted.mean(summary_q6_unbiased$q6_puducherry[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_punjab <- round(weighted.mean(summary_q6_unbiased$q6_punjab[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_rajasthan <- round(weighted.mean(summary_q6_unbiased$q6_rajasthan[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_sikkim <- round(weighted.mean(summary_q6_unbiased$q6_sikkim[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_tn <- round(weighted.mean(summary_q6_unbiased$q6_tn[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_telangana <- round(weighted.mean(summary_q6_unbiased$q6_telangana[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_tripura <- round(weighted.mean(summary_q6_unbiased$q6_tripura[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_up <- round(weighted.mean(summary_q6_unbiased$q6_up[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
-q6perf_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6_unbiased$q6_uttarakhand[summary_q5$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_delhi <- round(weighted.mean(summary_q6_unbiased$q6_delhi[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_none <- round(weighted.mean(summary_q6_unbiased$q6_none[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_odisha <- round(weighted.mean(summary_q6_unbiased$q6_odisha[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_puducherry <- round(weighted.mean(summary_q6_unbiased$q6_puducherry[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_punjab <- round(weighted.mean(summary_q6_unbiased$q6_punjab[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_rajasthan <- round(weighted.mean(summary_q6_unbiased$q6_rajasthan[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_sikkim <- round(weighted.mean(summary_q6_unbiased$q6_sikkim[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_tn <- round(weighted.mean(summary_q6_unbiased$q6_tn[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_telangana <- round(weighted.mean(summary_q6_unbiased$q6_telangana[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_tripura <- round(weighted.mean(summary_q6_unbiased$q6_tripura[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_up <- round(weighted.mean(summary_q6_unbiased$q6_up[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
+q6perf_weighted_mean_uttarakhand <- round(weighted.mean(summary_q6_unbiased$q6_uttarakhand[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
 q6perf_weighted_mean_wb <- round(weighted.mean(summary_q6_unbiased$q6_wb[summary_q6_unbiased$sdg_tier=="Performer"], summary_q6_unbiased$sdg_weight[summary_q6_unbiased$sdg_tier=="Performer"], na.rm = TRUE)*100,2)
 
 ##Frontrunner
@@ -6656,6 +6663,13 @@ q4_plot_dta1 <- data.frame (States_Q4, q4full_plot1) %>%
 arrange (desc(q4full_plot1)) %>% 
 rename ("Aggregate Percentages (Q4)" = q4full_plot1)
 
+#Question 4, aggregate (accounting for officer's bias)
+q4full_nr_plot <- c(q4full_mean_anislands_nr, q4full_mean_andhra_nr, q4full_mean_arunachal_nr, q4full_mean_assam_nr, q4full_mean_bihar_nr, q4full_mean_chandigarh_nr, q4full_mean_chhattisgarh_nr, q4full_mean_delhi_nr, q4full_mean_dnhdd_nr, q4full_mean_goa_nr, q4full_mean_gujarat_nr, q4full_mean_haryana_nr, q4full_mean_hp_nr, q4full_mean_jharkhand_nr, q4full_mean_jk_nr, q4full_mean_karnataka_nr, q4full_mean_kerala_nr, q4full_mean_ladakh_nr, q4full_mean_lakshadweep_nr, q4full_mean_maharashtra_nr, q4full_mean_manipur_nr, q4full_mean_meghalaya_nr, q4full_mean_mizoram_nr, q4full_mean_mp_nr, q4full_mean_nagaland_nr, q4full_mean_none_nr, q4full_mean_odisha_nr, q4full_mean_puducherry_nr, q4full_mean_punjab_nr, q4full_mean_rajasthan_nr, q4full_mean_sikkim_nr, q4full_mean_telangana_nr, q4full_mean_tn_nr, q4full_mean_tripura_nr, q4full_mean_up_nr, q4full_mean_uttarakhand_nr, q4full_mean_wb_nr)
+
+q4_plot_dta2 <- data.frame (States_Q4, q4full_nr_plot) %>% 
+arrange (desc(q4full_nr_plot)) %>% 
+rename ("Q4 Aggregate Percentages (accounting for bias)" = q4full_nr_plot)
+
 #Question 4, Disaggreaged by Age
 q4young_plot1 <- c(q4young_mean_anislands, q4young_mean_andhra, q4young_mean_arunachal, q4young_mean_assam, q4young_mean_bihar, q4young_mean_chandigarh, q4young_mean_chhattisgarh, q4young_mean_delhi, q4young_mean_dnhdd, q4young_mean_goa, q4young_mean_gujarat, q4young_mean_haryana, q4young_mean_hp, q4young_mean_jharkhand, q4young_mean_jk, q4young_mean_karnataka, q4young_mean_kerala, q4young_mean_ladakh, q4young_mean_lakshadweep, q4young_mean_maharashtra, q4young_mean_manipur, q4young_mean_meghalaya, q4young_mean_mizoram, q4young_mean_mp, q4young_mean_nagaland, q4young_mean_none, q4young_mean_odisha, q4young_mean_puducherry, q4young_mean_punjab, q4young_mean_rajasthan, q4young_mean_sikkim, q4young_mean_telangana, q4young_mean_tn, q4young_mean_tripura, q4young_mean_up, q4young_mean_uttarakhand, q4young_mean_wb)
 
@@ -6675,6 +6689,26 @@ rename ("Percentages (Q4 Young)" = q4young_plot1) %>%
 rename ("Percentages (Q4 Old)" = q4old_plot1) %>% 
 rename ("Percentages (Q4 Former)" = q4former_plot1)
 
+#Question 4, Disaggregated by age (accounting for bias)
+
+q4young_nr_plot <- c(q4young_mean_anislands_nr, q4young_mean_andhra_nr, q4young_mean_arunachal_nr, q4young_mean_assam_nr, q4young_mean_bihar_nr, q4young_mean_chandigarh_nr, q4young_mean_chhattisgarh_nr, q4young_mean_delhi_nr, q4young_mean_dnhdd_nr, q4young_mean_goa_nr, q4young_mean_gujarat_nr, q4young_mean_haryana_nr, q4young_mean_hp_nr, q4young_mean_jharkhand_nr, q4young_mean_jk_nr, q4young_mean_karnataka_nr, q4young_mean_kerala_nr, q4young_mean_ladakh_nr, q4young_mean_lakshadweep_nr, q4young_mean_maharashtra_nr, q4young_mean_manipur_nr, q4young_mean_meghalaya_nr, q4young_mean_mizoram_nr, q4young_mean_mp_nr, q4young_mean_nagaland_nr, q4young_mean_none_nr, q4young_mean_odisha_nr, q4young_mean_puducherry_nr, q4young_mean_punjab_nr, q4young_mean_rajasthan_nr, q4young_mean_sikkim_nr, q4young_mean_telangana_nr, q4young_mean_tn_nr, q4young_mean_tripura_nr, q4young_mean_up_nr, q4young_mean_uttarakhand_nr, q4young_mean_wb_nr)
+
+q4young_plot_dta2 <- data.frame (States_Q4, q4young_nr_plot) 
+
+q4old_nr_plot <- c(q4old_mean_anislands_nr, q4old_mean_andhra_nr, q4old_mean_arunachal_nr, q4old_mean_assam_nr, q4old_mean_bihar_nr, q4old_mean_chandigarh_nr, q4old_mean_chhattisgarh_nr, q4old_mean_delhi_nr, q4old_mean_dnhdd_nr, q4old_mean_goa_nr, q4old_mean_gujarat_nr, q4old_mean_haryana_nr, q4old_mean_hp_nr, q4old_mean_jharkhand_nr, q4old_mean_jk_nr, q4old_mean_karnataka_nr, q4old_mean_kerala_nr, q4old_mean_ladakh_nr, q4old_mean_lakshadweep_nr, q4old_mean_maharashtra_nr, q4old_mean_manipur_nr, q4old_mean_meghalaya_nr, q4old_mean_mizoram_nr, q4old_mean_mp_nr, q4old_mean_nagaland_nr, q4old_mean_none_nr, q4old_mean_odisha_nr, q4old_mean_puducherry_nr, q4old_mean_punjab_nr, q4old_mean_rajasthan_nr, q4old_mean_sikkim_nr, q4old_mean_telangana_nr, q4old_mean_tn_nr, q4old_mean_tripura_nr, q4old_mean_up_nr, q4old_mean_uttarakhand_nr, q4old_mean_wb_nr)
+
+q4old_plot_dta2 <- data.frame (q4old_nr_plot)
+
+q4former_nr_plot <- c(q4former_mean_anislands_nr, q4former_mean_andhra_nr, q4former_mean_arunachal_nr, q4former_mean_assam_nr, q4former_mean_bihar_nr, q4former_mean_chandigarh_nr, q4former_mean_chhattisgarh_nr, q4former_mean_delhi_nr, q4former_mean_dnhdd_nr, q4former_mean_goa_nr, q4former_mean_gujarat_nr, q4former_mean_haryana_nr, q4former_mean_hp_nr, q4former_mean_jharkhand_nr, q4former_mean_jk_nr, q4former_mean_karnataka_nr, q4former_mean_kerala_nr, q4former_mean_ladakh_nr, q4former_mean_lakshadweep_nr, q4former_mean_maharashtra_nr, q4former_mean_manipur_nr, q4former_mean_meghalaya_nr, q4former_mean_mizoram_nr, q4former_mean_mp_nr, q4former_mean_nagaland_nr, q4former_mean_none_nr, q4former_mean_odisha_nr, q4former_mean_puducherry_nr, q4former_mean_punjab_nr, q4former_mean_rajasthan_nr, q4former_mean_sikkim_nr, q4former_mean_telangana_nr, q4former_mean_tn_nr, q4former_mean_tripura_nr, q4former_mean_up_nr, q4former_mean_uttarakhand_nr, q4former_mean_wb_nr)
+
+q4former_plot_dta2 <- data.frame (q4former_nr_plot)
+
+q4_age_dta2 <- cbind (q4young_plot_dta2, q4old_plot_dta2, q4former_plot_dta2) %>% 
+arrange (desc(q4old_plot_dta2)) %>% 
+rename ("Q4 Percentages (Young and unbiased)" = q4young_nr_plot) %>% 
+rename ("Q4 Percentages (Old and unbiased)" = q4old_nr_plot) %>% 
+rename ("Q4 Percentages (Former and unbiased)" = q4former_nr_plot)
+
 #Question 4, Disaggregated by SDG
 
 q4aspt_plot1 <- c(q4aspt_weighted_mean_anislands, q4aspt_weighted_mean_andhra, q4aspt_weighted_mean_arunachal, q4aspt_weighted_mean_assam, q4aspt_weighted_mean_bihar, q4aspt_weighted_mean_chandigarh, q4aspt_weighted_mean_chhattisgarh, q4aspt_weighted_mean_delhi, q4aspt_weighted_mean_dnhdd, q4aspt_weighted_mean_goa, q4aspt_weighted_mean_gujarat, q4aspt_weighted_mean_haryana, q4aspt_weighted_mean_hp, q4aspt_weighted_mean_jharkhand, q4aspt_weighted_mean_jk, q4aspt_weighted_mean_karnataka, q4aspt_weighted_mean_kerala, q4aspt_weighted_mean_ladakh, q4aspt_weighted_mean_lakshadweep, q4aspt_weighted_mean_maharashtra, q4aspt_weighted_mean_manipur, q4aspt_weighted_mean_meghalaya, q4aspt_weighted_mean_mizoram, q4aspt_weighted_mean_mp, q4aspt_weighted_mean_nagaland, q4aspt_weighted_mean_none, q4aspt_weighted_mean_odisha, q4aspt_weighted_mean_puducherry, q4aspt_weighted_mean_punjab, q4aspt_weighted_mean_rajasthan, q4aspt_weighted_mean_sikkim, q4aspt_weighted_mean_telangana, q4aspt_weighted_mean_tn, q4aspt_weighted_mean_tripura, q4aspt_weighted_mean_up, q4aspt_weighted_mean_uttarakhand, q4aspt_weighted_mean_wb)
@@ -6693,9 +6727,30 @@ rename ("Percentages (Q4 Aspirant)" = q4aspt_plot1) %>%
 rename ("Percentages (Q4 Performer)" = q4perf_plot1) %>% 
 rename ("Percentages (Q4 Frontrunner)" = q4frnt_plot1)
 
+#Question 4: Disaggregated by SDG (accounting for bias)
+
+q4aspt_nr_plot <- c(q4aspt_weighted_mean_anislands_nr, q4aspt_weighted_mean_andhra_nr, q4aspt_weighted_mean_arunachal_nr, q4aspt_weighted_mean_assam_nr, q4aspt_weighted_mean_bihar_nr, q4aspt_weighted_mean_chandigarh_nr, q4aspt_weighted_mean_chhattisgarh_nr, q4aspt_weighted_mean_delhi_nr, q4aspt_weighted_mean_dnhdd_nr, q4aspt_weighted_mean_goa_nr, q4aspt_weighted_mean_gujarat_nr, q4aspt_weighted_mean_haryana_nr, q4aspt_weighted_mean_hp_nr, q4aspt_weighted_mean_jharkhand_nr, q4aspt_weighted_mean_jk_nr, q4aspt_weighted_mean_karnataka_nr, q4aspt_weighted_mean_kerala_nr, q4aspt_weighted_mean_ladakh_nr, q4aspt_weighted_mean_lakshadweep_nr, q4aspt_weighted_mean_maharashtra_nr, q4aspt_weighted_mean_manipur_nr, q4aspt_weighted_mean_meghalaya_nr, q4aspt_weighted_mean_mizoram_nr, q4aspt_weighted_mean_mp_nr, q4aspt_weighted_mean_nagaland_nr, q4aspt_weighted_mean_none_nr, q4aspt_weighted_mean_odisha_nr, q4aspt_weighted_mean_puducherry_nr, q4aspt_weighted_mean_punjab_nr, q4aspt_weighted_mean_rajasthan_nr, q4aspt_weighted_mean_sikkim_nr, q4aspt_weighted_mean_telangana_nr, q4aspt_weighted_mean_tn_nr, q4aspt_weighted_mean_tripura_nr, q4aspt_weighted_mean_up_nr, q4aspt_weighted_mean_uttarakhand_nr, q4aspt_weighted_mean_wb_nr)
+
+q4perf_nr_plot <- c(q4perf_weighted_mean_anislands_nr, q4perf_weighted_mean_andhra_nr, q4perf_weighted_mean_arunachal_nr, q4perf_weighted_mean_assam_nr, q4perf_weighted_mean_bihar_nr, q4perf_weighted_mean_chandigarh_nr, q4perf_weighted_mean_chhattisgarh_nr, q4perf_weighted_mean_delhi_nr, q4perf_weighted_mean_dnhdd_nr, q4perf_weighted_mean_goa_nr, q4perf_weighted_mean_gujarat_nr, q4perf_weighted_mean_haryana_nr, q4perf_weighted_mean_hp_nr, q4perf_weighted_mean_jharkhand_nr, q4perf_weighted_mean_jk_nr, q4perf_weighted_mean_karnataka_nr, q4perf_weighted_mean_kerala_nr, q4perf_weighted_mean_ladakh_nr, q4perf_weighted_mean_lakshadweep_nr, q4perf_weighted_mean_maharashtra_nr, q4perf_weighted_mean_manipur_nr, q4perf_weighted_mean_meghalaya_nr, q4perf_weighted_mean_mizoram_nr, q4perf_weighted_mean_mp_nr, q4perf_weighted_mean_nagaland_nr, q4perf_weighted_mean_none_nr, q4perf_weighted_mean_odisha_nr, q4perf_weighted_mean_puducherry_nr, q4perf_weighted_mean_punjab_nr, q4perf_weighted_mean_rajasthan_nr, q4perf_weighted_mean_sikkim_nr, q4perf_weighted_mean_telangana_nr, q4perf_weighted_mean_tn_nr, q4perf_weighted_mean_tripura_nr, q4perf_weighted_mean_up_nr, q4perf_weighted_mean_uttarakhand_nr, q4perf_weighted_mean_wb_nr)
+
+q4frnt_nr_plot <- c(q4frnt_weighted_mean_anislands_nr, q4frnt_weighted_mean_andhra_nr, q4frnt_weighted_mean_arunachal_nr, q4frnt_weighted_mean_assam_nr, q4frnt_weighted_mean_bihar_nr, q4frnt_weighted_mean_chandigarh_nr, q4frnt_weighted_mean_chhattisgarh_nr, q4frnt_weighted_mean_delhi_nr, q4frnt_weighted_mean_dnhdd_nr, q4frnt_weighted_mean_goa_nr, q4frnt_weighted_mean_gujarat_nr, q4frnt_weighted_mean_haryana_nr, q4frnt_weighted_mean_hp_nr, q4frnt_weighted_mean_jharkhand_nr, q4frnt_weighted_mean_jk_nr, q4frnt_weighted_mean_karnataka_nr, q4frnt_weighted_mean_kerala_nr, q4frnt_weighted_mean_ladakh_nr, q4frnt_weighted_mean_lakshadweep_nr, q4frnt_weighted_mean_maharashtra_nr, q4frnt_weighted_mean_manipur_nr, q4frnt_weighted_mean_meghalaya_nr, q4frnt_weighted_mean_mizoram_nr, q4frnt_weighted_mean_mp_nr, q4frnt_weighted_mean_nagaland_nr, q4frnt_weighted_mean_none_nr, q4frnt_weighted_mean_odisha_nr, q4frnt_weighted_mean_puducherry_nr, q4frnt_weighted_mean_punjab_nr, q4frnt_weighted_mean_rajasthan_nr, q4frnt_weighted_mean_sikkim_nr, q4frnt_weighted_mean_telangana_nr, q4frnt_weighted_mean_tn_nr, q4frnt_weighted_mean_tripura_nr, q4frnt_weighted_mean_up_nr, q4frnt_weighted_mean_uttarakhand_nr, q4frnt_weighted_mean_wb_nr)
+
+q4aspt_plot_dta2 <- data.frame (States_Q4, q4aspt_nr_plot) 
+q4perf_plot_dta2 <- data.frame (q4perf_nr_plot)
+q4frnt_plot_dta2 <- data.frame (q4frnt_nr_plot)
+
+q4_sdg_dta2 <- cbind (q4aspt_plot_dta2, q4perf_plot_dta2, q4frnt_plot_dta2) %>% 
+arrange (desc(q4perf_plot_dta2)) %>% 
+rename ("Q4 Percentages (Aspirant, Unbiased)" = q4aspt_nr_plot) %>% 
+rename ("Q4 Percentages (Performer, Unbiased)" = q4perf_nr_plot) %>% 
+rename ("Q4 Percentages (Frontrunner, Unbiased)" = q4frnt_nr_plot)
+
+q4_unbiased <- cbind (q4_plot_dta2, q4_age_dta2, q4_sdg_dta2)
+
 write.table (q4_plot_dta1, "/Users/gurkirat/Documents/GitHub/ias-release/q4_plot_dta1.txt", sep = "\t")
 write.table (q4_age_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q4_age_dta.txt", sep = "\t")
 write.table (q4_sdg_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q4_sdg_dta.txt", sep = "\t")
+write.table (q4_unbiased, "/Users/gurkirat/Documents/GitHub/ias-release/q4_unbiased.txt", sep = "\t")
 ```
 
 ```{r}
@@ -6761,6 +6816,13 @@ q6_plot_dta1 <- data.frame (States_Q6, q6full_plot1) %>%
 arrange (desc(q6full_plot1)) %>% 
 rename ("Aggregate Percentages (Q6)" = q6full_plot1)
 
+#Question 6, aggregate (accounting for officer's bias)
+q6full_plot2 <- c(q6full_mean_anislands, q6full_mean_andhra, q6full_mean_arunachal, q6full_mean_assam, q6full_mean_bihar, q6full_mean_chandigarh, q6full_mean_chhattisgarh, q6full_mean_delhi, q6full_mean_dnhdd, q6full_mean_goa, q6full_mean_gujarat, q6full_mean_haryana, q6full_mean_hp, q6full_mean_jharkhand, q6full_mean_jk, q6full_mean_karnataka, q6full_mean_kerala, q6full_mean_ladakh, q6full_mean_lakshadweep, q6full_mean_maharashtra, q6full_mean_manipur, q6full_mean_meghalaya, q6full_mean_mizoram, q6full_mean_mp, q6full_mean_nagaland, q6full_mean_none, q6full_mean_odisha, q6full_mean_puducherry, q6full_mean_punjab, q6full_mean_rajasthan, q6full_mean_sikkim, q6full_mean_telangana, q6full_mean_tn, q6full_mean_tripura, q6full_mean_up, q6full_mean_uttarakhand, q6full_mean_wb)
+
+q6_plot_dta2 <- data.frame (States_Q6, q6full_plot2) %>% 
+arrange (desc(q6full_plot2)) %>% 
+rename ("Q6 Aggregate Percentages (accounting for officer's bias)" = q6full_plot2)
+
 #Question 6, Disaggreaged by Age
 q6young_plot1 <- c(q6young_mean_anislands, q6young_mean_andhra, q6young_mean_arunachal, q6young_mean_assam, q6young_mean_bihar, q6young_mean_chandigarh, q6young_mean_chhattisgarh, q6young_mean_delhi, q6young_mean_dnhdd, q6young_mean_goa, q6young_mean_gujarat, q6young_mean_haryana, q6young_mean_hp, q6young_mean_jharkhand, q6young_mean_jk, q6young_mean_karnataka, q6young_mean_kerala, q6young_mean_ladakh, q6young_mean_lakshadweep, q6young_mean_maharashtra, q6young_mean_manipur, q6young_mean_meghalaya, q6young_mean_mizoram, q6young_mean_mp, q6young_mean_nagaland, q6young_mean_none, q6young_mean_odisha, q6young_mean_puducherry, q6young_mean_punjab, q6young_mean_rajasthan, q6young_mean_sikkim, q6young_mean_telangana, q6young_mean_tn, q6young_mean_tripura, q6young_mean_up, q6young_mean_uttarakhand, q6young_mean_wb)
 
@@ -6780,6 +6842,23 @@ rename ("Percentages (Q6 Young)" = q6young_plot1) %>%
 rename ("Percentages (Q6 Old)" = q6old_plot1) %>% 
 rename ("Percentages (Q6 Former)" = q6former_plot1)
 
+#Question 6, Disaggregated by Age (accounting for officer's bias)
+q6young_plot2 <- c(q6young_mean_anislands, q6young_mean_andhra, q6young_mean_arunachal, q6young_mean_assam, q6young_mean_bihar, q6young_mean_chandigarh, q6young_mean_chhattisgarh, q6young_mean_delhi, q6young_mean_dnhdd, q6young_mean_goa, q6young_mean_gujarat, q6young_mean_haryana, q6young_mean_hp, q6young_mean_jharkhand, q6young_mean_jk, q6young_mean_karnataka, q6young_mean_kerala, q6young_mean_ladakh, q6young_mean_lakshadweep, q6young_mean_maharashtra, q6young_mean_manipur, q6young_mean_meghalaya, q6young_mean_mizoram, q6young_mean_mp, q6young_mean_nagaland, q6young_mean_none, q6young_mean_odisha, q6young_mean_puducherry, q6young_mean_punjab, q6young_mean_rajasthan, q6young_mean_sikkim, q6young_mean_telangana, q6young_mean_tn, q6young_mean_tripura, q6young_mean_up, q6young_mean_uttarakhand, q6young_mean_wb)
+
+q6old_plot2 <- c(q6old_mean_anislands, q6old_mean_andhra, q6old_mean_arunachal, q6old_mean_assam, q6old_mean_bihar, q6old_mean_chandigarh, q6old_mean_chhattisgarh, q6old_mean_delhi, q6old_mean_dnhdd, q6old_mean_goa, q6old_mean_gujarat, q6old_mean_haryana, q6old_mean_hp, q6old_mean_jharkhand, q6old_mean_jk, q6old_mean_karnataka, q6old_mean_kerala, q6old_mean_ladakh, q6old_mean_lakshadweep, q6old_mean_maharashtra, q6old_mean_manipur, q6old_mean_meghalaya, q6old_mean_mizoram, q6old_mean_mp, q6old_mean_nagaland, q6old_mean_none, q6old_mean_odisha, q6old_mean_puducherry, q6old_mean_punjab, q6old_mean_rajasthan, q6old_mean_sikkim, q6old_mean_telangana, q6old_mean_tn, q6old_mean_tripura, q6old_mean_up, q6old_mean_uttarakhand, q6old_mean_wb)
+
+q6former_plot2 <- c(q6former_mean_anislands, q6former_mean_andhra, q6former_mean_arunachal, q6former_mean_assam, q6former_mean_bihar, q6former_mean_chandigarh, q6former_mean_chhattisgarh, q6former_mean_delhi, q6former_mean_dnhdd, q6former_mean_goa, q6former_mean_gujarat, q6former_mean_haryana, q6former_mean_hp, q6former_mean_jharkhand, q6former_mean_jk, q6former_mean_karnataka, q6former_mean_kerala, q6former_mean_ladakh, q6former_mean_lakshadweep, q6former_mean_maharashtra, q6former_mean_manipur, q6former_mean_meghalaya, q6former_mean_mizoram, q6former_mean_mp, q6former_mean_nagaland, q6former_mean_none, q6former_mean_odisha, q6former_mean_puducherry, q6former_mean_punjab, q6former_mean_rajasthan, q6former_mean_sikkim, q6former_mean_telangana, q6former_mean_tn, q6former_mean_tripura, q6former_mean_up, q6former_mean_uttarakhand, q6former_mean_wb)
+
+q6young_plot_dta2 <- data.frame (States_Q6, q6young_plot2) 
+q6old_plot_dta2 <- data.frame (q6old_plot2)
+q6former_plot_dta2 <- data.frame (q6former_plot2)
+
+q6_age_dta2 <- cbind (q6young_plot_dta2, q6old_plot_dta2, q6former_plot_dta2) %>% 
+arrange (desc(q6old_plot_dta2)) %>% 
+rename ("Q6 Percentages (Young, Unbiased)" = q6young_plot2) %>% 
+rename ("Q6 Percentages (Old, Unbiased)" = q6old_plot2) %>% 
+rename ("Q6 Percentages (Former, Unbiased)" = q6former_plot2)
+
 #Question 6, Disaggregated by SDG
 q6aspt_plot1 <- c(q6aspt_weighted_mean_anislands, q6aspt_weighted_mean_andhra, q6aspt_weighted_mean_arunachal, q6aspt_weighted_mean_assam, q6aspt_weighted_mean_bihar, q6aspt_weighted_mean_chandigarh, q6aspt_weighted_mean_chhattisgarh, q6aspt_weighted_mean_delhi, q6aspt_weighted_mean_dnhdd, q6aspt_weighted_mean_goa, q6aspt_weighted_mean_gujarat, q6aspt_weighted_mean_haryana, q6aspt_weighted_mean_hp, q6aspt_weighted_mean_jharkhand, q6aspt_weighted_mean_jk, q6aspt_weighted_mean_karnataka, q6aspt_weighted_mean_kerala, q6aspt_weighted_mean_ladakh, q6aspt_weighted_mean_lakshadweep, q6aspt_weighted_mean_maharashtra, q6aspt_weighted_mean_manipur, q6aspt_weighted_mean_meghalaya, q6aspt_weighted_mean_mizoram, q6aspt_weighted_mean_mp, q6aspt_weighted_mean_nagaland, q6aspt_weighted_mean_none, q6aspt_weighted_mean_odisha, q6aspt_weighted_mean_puducherry, q6aspt_weighted_mean_punjab, q6aspt_weighted_mean_rajasthan, q6aspt_weighted_mean_sikkim, q6aspt_weighted_mean_telangana, q6aspt_weighted_mean_tn, q6aspt_weighted_mean_tripura, q6aspt_weighted_mean_up, q6aspt_weighted_mean_uttarakhand, q6aspt_weighted_mean_wb)
 
@@ -6797,8 +6876,28 @@ rename ("Percentages (Q6 Aspirant)" = q6aspt_plot1) %>%
 rename ("Percentages (Q6 Performer)" = q6perf_plot1) %>% 
 rename ("Percentages (Q6 Frontrunner)" = q6frnt_plot1)
 
+#Question 6: Disaggregated by SDG (accounting for officer's bias)
+q6aspt_plot2 <- c(q6aspt_weighted_mean_anislands, q6aspt_weighted_mean_andhra, q6aspt_weighted_mean_arunachal, q6aspt_weighted_mean_assam, q6aspt_weighted_mean_bihar, q6aspt_weighted_mean_chandigarh, q6aspt_weighted_mean_chhattisgarh, q6aspt_weighted_mean_delhi, q6aspt_weighted_mean_dnhdd, q6aspt_weighted_mean_goa, q6aspt_weighted_mean_gujarat, q6aspt_weighted_mean_haryana, q6aspt_weighted_mean_hp, q6aspt_weighted_mean_jharkhand, q6aspt_weighted_mean_jk, q6aspt_weighted_mean_karnataka, q6aspt_weighted_mean_kerala, q6aspt_weighted_mean_ladakh, q6aspt_weighted_mean_lakshadweep, q6aspt_weighted_mean_maharashtra, q6aspt_weighted_mean_manipur, q6aspt_weighted_mean_meghalaya, q6aspt_weighted_mean_mizoram, q6aspt_weighted_mean_mp, q6aspt_weighted_mean_nagaland, q6aspt_weighted_mean_none, q6aspt_weighted_mean_odisha, q6aspt_weighted_mean_puducherry, q6aspt_weighted_mean_punjab, q6aspt_weighted_mean_rajasthan, q6aspt_weighted_mean_sikkim, q6aspt_weighted_mean_telangana, q6aspt_weighted_mean_tn, q6aspt_weighted_mean_tripura, q6aspt_weighted_mean_up, q6aspt_weighted_mean_uttarakhand, q6aspt_weighted_mean_wb)
+
+q6perf_plot2 <- c(q6perf_weighted_mean_anislands, q6perf_weighted_mean_andhra, q6perf_weighted_mean_arunachal, q6perf_weighted_mean_assam, q6perf_weighted_mean_bihar, q6perf_weighted_mean_chandigarh, q6perf_weighted_mean_chhattisgarh, q6perf_weighted_mean_delhi, q6perf_weighted_mean_dnhdd, q6perf_weighted_mean_goa, q6perf_weighted_mean_gujarat, q6perf_weighted_mean_haryana, q6perf_weighted_mean_hp, q6perf_weighted_mean_jharkhand, q6perf_weighted_mean_jk, q6perf_weighted_mean_karnataka, q6perf_weighted_mean_kerala, q6perf_weighted_mean_ladakh, q6perf_weighted_mean_lakshadweep, q6perf_weighted_mean_maharashtra, q6perf_weighted_mean_manipur, q6perf_weighted_mean_meghalaya, q6perf_weighted_mean_mizoram, q6perf_weighted_mean_mp, q6perf_weighted_mean_nagaland, q6perf_weighted_mean_none, q6perf_weighted_mean_odisha, q6perf_weighted_mean_puducherry, q6perf_weighted_mean_punjab, q6perf_weighted_mean_rajasthan, q6perf_weighted_mean_sikkim, q6perf_weighted_mean_telangana, q6perf_weighted_mean_tn, q6perf_weighted_mean_tripura, q6perf_weighted_mean_up, q6perf_weighted_mean_uttarakhand, q6perf_weighted_mean_wb)
+
+q6frnt_plot2 <- c(q6frnt_weighted_mean_anislands, q6frnt_weighted_mean_andhra, q6frnt_weighted_mean_arunachal, q6frnt_weighted_mean_assam, q6frnt_weighted_mean_bihar, q6frnt_weighted_mean_chandigarh, q6frnt_weighted_mean_chhattisgarh, q6frnt_weighted_mean_delhi, q6frnt_weighted_mean_dnhdd, q6frnt_weighted_mean_goa, q6frnt_weighted_mean_gujarat, q6frnt_weighted_mean_haryana, q6frnt_weighted_mean_hp, q6frnt_weighted_mean_jharkhand, q6frnt_weighted_mean_jk, q6frnt_weighted_mean_karnataka, q6frnt_weighted_mean_kerala, q6frnt_weighted_mean_ladakh, q6frnt_weighted_mean_lakshadweep, q6frnt_weighted_mean_maharashtra, q6frnt_weighted_mean_manipur, q6frnt_weighted_mean_meghalaya, q6frnt_weighted_mean_mizoram, q6frnt_weighted_mean_mp, q6frnt_weighted_mean_nagaland, q6frnt_weighted_mean_none, q6frnt_weighted_mean_odisha, q6frnt_weighted_mean_puducherry, q6frnt_weighted_mean_punjab, q6frnt_weighted_mean_rajasthan, q6frnt_weighted_mean_sikkim, q6frnt_weighted_mean_telangana, q6frnt_weighted_mean_tn, q6frnt_weighted_mean_tripura, q6frnt_weighted_mean_up, q6frnt_weighted_mean_uttarakhand, q6frnt_weighted_mean_wb)
+
+q6aspt_plot_dta2 <- data.frame (States_Q6, q6aspt_plot2) 
+q6perf_plot_dta2 <- data.frame (q6perf_plot2)
+q6frnt_plot_dta2 <- data.frame (q6frnt_plot2)
+
+q6_sdg_dta2 <- cbind (q6aspt_plot_dta2, q6perf_plot_dta2, q6frnt_plot_dta2) %>% 
+arrange (desc(q6perf_plot_dta2)) %>% 
+rename ("Q6 Percentages (Aspirant, Unbiased)" = q6aspt_plot2) %>% 
+rename ("Q6 Percentages (Performer, Unbiased)" = q6perf_plot2) %>% 
+rename ("Q6 Percentages (Frontrunner, Unbiased)" = q6frnt_plot2)
+
+q6_unbiased <- cbind (q6_plot_dta2, q6_age_dta2, q6_sdg_dta2)
+
 write.table (q6_plot_dta1, "/Users/gurkirat/Documents/GitHub/ias-release/q6_plot_dta1.txt", sep = "\t")
 write.table (q6_age_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q6_age_dta.txt", sep = "\t")
 write.table (q6_sdg_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q6_sdg_dta.txt", sep = "\t")
+write.table (q6_unbiased, "/Users/gurkirat/Documents/GitHub/ias-release/q6_unbiased.txt", sep = "\t")
 ```
 
