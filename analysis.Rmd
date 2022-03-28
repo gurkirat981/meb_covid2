@@ -6663,6 +6663,8 @@ q4_plot_dta1 <- data.frame (States_Q4, q4full_plot1) %>%
 arrange (desc(q4full_plot1)) %>% 
 rename ("Aggregate Percentages (Q4)" = q4full_plot1)
 
+States_Q4 <- c("Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh", "Chattisgarh", "NCT of Delhi","Dadra and Nagar Haveli and Daman and Dui", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Jammu and Kashmir", "Karnataka", "Kerala", "Ladakh", "Lakshadweep Islands", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Madhya Pradesh", "Nagaland","No state has performed well", "Odisha", "Puducherry", "Punjab", "Rajasthan", "Sikkim", "Telangana", "Tamil Nadu", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal")
+
 #Question 4, aggregate (accounting for officer's bias)
 q4full_nr_plot <- c(q4full_mean_anislands_nr, q4full_mean_andhra_nr, q4full_mean_arunachal_nr, q4full_mean_assam_nr, q4full_mean_bihar_nr, q4full_mean_chandigarh_nr, q4full_mean_chhattisgarh_nr, q4full_mean_delhi_nr, q4full_mean_dnhdd_nr, q4full_mean_goa_nr, q4full_mean_gujarat_nr, q4full_mean_haryana_nr, q4full_mean_hp_nr, q4full_mean_jharkhand_nr, q4full_mean_jk_nr, q4full_mean_karnataka_nr, q4full_mean_kerala_nr, q4full_mean_ladakh_nr, q4full_mean_lakshadweep_nr, q4full_mean_maharashtra_nr, q4full_mean_manipur_nr, q4full_mean_meghalaya_nr, q4full_mean_mizoram_nr, q4full_mean_mp_nr, q4full_mean_nagaland_nr, q4full_mean_none_nr, q4full_mean_odisha_nr, q4full_mean_puducherry_nr, q4full_mean_punjab_nr, q4full_mean_rajasthan_nr, q4full_mean_sikkim_nr, q4full_mean_telangana_nr, q4full_mean_tn_nr, q4full_mean_tripura_nr, q4full_mean_up_nr, q4full_mean_uttarakhand_nr, q4full_mean_wb_nr)
 
@@ -6745,12 +6747,12 @@ rename ("Q4 Percentages (Aspirant, Unbiased)" = q4aspt_nr_plot) %>%
 rename ("Q4 Percentages (Performer, Unbiased)" = q4perf_nr_plot) %>% 
 rename ("Q4 Percentages (Frontrunner, Unbiased)" = q4frnt_nr_plot)
 
-q4_unbiased <- cbind (q4_plot_dta2, q4_age_dta2, q4_sdg_dta2)
-
 write.table (q4_plot_dta1, "/Users/gurkirat/Documents/GitHub/ias-release/q4_plot_dta1.txt", sep = "\t")
 write.table (q4_age_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q4_age_dta.txt", sep = "\t")
 write.table (q4_sdg_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q4_sdg_dta.txt", sep = "\t")
-write.table (q4_unbiased, "/Users/gurkirat/Documents/GitHub/ias-release/q4_unbiased.txt", sep = "\t")
+write.table (q4_plot_dta2, "/Users/gurkirat/Documents/GitHub/ias-release/q4_plot_dta2.txt", sep = "\t")
+write.table (q4_age_dta2, "/Users/gurkirat/Documents/GitHub/ias-release/q4_age_dta2.txt", sep = "\t")
+write.table (q4_sdg_dta2, "/Users/gurkirat/Documents/GitHub/ias-release/q4_sdg_dta2.txt", sep = "\t")
 ```
 
 ```{r}
@@ -6893,11 +6895,13 @@ rename ("Q6 Percentages (Aspirant, Unbiased)" = q6aspt_plot2) %>%
 rename ("Q6 Percentages (Performer, Unbiased)" = q6perf_plot2) %>% 
 rename ("Q6 Percentages (Frontrunner, Unbiased)" = q6frnt_plot2)
 
-q6_unbiased <- cbind (q6_plot_dta2, q6_age_dta2, q6_sdg_dta2)
 
 write.table (q6_plot_dta1, "/Users/gurkirat/Documents/GitHub/ias-release/q6_plot_dta1.txt", sep = "\t")
 write.table (q6_age_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q6_age_dta.txt", sep = "\t")
 write.table (q6_sdg_dta, "/Users/gurkirat/Documents/GitHub/ias-release/q6_sdg_dta.txt", sep = "\t")
 write.table (q6_unbiased, "/Users/gurkirat/Documents/GitHub/ias-release/q6_unbiased.txt", sep = "\t")
+write.table (q6_plot_dta2, "/Users/gurkirat/Documents/GitHub/ias-release/q6_plot_dta2.txt", sep = "\t")
+write.table (q6_age_dta2, "/Users/gurkirat/Documents/GitHub/ias-release/q6_age_dta2.txt", sep = "\t")
+write.table (q6_sdg_dta2, "/Users/gurkirat/Documents/GitHub/ias-release/q6_sdg_dta2.txt", sep = "\t")
 ```
 
