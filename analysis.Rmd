@@ -2561,20 +2561,42 @@ summary_q6_former_unbiased <- state_answers_q6_former_unbiased %>%
 
 ```{r}
 #Creating a table with responses to Q 4, 5 and 6 for all officers and for unbiased officers 
+
+summary_q4_unweighted<-as.data.frame(t(summary_q4_unweighted)) %>% 
+  rename("q4_prop"=V1)
+
 summary_nr_q4_unweighted<-as.data.frame(t(summary_nr_q4_unweighted)) %>% 
-arrange(desc(q4_unbias_prop))
+arrange(desc(V1))
+
+summary_q5_nonweighted<-as.data.frame(t(summary_q5_nonweighted)) %>% 
+  mutate(V1=round(V1*100, digits=2)) %>%
+  rename("q5_prop"=V1)
 
 summary_q5_unbiased_unweighted<-as.data.frame(t(summary_q5_unbiased_unweighted)) %>%
   mutate(V1=round(V1*100, digits=2)) %>% 
   arrange(desc(V1))
 
+summary_q6_nonweighted<-as.data.frame(t(summary_q6_nonweighted)) %>% 
+  mutate(V1=round(V1*100, digits=2)) %>%
+  rename("q6_prop"=V1)
+
 summary_q6_unbiased<-as.data.frame(t(summary_q6_unbiased)) %>% 
   mutate(V1=round(V1*100, digits=2)) %>% 
   arrange(desc(V1))
 
+b_nw <- cbind (summary_q4_unweighted, summary_q5_nonweighted, summary_q6_nonweighted)
+
+state_responses<-cbind(summary_q4_unweighted, summary_nr_q4_unweighted, summary_q5_nonweighted, summary_q5_unbiased, summary_q6_nonweighted, summary_q6_unbiased) 
+
+state_responses %>%
+  kbl(caption = "Officer responses for Q4, Q5 and Q6")%>%
+  kable_classic(full_width = F, html_font = "Cambria", font_size = 13) %>% 
+  footnote(number = c("Question 4: 241 officers (out of 452) selected their own state", "Question 5: 42 officers (out of 452) selected their own state" ,"Question 6: 117 officers (out of 452) selected their own state"))
+
 write.table (summary_nr_q4_unweighted, "/Users/gurkirat/Documents/GitHub/ias-release/q4_unbiased_unweighted.txt", sep = "\t")
 write.table (summary_q5_unbiased_unweighted, "/Users/gurkirat/Documents/GitHub/ias-release/q5_unbiased_unweighted.txt", sep = "\t")
 write.table (summary_q6_unbiased, "/Users/gurkirat/Documents/GitHub/ias-release/q6_unbiased_unweighted.txt", sep = "\t")
+write.table (b_nw, "/Users/gurkirat/Documents/GitHub/ias-release/b_nw.txt", sep = "\t")
 ```
 \newpage
 
